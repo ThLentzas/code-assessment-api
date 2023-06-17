@@ -34,4 +34,9 @@ public class User {
         this.location = location;
         this.company = company;
     }
+
+    public User(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
 }

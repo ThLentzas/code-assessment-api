@@ -47,22 +47,28 @@ public class AuthService {
         String jwtToken = jwtService.assignToken(userPrincipal);
 
         return new AuthResponse(jwtToken, id);
-
     }
 
     private void validateUser(User user) {
-        validateName(user.getFirstname(), user.getLastname());
+        validateName(user.getFirstname(), user.getLastname(), user.getUsername());
         validateEmail(user.getEmail());
         validatePassword(user.getPassword());
     }
 
-    private void validateName(String firstname, String lastname) {
-        if (!firstname.matches("^[a-zA-Z]*$")) {
-            throw new BadCredentialsException("Invalid firstname. Name should contain only characters");
+    private void validateName(String firstname, String lastname, String username) {
+        if (firstname.length() > 30 || !firstname.matches("^[a-zA-Z]*$")) {
+            throw new BadCredentialsException(
+                    "Invalid firstname. Name should contain only characters and can't be more than 30 characters long");
         }
 
-        if (!lastname.matches("^[a-zA-Z]*$")) {
-            throw new BadCredentialsException("Invalid lastname. Name should contain only characters");
+        if (lastname.length() > 30 || !lastname.matches("^[a-zA-Z]*$")) {
+            throw new BadCredentialsException(
+                    "Invalid lastname. Name should contain only characters and can't be more than 30 characters long");
+        }
+
+        if(username.length() > 30) {
+            throw new BadCredentialsException(
+                    "Invalid username. Username can't be more than 30 characters long");
         }
     }
 
@@ -97,11 +103,8 @@ public class AuthService {
                 || request.lastname() == null || request.lastname().isEmpty()
                 || request.username() == null || request.username().isEmpty()
                 || request.email() == null || request.email().isEmpty()
-                || request.password() == null || request.password().isEmpty()
-                || request.bio() == null || request.bio().isEmpty()
-                || request.location() == null || request.location().isEmpty()
-                || request.company() == null || request.company().isEmpty()) {
-            throw new BadCredentialsException("All fields are necessary");
+                || request.password() == null || request.password().isEmpty()) {
+            throw new BadCredentialsException("Fields are necessary");
         }
     }
 }

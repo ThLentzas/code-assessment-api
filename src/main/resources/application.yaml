@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/code_assessment
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      schema: public
+      connection-timeout: 20000
+      minimum-idle: 2
+
+  flyway:
+    baseline-on-migrate: true
+    enabled: true
+    user: postgres
+    password: postgres
+    baseline-description: "init"
+    baseline-version: 0
+    locations: classpath:db/migration
