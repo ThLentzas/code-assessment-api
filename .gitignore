@@ -1,0 +1,26 @@
+# Compiled class file
+*.class
+
+# IntelliJ IDEA Ignores
+.idea
+*.iws
+*.iml
+*.ipr
+/out
+
+# Maven
+log/
+target/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Other
+.DS_Store
+HELP.md
