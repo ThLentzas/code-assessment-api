@@ -1,6 +1,5 @@
 package gr.aegean.service;
 
-import org.apache.commons.validator.routines.EmailValidator;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.LengthRule;
@@ -14,7 +13,6 @@ import gr.aegean.model.user.User;
 import gr.aegean.model.user.UserPrincipal;
 import gr.aegean.security.auth.AuthResponse;
 import gr.aegean.security.auth.RegisterRequest;
-
 import gr.aegean.exception.BadCredentialsException;
 
 import lombok.RequiredArgsConstructor;
@@ -23,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
     private final UserService userService;
-    private final PasswordEncoder encoder;
+    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
     public AuthResponse register(RegisterRequest request) {
@@ -40,7 +38,7 @@ public class AuthService {
                 request.company());
 
         validateUser(user);
-        user.setPassword(encoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(request.password()));
         UserPrincipal userPrincipal = new UserPrincipal(user);
 
         Integer id = userService.registerUser(user);
@@ -53,39 +51,45 @@ public class AuthService {
         validateName(user.getFirstname(), user.getLastname(), user.getUsername());
         validateEmail(user.getEmail());
         validatePassword(user.getPassword());
+        validateLocation(user.getLocation());
+        validateCompany(user.getCompany());
     }
 
     private void validateName(String firstname, String lastname, String username) {
-        if (firstname.length() > 30 || !firstname.matches("^[a-zA-Z]*$")) {
-            throw new BadCredentialsException(
-                    "Invalid firstname. Name should contain only characters and can't be more than 30 characters long");
+        if (firstname.length() > 30) {
+            throw new BadCredentialsException("Invalid firstname. Too many characters");
         }
 
-        if (lastname.length() > 30 || !lastname.matches("^[a-zA-Z]*$")) {
-            throw new BadCredentialsException(
-                    "Invalid lastname. Name should contain only characters and can't be more than 30 characters long");
+        if (!firstname.matches("^[a-zA-Z]*$")) {
+            throw new BadCredentialsException("Invalid firstname. Name should contain only characters");
         }
 
-        if(username.length() > 30) {
-            throw new BadCredentialsException(
-                    "Invalid username. Username can't be more than 30 characters long");
+        if (lastname.length() > 30) {
+            throw new BadCredentialsException("Invalid lastname. Too many characters");
+        }
+
+        if (!lastname.matches("^[a-zA-Z]*$")) {
+            throw new BadCredentialsException("Invalid lastname. Name should contain only characters");
+        }
+
+        if (username.length() > 30) {
+            throw new BadCredentialsException("Invalid username. Too many characters");
         }
     }
 
-    /**
-     * @throws BadCredentialsException if the email does not match the email pattern.
-     */
     private void validateEmail(String email) {
-        EmailValidator validator = EmailValidator.getInstance();
+        if (email.length() > 50) {
+            throw new BadCredentialsException("Invalid email. Too many characters");
+        }
 
-        if (!validator.isValid(email)) {
+        if (!email.contains("@")) {
             throw new BadCredentialsException("Invalid email");
         }
     }
 
     private void validatePassword(String password) {
         PasswordValidator validator = new PasswordValidator(
-                new LengthRule(8, 30),
+                new LengthRule(8, 128),
                 new CharacterRule(EnglishCharacterData.UpperCase, 1),
                 new CharacterRule(EnglishCharacterData.LowerCase, 1),
                 new CharacterRule(EnglishCharacterData.Digit, 1),
@@ -98,13 +102,37 @@ public class AuthService {
         }
     }
 
+    private void validateLocation(String location) {
+        if(location.length() > 50) {
+            throw new BadCredentialsException("Invalid location. Too many characters");
+        }
+    }
+
+    private void validateCompany(String company) {
+        if(company.length() > 50) {
+            throw new BadCredentialsException("Invalid company. Too many characters");
+        }
+    }
+
     private void validateRegisterRequest(RegisterRequest request) {
-        if (request.firstname() == null || request.firstname().isEmpty()
-                || request.lastname() == null || request.lastname().isEmpty()
-                || request.username() == null || request.username().isEmpty()
-                || request.email() == null || request.email().isEmpty()
-                || request.password() == null || request.password().isEmpty()) {
-            throw new BadCredentialsException("Fields are necessary");
+        if (request.firstname() == null || request.firstname().isEmpty()) {
+            throw new BadCredentialsException("The First Name field is required.");
+        }
+
+        if (request.lastname() == null || request.lastname().isEmpty()) {
+            throw new BadCredentialsException("The Last Name field is required.");
+        }
+
+        if (request.username() == null || request.username().isEmpty()) {
+            throw new BadCredentialsException("The Username field is required.");
+        }
+
+        if (request.email() == null || request.email().isEmpty()) {
+            throw new BadCredentialsException("The Email field is required.");
+        }
+
+        if (request.password() == null || request.password().isEmpty()) {
+            throw new BadCredentialsException("The Password field is required.");
         }
     }
 }

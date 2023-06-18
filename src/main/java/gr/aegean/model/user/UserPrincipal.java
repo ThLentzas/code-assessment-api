@@ -1,23 +1,27 @@
 package gr.aegean.model.user;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Collections;
 
 public class UserPrincipal implements UserDetails {
     private final String email;
     private final String password;
+    private final List<GrantedAuthority> authorities;
 
     public UserPrincipal(User user) {
-        email = user.getEmail();
-        password = user.getPassword();
+        this.email = user.getEmail();
+        this.password = user.getPassword();
+        authorities = Collections.emptyList();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
+        return authorities;
     }
 
     @Override

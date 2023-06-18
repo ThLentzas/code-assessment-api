@@ -17,11 +17,11 @@ public class UserService {
      * @return the ID of the newly registered user for the URI
      */
     public Integer registerUser(User user) {
-        if(userRepository.checkDuplicateEmail(user.getEmail())) {
+        if(userRepository.existsUserWithEmail(user.getEmail())) {
             throw new DuplicateResourceException("The provided email already exists");
         }
 
-        if(userRepository.checkDuplicateUsername(user.getUsername())) {
+        if(userRepository.existsUserWithUsername(user.getUsername())) {
             throw new DuplicateResourceException("The provided username already exists");
         }
 

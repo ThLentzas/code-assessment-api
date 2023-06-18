@@ -1,5 +1,6 @@
 package gr.aegean.service;
 
+import gr.aegean.model.user.UserPrincipal;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -7,8 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-
-import gr.aegean.model.user.UserPrincipal;
 
 import lombok.RequiredArgsConstructor;
 

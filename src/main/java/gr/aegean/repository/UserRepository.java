@@ -1,7 +1,5 @@
 package gr.aegean.repository;
 
-import gr.aegean.model.user.UserPrincipal;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -12,8 +10,6 @@ import java.sql.Statement;
 import java.util.Map;
 
 import gr.aegean.model.user.User;
-import gr.aegean.exception.BadCredentialsException;
-import gr.aegean.mapper.UserRowMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,8 +22,7 @@ public class UserRepository {
      * @return the ID of the newly created user that will be used for the URI.
      */
     public Integer registerUser(User user) {
-        final String sql = "INSERT INTO app_user (" +
-                "first_name, " +
+        final String sql = "INSERT INTO app_user (" + "first_name, " +
                 "last_name, " +
                 "username, " +
                 "email, " +
@@ -62,17 +57,22 @@ public class UserRepository {
         return id;
     }
 
-    public boolean checkDuplicateEmail(String email) {
+    public boolean existsUserWithEmail(String email) {
         final String sql = "SELECT COUNT(*) FROM app_user WHERE email = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, email);
 
         return count != null && count > 0;
     }
 
-    public boolean checkDuplicateUsername(String username) {
+    public boolean existsUserWithUsername(String username) {
         final String sql = "SELECT COUNT(*) FROM app_user WHERE username = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, username);
 
         return count != null && count > 0;
+    }
+
+    public void deleteAllUsers() {
+        final String sql = "DELETE FROM app_user";
+        jdbcTemplate.update(sql);
     }
 }

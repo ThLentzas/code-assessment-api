@@ -1,10 +1,12 @@
 package gr.aegean.model.user;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class User {
     private Integer id;
     private String firstname;
@@ -16,15 +18,14 @@ public class User {
     private String location;
     private String company;
 
-    public User(
-            String firstname,
-            String lastname,
-            String username,
-            String email,
-            String password,
-            String bio,
-            String location,
-            String company) {
+    public User(String firstname,
+                String lastname,
+                String username,
+                String email,
+                String password,
+                String bio,
+                String location,
+                String company) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.username = username;
