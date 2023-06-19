@@ -8,18 +8,8 @@ import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import gr.aegean.exception.BadCredentialsException;
-import gr.aegean.model.user.User;
-import gr.aegean.model.user.UserPrincipal;
-import gr.aegean.security.auth.AuthResponse;
-import gr.aegean.security.auth.RegisterRequest;
 import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
-
-import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -27,6 +17,14 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import gr.aegean.exception.BadCredentialsException;
+import gr.aegean.model.user.User;
+import gr.aegean.model.user.UserPrincipal;
+import gr.aegean.security.auth.AuthResponse;
+import gr.aegean.security.auth.RegisterRequest;
+
+import java.util.Random;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -338,6 +336,7 @@ class AuthServiceTest {
 
     @Test
     void shouldThrowBadCredentialsExceptionWhenRegisterEmailExceedsMaxLength() {
+        //Arrange
         Random random = new Random();
         RegisterRequest request = new RegisterRequest(
                 "Test",
@@ -358,6 +357,7 @@ class AuthServiceTest {
 
     @Test
     void shouldThrowBadCredentialsExceptionWhenRegisterEmailDoesNotContainAtSymbol() {
+        //Arrange
         RegisterRequest request = new RegisterRequest(
                 "Test",
                 "Test",
@@ -377,6 +377,7 @@ class AuthServiceTest {
 
     @Test
     void shouldThrowBadCredentialsExceptionWhenRegisterLocationExceedsMaxLength() {
+        //Arrange
         Random random = new Random();
         RegisterRequest request = new RegisterRequest(
                 "Test",
@@ -397,6 +398,7 @@ class AuthServiceTest {
 
     @Test
     void shouldThrowBadCredentialsExceptionWhenRegisterCompanyExceedsMaxLength() {
+        //Arrange
         Random random = new Random();
         RegisterRequest request = new RegisterRequest(
                 "Test",
