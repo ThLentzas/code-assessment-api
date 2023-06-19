@@ -1,11 +1,16 @@
 package gr.aegean.service;
 
+import gr.aegean.exception.UnauthorizedException;
+import gr.aegean.security.auth.AuthRequest;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.LengthRule;
 import org.passay.PasswordData;
 import org.passay.PasswordValidator;
 import org.passay.RuleResult;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +28,7 @@ public class AuthService {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
 
     public AuthResponse register(RegisterRequest request) {
         validateRegisterRequest(request);
@@ -45,6 +51,23 @@ public class AuthService {
         String jwtToken = jwtService.assignToken(userPrincipal);
 
         return new AuthResponse(jwtToken, id);
+    }
+
+    public AuthResponse authenticate(AuthRequest request) {
+        validateAuthRequest(request);
+
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+        } catch (Exception e) {
+            throw new UnauthorizedException("Username or password is incorrect");
+        }
+
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        String jwtToken = jwtService.assignToken(userPrincipal);
+
+        return new AuthResponse(jwtToken);
     }
 
     private void validateUser(User user) {
@@ -133,6 +156,13 @@ public class AuthService {
 
         if (request.password() == null || request.password().isEmpty()) {
             throw new BadCredentialsException("The Password field is required.");
+        }
+    }
+
+    private void validateAuthRequest(AuthRequest request) {
+        if (request.email() == null || request.email().isEmpty()
+                || request.password() == null || request.password().isEmpty()) {
+            throw new BadCredentialsException("All fields are necessary");
         }
     }
 }

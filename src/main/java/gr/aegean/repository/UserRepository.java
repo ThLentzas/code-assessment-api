@@ -1,5 +1,10 @@
 package gr.aegean.repository;
 
+import gr.aegean.exception.BadCredentialsException;
+import gr.aegean.exception.UnauthorizedException;
+import gr.aegean.mapper.UserRowMapper;
+import gr.aegean.model.user.UserPrincipal;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -22,7 +27,8 @@ public class UserRepository {
      * @return the ID of the newly created user that will be used for the URI.
      */
     public Integer registerUser(User user) {
-        final String sql = "INSERT INTO app_user (" + "first_name, " +
+        final String sql = "INSERT INTO app_user (" +
+                "first_name, " +
                 "last_name, " +
                 "username, " +
                 "email, " +
@@ -55,6 +61,26 @@ public class UserRepository {
         }
 
         return id;
+    }
+
+    /**
+     * This method will be used by UsersDetailsService for the user authentication.
+     */
+    public UserPrincipal findUserByEmail(String email) {
+        final String sql = "SELECT email, password FROM app_user WHERE email = ?";
+        User user;
+        UserPrincipal userPrincipal = null;
+
+        try {
+            user = jdbcTemplate.queryForObject(sql, new UserRowMapper(), email);
+            if(user != null) {
+                userPrincipal = new UserPrincipal(user);
+            }
+        } catch (EmptyResultDataAccessException erda) {
+            throw new UnauthorizedException("Username or password is incorrect");
+        }
+
+        return userPrincipal;
     }
 
     public boolean existsUserWithEmail(String email) {

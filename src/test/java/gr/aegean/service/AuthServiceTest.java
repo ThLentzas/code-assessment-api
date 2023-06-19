@@ -1,5 +1,7 @@
 package gr.aegean.service;
 
+import gr.aegean.exception.UnauthorizedException;
+import gr.aegean.security.auth.AuthRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,6 +10,8 @@ import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
 
@@ -34,11 +38,13 @@ class AuthServiceTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private JwtService jwtService;
+    @Mock
+    private AuthenticationManager authenticationManager;
     private AuthService underTest;
 
     @BeforeEach
     void setup() {
-        underTest = new AuthService(userService, passwordEncoder, jwtService);
+        underTest = new AuthService(userService, passwordEncoder, jwtService, authenticationManager);
     }
 
     @Test
@@ -87,7 +93,7 @@ class AuthServiceTest {
     @ParameterizedTest
     @NullSource
     @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenRequestFirstnameIsNullOrEmpty(String firstname) {
+    void shouldThrowBadCredentialsExceptionWhenRegisterFirstnameIsNullOrEmpty(String firstname) {
         //Arrange
         RegisterRequest request = new RegisterRequest(
                 firstname,
@@ -109,7 +115,7 @@ class AuthServiceTest {
     @ParameterizedTest
     @NullSource
     @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenRequestLastnameIsNullOrEmpty(String lastname) {
+    void shouldThrowBadCredentialsExceptionWhenRegisterLastnameIsNullOrEmpty(String lastname) {
         //Arrange
         RegisterRequest request = new RegisterRequest(
                 "Test",
@@ -131,7 +137,7 @@ class AuthServiceTest {
     @ParameterizedTest
     @NullSource
     @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenRequestUsernameIsNullOrEmpty(String username) {
+    void shouldThrowBadCredentialsExceptionWhenRegisterUsernameIsNullOrEmpty(String username) {
         //Arrange
         RegisterRequest request = new RegisterRequest(
                 "Test",
@@ -153,7 +159,7 @@ class AuthServiceTest {
     @ParameterizedTest
     @NullSource
     @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenRequestEmailIsNullOrEmpty(String email) {
+    void shouldThrowBadCredentialsExceptionWhenRegisterEmailIsNullOrEmpty(String email) {
         //Arrange
         RegisterRequest request = new RegisterRequest(
                 "Test",
@@ -175,7 +181,7 @@ class AuthServiceTest {
     @ParameterizedTest
     @NullSource
     @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenRequestPasswordIsNullOrEmpty(String password) {
+    void shouldThrowBadCredentialsExceptionWhenRegisterPasswordIsNullOrEmpty(String password) {
         //Arrange
         RegisterRequest request = new RegisterRequest(
                 "Test",
@@ -415,6 +421,53 @@ class AuthServiceTest {
         assertThatThrownBy(() -> underTest.register(request))
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("Invalid company. Too many characters");
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @EmptySource
+    void shouldThrowBadCredentialsExceptionWhenAuthEmailIsNullOrEmpty(String email) {
+        //Arrange
+        AuthRequest request = new AuthRequest(email, "password");
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.authenticate(request))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessage("All fields are necessary");
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @EmptySource
+    void shouldThrowBadCredentialsExceptionWhenAuthPasswordIsNullOrEmpty(String password) {
+        //Arrange
+        AuthRequest request = new AuthRequest("test@example.com", password);
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.authenticate(request))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessage("All fields are necessary");
+    }
+
+    //When authenticate from authentication manager fails it will throw either spring.security.BadCredentialsException
+    //if password is wrong or EmptyResultDataAccessException if the user's email doesn't exist. In any case both are run
+    //time exceptions.
+    @Test
+    void shouldThrowBadCredentialsExceptionWhenAuthEmailOrPasswordIsWrong() {
+        //Arrange
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenThrow(new RuntimeException());
+
+        //Act
+        AuthRequest request = new AuthRequest("test@example.com", "password");
+
+        //Assert
+        assertThatThrownBy(() -> underTest.authenticate(request))
+                .isInstanceOf(UnauthorizedException.class)
+                .hasMessage("Username or password is incorrect");
+
+        verify(authenticationManager).authenticate(
+                new UsernamePasswordAuthenticationToken(request.email(), request.password()));
     }
 
     private String generateRandomString(int length) {

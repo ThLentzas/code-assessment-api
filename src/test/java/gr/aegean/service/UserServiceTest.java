@@ -59,7 +59,7 @@ class UserServiceTest extends AbstractTestContainers{
 
         //Act
         underTest.registerUser(user1);
-        user2.setEmail("test2@gmail.com");
+        user2.setEmail("test2@example.com");
 
         //Assert
         assertThatThrownBy(() -> underTest.registerUser(user2))
@@ -73,7 +73,7 @@ class UserServiceTest extends AbstractTestContainers{
                 "Test",
                 "Test",
                 "TestT",
-                "test@gmail.com",
+                "test@example.com",
                 passwordEncoder.encode("test"),
                 "I have a real passion for teaching",
                 "Cleveland, OH",

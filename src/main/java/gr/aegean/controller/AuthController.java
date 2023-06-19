@@ -1,5 +1,6 @@
 package gr.aegean.controller;
 
+import gr.aegean.security.auth.AuthRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,5 +41,15 @@ public class AuthController {
         headers.setLocation(location);
 
         return new ResponseEntity<>(authResponse, headers, HttpStatus.CREATED);
+    }
+
+    /**
+     * @return a ResponseEntity containing the authentication token.
+     */
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthRequest request) {
+        AuthResponse authResponse = authService.authenticate(request);
+
+        return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
 }
