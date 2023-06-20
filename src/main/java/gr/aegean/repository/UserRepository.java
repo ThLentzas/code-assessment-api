@@ -65,7 +65,7 @@ public class UserRepository {
      * This method will be used by UsersDetailsService for the user authentication.
      */
     public User findUserByEmail(String email) {
-        final String sql = "SELECT email, password FROM app_user WHERE email = ?";
+        final String sql = "SELECT id, email, password, username FROM app_user WHERE email = ?";
         User user;
 
         try {

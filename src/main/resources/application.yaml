@@ -17,3 +17,15 @@ spring:
     baseline-description: "init"
     baseline-version: 0
     locations: classpath:db/migration
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: jarvis.email.from@gmail.com
+    password: xkhojbxozcysmiwg
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

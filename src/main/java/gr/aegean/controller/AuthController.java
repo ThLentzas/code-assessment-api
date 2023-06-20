@@ -1,6 +1,9 @@
 package gr.aegean.controller;
 
+import gr.aegean.model.user.User;
 import gr.aegean.security.auth.AuthRequest;
+import gr.aegean.security.auth.PasswordResetRequest;
+import gr.aegean.service.PasswordResetService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +26,7 @@ import java.net.URI;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final AuthService authService;
+    private final PasswordResetService passwordResetService;
 
     /**
      * @return a ResponseEntity containing the authentication token.
@@ -51,5 +55,10 @@ public class AuthController {
         AuthResponse authResponse = authService.authenticate(request);
 
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
+    }
+
+    @PostMapping("/password_reset")
+    public void authenticate(@RequestBody PasswordResetRequest passwordResetRequest) {
+        passwordResetService.createPasswordResetRequest(passwordResetRequest);
     }
 }
