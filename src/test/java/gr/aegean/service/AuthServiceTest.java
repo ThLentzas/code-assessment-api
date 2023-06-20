@@ -1,7 +1,5 @@
 package gr.aegean.service;
 
-import gr.aegean.exception.UnauthorizedException;
-import gr.aegean.security.auth.AuthRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,11 +20,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.model.user.User;
-import gr.aegean.model.user.UserPrincipal;
+import gr.aegean.mapper.UserDTOMapper;
+import gr.aegean.model.user.UserDTO;
 import gr.aegean.security.auth.AuthResponse;
+import gr.aegean.security.auth.AuthRequest;
 import gr.aegean.security.auth.RegisterRequest;
+import gr.aegean.exception.UnauthorizedException;
+import gr.aegean.exception.BadCredentialsException;
 
 import java.util.Random;
 
@@ -40,11 +41,17 @@ class AuthServiceTest {
     private JwtService jwtService;
     @Mock
     private AuthenticationManager authenticationManager;
+    private final UserDTOMapper userDTOMapper = new UserDTOMapper();
     private AuthService underTest;
 
     @BeforeEach
     void setup() {
-        underTest = new AuthService(userService, passwordEncoder, jwtService, authenticationManager);
+        underTest = new AuthService(
+                userService,
+                passwordEncoder,
+                jwtService,
+                authenticationManager,
+                userDTOMapper);
     }
 
     @Test
@@ -76,7 +83,7 @@ class AuthServiceTest {
 
         when(passwordEncoder.encode(user.getPassword())).thenReturn("hashedPassword");
         when(userService.registerUser(any(User.class))).thenReturn(generatedID);
-        when(jwtService.assignToken(any(UserPrincipal.class))).thenReturn(jwtToken);
+        when(jwtService.assignToken(any(UserDTO.class))).thenReturn(jwtToken);
 
         //Act
         AuthResponse authResponse = underTest.register(request);
@@ -87,8 +94,32 @@ class AuthServiceTest {
 
         verify(passwordEncoder, times(1)).encode(user.getPassword());
         verify(userService, times(1)).registerUser(any(User.class));
-        verify(jwtService, times(1)).assignToken(any(UserPrincipal.class));
+        verify(jwtService, times(1)).assignToken(any(UserDTO.class));
     }
+
+    @Test
+    void shouldAuthenticateUserAndReturnJwtToken() {
+        //Arrange
+        AuthRequest authRequest = new AuthRequest("test@gmail.com", "test");
+        User user = new User(authRequest.email(), authRequest.password());
+
+        String jwtToken = "jwtToken";
+
+        when(jwtService.assignToken(any(UserDTO.class))).thenReturn(jwtToken);
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(
+                new UsernamePasswordAuthenticationToken(user, "test"));
+
+        //Act
+        AuthResponse authResponse = underTest.authenticate(authRequest);
+
+        //Assert
+        assertThat(authResponse.getToken()).isEqualTo(jwtToken);
+
+        verify(jwtService, times(1)).assignToken(any(UserDTO.class));
+        verify(authenticationManager, times(1)).authenticate(
+                any(UsernamePasswordAuthenticationToken.class));
+    }
+
 
     @ParameterizedTest
     @NullSource

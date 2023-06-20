@@ -1,7 +1,5 @@
 package gr.aegean.service;
 
-import gr.aegean.exception.UnauthorizedException;
-import gr.aegean.security.auth.AuthRequest;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.LengthRule;
@@ -15,10 +13,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import gr.aegean.model.user.User;
-import gr.aegean.model.user.UserPrincipal;
+import gr.aegean.mapper.UserDTOMapper;
+import gr.aegean.model.user.UserDTO;
 import gr.aegean.security.auth.AuthResponse;
 import gr.aegean.security.auth.RegisterRequest;
 import gr.aegean.exception.BadCredentialsException;
+import gr.aegean.exception.UnauthorizedException;
+import gr.aegean.security.auth.AuthRequest;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +30,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserDTOMapper userDTOMapper;
 
     public AuthResponse register(RegisterRequest request) {
         validateRegisterRequest(request);
@@ -45,10 +47,10 @@ public class AuthService {
 
         validateUser(user);
         user.setPassword(passwordEncoder.encode(request.password()));
-        UserPrincipal userPrincipal = new UserPrincipal(user);
+        UserDTO userDTO = userDTOMapper.apply(user);
 
         Integer id = userService.registerUser(user);
-        String jwtToken = jwtService.assignToken(userPrincipal);
+        String jwtToken = jwtService.assignToken(userDTO);
 
         return new AuthResponse(jwtToken, id);
     }
@@ -64,8 +66,9 @@ public class AuthService {
             throw new UnauthorizedException("Username or password is incorrect");
         }
 
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        String jwtToken = jwtService.assignToken(userPrincipal);
+        User principal = (User) authentication.getPrincipal();
+        UserDTO userDTO = userDTOMapper.apply(principal);
+        String jwtToken = jwtService.assignToken(userDTO);
 
         return new AuthResponse(jwtToken);
     }
@@ -126,13 +129,13 @@ public class AuthService {
     }
 
     private void validateLocation(String location) {
-        if(location.length() > 50) {
+        if (location.length() > 50) {
             throw new BadCredentialsException("Invalid location. Too many characters");
         }
     }
 
     private void validateCompany(String company) {
-        if(company.length() > 50) {
+        if (company.length() > 50) {
             throw new BadCredentialsException("Invalid company. Too many characters");
         }
     }

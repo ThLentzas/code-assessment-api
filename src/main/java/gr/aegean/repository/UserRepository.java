@@ -1,9 +1,5 @@
 package gr.aegean.repository;
 
-import gr.aegean.exception.BadCredentialsException;
-import gr.aegean.exception.UnauthorizedException;
-import gr.aegean.mapper.UserRowMapper;
-import gr.aegean.model.user.UserPrincipal;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -15,6 +11,8 @@ import java.sql.Statement;
 import java.util.Map;
 
 import gr.aegean.model.user.User;
+import gr.aegean.exception.UnauthorizedException;
+import gr.aegean.mapper.UserRowMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -66,21 +64,17 @@ public class UserRepository {
     /**
      * This method will be used by UsersDetailsService for the user authentication.
      */
-    public UserPrincipal findUserByEmail(String email) {
+    public User findUserByEmail(String email) {
         final String sql = "SELECT email, password FROM app_user WHERE email = ?";
         User user;
-        UserPrincipal userPrincipal = null;
 
         try {
             user = jdbcTemplate.queryForObject(sql, new UserRowMapper(), email);
-            if(user != null) {
-                userPrincipal = new UserPrincipal(user);
-            }
         } catch (EmptyResultDataAccessException erda) {
             throw new UnauthorizedException("Username or password is incorrect");
         }
 
-        return userPrincipal;
+        return user;
     }
 
     public boolean existsUserWithEmail(String email) {
