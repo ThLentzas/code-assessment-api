@@ -1,5 +1,6 @@
 package gr.aegean.config;
 
+import gr.aegean.exception.UnauthorizedException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,7 +27,8 @@ public class AuthConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return userRepository::findUserByEmail;
+        return email -> userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new UnauthorizedException("Username or password is incorrect"));
     }
 
     @Bean

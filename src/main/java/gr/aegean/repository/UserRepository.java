@@ -1,5 +1,6 @@
 package gr.aegean.repository;
 
+import gr.aegean.exception.ResourceNotFoundException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -8,13 +9,17 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import gr.aegean.model.user.User;
 import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.mapper.UserRowMapper;
 
 import lombok.RequiredArgsConstructor;
+
+import javax.swing.text.html.Option;
 
 @RequiredArgsConstructor
 @Repository
@@ -61,24 +66,38 @@ public class UserRepository {
         return id;
     }
 
+    public void updatePassword(Integer userId, String updatedPassword) {
+        final String sql = "UPDATE app_user SET password = ? WHERE id = ?";
+        int update = jdbcTemplate.update(sql, updatedPassword, userId);
+
+        if(update != 1) {
+            throw new ResourceNotFoundException("No user was found with the provided id");
+        }
+    }
+
     /**
      * This method will be used by UsersDetailsService for the user authentication.
      */
-    public User findUserByEmail(String email) {
+    public Optional<User> findUserByEmail(String email) {
         final String sql = "SELECT id, email, password, username FROM app_user WHERE email = ?";
-        User user;
 
-        try {
-            user = jdbcTemplate.queryForObject(sql, new UserRowMapper(), email);
-        } catch (EmptyResultDataAccessException erda) {
-            throw new UnauthorizedException("Username or password is incorrect");
-        }
+        List<User> users = jdbcTemplate.query(sql, new UserRowMapper(), email);
 
-        return user;
+        return users.stream().findFirst();
+    }
+
+
+    public Optional<User> findUserByUserId(Integer userId) {
+        final String sql = "SELECT id, email, password, username FROM app_user WHERE id = ?";
+
+        List<User> users = jdbcTemplate.query(sql, new UserRowMapper(), userId);
+
+        return users.stream().findFirst();
     }
 
     public boolean existsUserWithEmail(String email) {
         final String sql = "SELECT COUNT(*) FROM app_user WHERE email = ?";
+
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, email);
 
         return count != null && count > 0;
@@ -86,6 +105,7 @@ public class UserRepository {
 
     public boolean existsUserWithUsername(String username) {
         final String sql = "SELECT COUNT(*) FROM app_user WHERE username = ?";
+
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, username);
 
         return count != null && count > 0;
@@ -93,6 +113,7 @@ public class UserRepository {
 
     public void deleteAllUsers() {
         final String sql = "DELETE FROM app_user";
+
         jdbcTemplate.update(sql);
     }
 }

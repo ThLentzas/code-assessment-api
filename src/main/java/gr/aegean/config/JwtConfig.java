@@ -1,5 +1,6 @@
 package gr.aegean.config;
 
+import gr.aegean.exception.ServerErrorException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -25,8 +26,15 @@ public class JwtConfig {
     private final RSAPublicKey publicKey;
     private final RSAPrivateKey privateKey;
 
-    public JwtConfig() throws NoSuchAlgorithmException {
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+    public JwtConfig(){
+        KeyPairGenerator keyPairGenerator;
+
+        try {
+            keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        } catch (NoSuchAlgorithmException sae) {
+            throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
+                    "request. Please try again later.");
+        }
 
         keyPairGenerator.initialize(2048);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
@@ -34,6 +42,7 @@ public class JwtConfig {
         publicKey = (RSAPublicKey) keyPair.getPublic();
         privateKey = (RSAPrivateKey) keyPair.getPrivate();
     }
+
     @Bean
     public JwtEncoder jwtEncoder() {
         JWK jwk = new RSAKey

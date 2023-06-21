@@ -45,7 +45,7 @@ public class AuthService {
                 request.location(),
                 request.company());
 
-        validateUser(user);
+        userService.validateUser(user);
         user.setPassword(passwordEncoder.encode(request.password()));
         UserDTO userDTO = userDTOMapper.apply(user);
 
@@ -71,73 +71,6 @@ public class AuthService {
         String jwtToken = jwtService.assignToken(userDTO);
 
         return new AuthResponse(jwtToken);
-    }
-
-    private void validateUser(User user) {
-        validateName(user.getFirstname(), user.getLastname(), user.getUsername());
-        validateEmail(user.getEmail());
-        validatePassword(user.getPassword());
-        validateLocation(user.getLocation());
-        validateCompany(user.getCompany());
-    }
-
-    private void validateName(String firstname, String lastname, String username) {
-        if (firstname.length() > 30) {
-            throw new BadCredentialsException("Invalid firstname. Too many characters");
-        }
-
-        if (!firstname.matches("^[a-zA-Z]*$")) {
-            throw new BadCredentialsException("Invalid firstname. Name should contain only characters");
-        }
-
-        if (lastname.length() > 30) {
-            throw new BadCredentialsException("Invalid lastname. Too many characters");
-        }
-
-        if (!lastname.matches("^[a-zA-Z]*$")) {
-            throw new BadCredentialsException("Invalid lastname. Name should contain only characters");
-        }
-
-        if (username.length() > 30) {
-            throw new BadCredentialsException("Invalid username. Too many characters");
-        }
-    }
-
-    private void validateEmail(String email) {
-        if (email.length() > 50) {
-            throw new BadCredentialsException("Invalid email. Too many characters");
-        }
-
-        if (!email.contains("@")) {
-            throw new BadCredentialsException("Invalid email");
-        }
-    }
-
-    private void validatePassword(String password) {
-        PasswordValidator validator = new PasswordValidator(
-                new LengthRule(8, 128),
-                new CharacterRule(EnglishCharacterData.UpperCase, 1),
-                new CharacterRule(EnglishCharacterData.LowerCase, 1),
-                new CharacterRule(EnglishCharacterData.Digit, 1),
-                new CharacterRule(EnglishCharacterData.Special, 1)
-        );
-
-        RuleResult result = validator.validate(new PasswordData(password));
-        if (!result.isValid()) {
-            throw new BadCredentialsException(validator.getMessages(result).get(0));
-        }
-    }
-
-    private void validateLocation(String location) {
-        if (location.length() > 50) {
-            throw new BadCredentialsException("Invalid location. Too many characters");
-        }
-    }
-
-    private void validateCompany(String company) {
-        if (company.length() > 50) {
-            throw new BadCredentialsException("Invalid company. Too many characters");
-        }
     }
 
     private void validateRegisterRequest(RegisterRequest request) {
