@@ -1,7 +1,6 @@
 package gr.aegean.service;
 
 import gr.aegean.exception.BadCredentialsException;
-import gr.aegean.exception.ServerErrorException;
 import gr.aegean.model.user.User;
 import gr.aegean.repository.PasswordResetRepository;
 import gr.aegean.repository.UserRepository;
@@ -10,15 +9,12 @@ import gr.aegean.security.password.PasswordResetRequest;
 import gr.aegean.security.password.PasswordResetResult;
 import gr.aegean.security.password.PasswordResetToken;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
 
-import org.bouncycastle.util.encoders.Hex;
+import gr.aegean.utility.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,56 +29,70 @@ public class PasswordResetService {
     private final PasswordResetRepository passwordResetRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public PasswordResetResult createPasswordResetRequest(PasswordResetRequest passwordResetRequest) {
-        Optional<User> optionalUser = validatePasswordResetRequest(passwordResetRequest);
+    public PasswordResetResult createPasswordResetToken(PasswordResetRequest passwordResetRequest) {
+        validatePasswordResetRequest(passwordResetRequest);
 
-        if(optionalUser.isPresent()) {
+        Optional<User> optionalUser = userRepository.findUserByEmail(passwordResetRequest.email());
+        if (optionalUser.isPresent()) {
             User user = optionalUser.get();
 
             String token = generateToken();
             LocalDateTime expiryDate = LocalDateTime.now().plusHours(2);
-            String hashedToken = hashToken(token);
+            String hashedToken = StringUtils.hashToken(token);
             PasswordResetToken passwordResetToken = new PasswordResetToken(user.getId(), hashedToken, expiryDate);
-            passwordResetRepository.createPasswordResetRequest(passwordResetToken);
+            passwordResetRepository.createPasswordResetToken(passwordResetToken);
 
-            emailService.sendPasswordResetLinkEmail(passwordResetRequest.username(), token);
+            emailService.sendPasswordResetLinkEmail(passwordResetRequest.email(), token);
         }
 
         return new PasswordResetResult("If your email address exists in our database, you will receive a password " +
                 "recovery link at your email address in a few minutes.");
     }
 
-    public PasswordResetToken validatePasswordResetToken(String token) {
-        String hashedToken = hashToken(token);
+    public void validatePasswordResetToken(String token) {
+        if (token == null || token.isEmpty()) {
+            throw new BadCredentialsException("Reset password token is invalid");
+        }
+
+        String hashedToken = StringUtils.hashToken(token);
         Optional<PasswordResetToken> optionalPasswordResetToken = passwordResetRepository
                 .findPasswordResetToken(hashedToken);
         PasswordResetToken passwordResetToken = optionalPasswordResetToken
                 .orElseThrow(() -> new BadCredentialsException("Reset password token is invalid"));
 
-        if(passwordResetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+        if (passwordResetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
             throw new BadCredentialsException("The password reset link has expired. Please request a new one.");
         }
-
-        return passwordResetToken;
     }
 
     public void resetPassword(PasswordResetConfirmationRequest resetConfirmationRequest) {
         //validate the token
-        PasswordResetToken passwordResetToken = validatePasswordResetToken(resetConfirmationRequest.token());
+        validatePasswordResetToken(resetConfirmationRequest.token());
 
         //validate/hash the updated password
         userService.validatePassword(resetConfirmationRequest.updatedPassword());
         String hashedPassword = passwordEncoder.encode(resetConfirmationRequest.updatedPassword());
 
         //update the password in db and delete the password reset token record after
-        userRepository.updatePassword(passwordResetToken.getUserId(), hashedPassword);
-        String hashToken = hashToken(resetConfirmationRequest.token());
-        passwordResetRepository.deletePasswordResetToken(hashToken);
+        String hashedToken = StringUtils.hashToken(resetConfirmationRequest.token());
+        Optional<PasswordResetToken> optionalPasswordResetToken = passwordResetRepository
+                .findPasswordResetToken(hashedToken);
 
-        //send confirmation email
-        Optional<User> optionalUser = userRepository.findUserByUserId(passwordResetToken.getUserId());
+        if (optionalPasswordResetToken.isPresent()) {
+            PasswordResetToken passwordResetToken = optionalPasswordResetToken.get();
 
-        if(optionalUser.isPresent()) {
+            userRepository.updatePassword(passwordResetToken.getUserId(), hashedPassword);
+            passwordResetRepository.deletePasswordResetToken(hashedToken);
+
+            //send confirmation email
+            sendConfirmationEmail(passwordResetToken.getUserId());
+        }
+    }
+
+    private void sendConfirmationEmail(Integer userId) {
+        Optional<User> optionalUser = userRepository.findUserByUserId(userId);
+
+        if (optionalUser.isPresent()) {
             User user = optionalUser.get();
 
             emailService.sendPasswordResetConfirmationEmail(user.getEmail(), user.getUsername());
@@ -98,21 +108,9 @@ public class PasswordResetService {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
     }
 
-    private String hashToken(String token) {
-        byte[] hash;
-
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
-        } catch (NoSuchAlgorithmException sae) {
-            throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
-                    "request. Please try again later.");
+    private void validatePasswordResetRequest(PasswordResetRequest passwordResetRequest) {
+        if (passwordResetRequest.email() == null || passwordResetRequest.email().isEmpty()) {
+            throw new BadCredentialsException("The Email field is required.");
         }
-
-        return new String(Hex.encode(hash));
-    }
-
-    private Optional<User> validatePasswordResetRequest(PasswordResetRequest passwordResetRequest) {
-        return userRepository.findUserByEmail(passwordResetRequest.email());
     }
 }

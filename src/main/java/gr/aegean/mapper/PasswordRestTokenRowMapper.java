@@ -19,6 +19,7 @@ public class PasswordRestTokenRowMapper implements RowMapper<PasswordResetToken>
 
         return new PasswordResetToken(
                 resultSet.getInt("user_id"),
+                resultSet.getString("reset_token"),
                 expiryDate
         );
     }

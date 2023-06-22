@@ -267,6 +267,7 @@ class UserServiceTest extends AbstractTestContainers{
                 "Code Monkey, LLC"
         );
 
+        //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("Invalid bio. Too many characters");
@@ -313,7 +314,6 @@ class UserServiceTest extends AbstractTestContainers{
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("Invalid company. Too many characters");
     }
-
 
     private User generateUser() {
         return new User(

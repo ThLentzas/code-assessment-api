@@ -11,14 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import gr.aegean.model.user.User;
 import gr.aegean.mapper.UserDTOMapper;
@@ -29,7 +21,13 @@ import gr.aegean.security.auth.RegisterRequest;
 import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.exception.BadCredentialsException;
 
-import java.util.Random;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {

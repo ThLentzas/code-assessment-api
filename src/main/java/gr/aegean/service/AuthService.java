@@ -1,17 +1,5 @@
 package gr.aegean.service;
 
-import org.passay.CharacterRule;
-import org.passay.EnglishCharacterData;
-import org.passay.LengthRule;
-import org.passay.PasswordData;
-import org.passay.PasswordValidator;
-import org.passay.RuleResult;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import gr.aegean.model.user.User;
 import gr.aegean.mapper.UserDTOMapper;
 import gr.aegean.model.user.UserDTO;
@@ -20,6 +8,12 @@ import gr.aegean.security.auth.RegisterRequest;
 import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.security.auth.AuthRequest;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 

@@ -1,6 +1,5 @@
 package gr.aegean.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -9,10 +8,13 @@ import org.springframework.stereotype.Service;
 
 import gr.aegean.exception.ServerErrorException;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class EmailService {
-    @Autowired
-    private JavaMailSender mailSender;
+
+    private final JavaMailSender mailSender;
 
     public void sendPasswordResetLinkEmail(String receiver, String token) {
         String resetLink= Link.of("http://localhost:8080/api/v1/auth/password_reset?token=" + token).toString();
@@ -20,15 +22,15 @@ public class EmailService {
         try {
             String body = String.format("""
         Jarvis password reset
-        \n
+        
         We heard that you lost your Jarvis password. Sorry about that!
-        \n
+
         But don’t worry! You can use the following button to reset your password:
-        \n
+
         <a href="%s">Reset Password</a>
-        \n
+
         If you don’t use this link within 2 hours, it will expire. To get a new password reset link, visit:
-        \n
+        
         Thanks,
         The Jarvis Team
         """, resetLink);
@@ -57,8 +59,7 @@ public class EmailService {
                                                
             If you did not perform this action, you can recover access by entering %s into the form at %s
                                                
-            Please do not reply to this email with your password. We will never ask for your password, and we strongly
-            discourage you from sharing it with anyone.
+            Please do not reply to this email with your password. We will never ask for your password, and we strongly discourage you from sharing it with anyone.
             
             The Jarvis Team
                     """, username, receiver, resetLink);

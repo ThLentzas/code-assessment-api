@@ -17,7 +17,7 @@ public class PasswordResetRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void createPasswordResetRequest(PasswordResetToken passwordResetRequest) {
+    public void createPasswordResetToken(PasswordResetToken passwordResetRequest) {
         final String sql = "INSERT INTO password_reset_token (user_id, reset_token, expiry_date) VALUES (?, ?, ?)";
 
         jdbcTemplate.update(
@@ -28,7 +28,7 @@ public class PasswordResetRepository {
     }
 
     public Optional<PasswordResetToken> findPasswordResetToken(String token) {
-        final String sql = "SELECT user_id, expiry_date FROM password_reset_token WHERE reset_token = ?";
+        final String sql = "SELECT user_id, reset_token, expiry_date FROM password_reset_token WHERE reset_token = ?";
 
         List<PasswordResetToken> passwordResetToken = jdbcTemplate.query(sql, new PasswordRestTokenRowMapper(), token);
 
@@ -39,5 +39,11 @@ public class PasswordResetRepository {
         final String sql = "DELETE FROM password_reset_token WHERE reset_token = ?";
 
         jdbcTemplate.update(sql, token);
+    }
+
+    public void deleteAllTokens() {
+        final String sql = "DELETE FROM password_reset_token";
+
+        jdbcTemplate.update(sql);
     }
 }

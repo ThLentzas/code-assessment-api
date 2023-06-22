@@ -1,8 +1,5 @@
 package gr.aegean.controller;
 
-import gr.aegean.config.AuthConfig;
-import gr.aegean.repository.UserRepository;
-import gr.aegean.security.auth.AuthRequest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +12,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import gr.aegean.config.JwtConfig;
 import gr.aegean.config.SecurityConfig;
+import gr.aegean.config.AuthConfig;
 import gr.aegean.security.auth.AuthResponse;
 import gr.aegean.security.auth.RegisterRequest;
+import gr.aegean.security.auth.AuthRequest;
 import gr.aegean.service.AuthService;
+import gr.aegean.service.PasswordResetService;
+import gr.aegean.repository.UserRepository;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
@@ -36,6 +37,8 @@ class AuthControllerTest {
     private AuthService authService;
     @MockBean
     private UserRepository userRepository;
+    @MockBean
+    private PasswordResetService passwordResetService;
     private static final String AUTH_PATH = "/api/v1/auth";
 
     @Test
