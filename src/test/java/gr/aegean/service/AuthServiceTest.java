@@ -54,7 +54,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void shouldRegisterUserAndReturnJwtToken() {
+    void shouldRegisterUser() {
         //Arrange
         RegisterRequest request = new RegisterRequest(
                 "Test",
@@ -97,7 +97,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void shouldAuthenticateUserAndReturnJwtToken() {
+    void shouldAuthenticateUser() {
         //Arrange
         AuthRequest authRequest = new AuthRequest("test@gmail.com", "test");
         User user = new User(authRequest.email(), authRequest.password());
@@ -117,32 +117,6 @@ class AuthServiceTest {
         verify(jwtService, times(1)).assignToken(any(UserDTO.class));
         verify(authenticationManager, times(1)).authenticate(
                 any(UsernamePasswordAuthenticationToken.class));
-    }
-
-    @ParameterizedTest
-    @NullSource
-    @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenAuthEmailIsNullOrEmpty(String email) {
-        //Arrange
-        AuthRequest request = new AuthRequest(email, "password");
-
-        //Act Assert
-        assertThatThrownBy(() -> underTest.authenticate(request))
-                .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("All fields are necessary");
-    }
-
-    @ParameterizedTest
-    @NullSource
-    @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenAuthPasswordIsNullOrEmpty(String password) {
-        //Arrange
-        AuthRequest request = new AuthRequest("test@example.com", password);
-
-        //Act Assert
-        assertThatThrownBy(() -> underTest.authenticate(request))
-                .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("All fields are necessary");
     }
 
     //When authenticate from authentication manager fails it will throw either spring.security.BadCredentialsException

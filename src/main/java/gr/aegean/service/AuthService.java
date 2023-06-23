@@ -5,11 +5,9 @@ import gr.aegean.mapper.UserDTOMapper;
 import gr.aegean.model.user.UserDTO;
 import gr.aegean.security.auth.AuthResponse;
 import gr.aegean.security.auth.RegisterRequest;
-import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.security.auth.AuthRequest;
 
-import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -49,8 +47,6 @@ public class AuthService {
     }
 
     public AuthResponse authenticate(AuthRequest request) {
-        validateAuthRequest(request);
-
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
@@ -64,12 +60,5 @@ public class AuthService {
         String jwtToken = jwtService.assignToken(userDTO);
 
         return new AuthResponse(jwtToken);
-    }
-
-    private void validateAuthRequest(AuthRequest request) {
-        if (request.email() == null || request.email().isEmpty()
-                || request.password() == null || request.password().isEmpty()) {
-            throw new BadCredentialsException("All fields are necessary");
-        }
     }
 }

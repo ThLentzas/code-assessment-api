@@ -5,8 +5,8 @@ import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.model.user.User;
 import gr.aegean.model.user.UserUpdateRequest;
 import gr.aegean.repository.UserRepository;
-
 import gr.aegean.utility.PasswordValidation;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;

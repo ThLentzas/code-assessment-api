@@ -84,29 +84,6 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.token", is(authResponse.getToken())));
     }
 
-    @Test
-    void shouldReturnJwtTokenWhenUserIsAuthenticatedSuccessfully() throws Exception {
-        //Arrange
-        String requestBody = """
-                {
-                    "email": "tl@example.com",
-                    "password": "CyN549^*o2Cr"
-                }
-                """;
-        AuthResponse authResponse = new AuthResponse("jwtToken");
-
-        when(authService.authenticate(any(AuthRequest.class))).thenReturn(authResponse);
-
-        //Act Assert
-        mockMvc.perform(post(AUTH_PATH + "/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody)
-                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token", is(authResponse.getToken())));
-    }
-
     @ParameterizedTest
     @NullSource
     @EmptySource
@@ -253,6 +230,53 @@ class AuthControllerTest {
     }
 
     @Test
+    void shouldReturnJwtTokenWhenUserIsAuthenticatedSuccessfully() throws Exception {
+        //Arrange
+        String requestBody = """
+                {
+                    "email": "tl@example.com",
+                    "password": "CyN549^*o2Cr"
+                }
+                """;
+        AuthResponse authResponse = new AuthResponse("jwtToken");
+
+        when(authService.authenticate(any(AuthRequest.class))).thenReturn(authResponse);
+
+        //Act Assert
+        mockMvc.perform(post(AUTH_PATH + "/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token", is(authResponse.getToken())));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @EmptySource
+    void shouldThrowBadCredentialsExceptionWhenAuthEmailIsNullOrEmpty(String email) throws Exception {
+        //Arrange
+        String emailValue = email == null ? "null" : "\"" + email + "\"";
+        String requestBody = String.format("""
+                {
+                    "email": %s,
+                    "password": "CyN549^*o2Cr"
+                }
+                """, emailValue);
+
+        //Act Assert
+        mockMvc.perform(post(AUTH_PATH + "/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.path", is("/api/v1/auth/login")))
+                .andExpect(jsonPath("$.message", is("All fields are necessary.")));
+    }
+
+    @Test
     void shouldReturnGenericMessageForPasswordResetRequestRegardlessIfEmailExists() throws Exception {
         //Arrange
         String requestBody = """
@@ -325,6 +349,7 @@ class AuthControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.path", is("/api/v1/auth/password_reset/confirm")))
                 .andExpect(jsonPath("$.message", is("The Password field is required.")));
     }

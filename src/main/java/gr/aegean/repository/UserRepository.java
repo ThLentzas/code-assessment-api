@@ -14,12 +14,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import gr.aegean.model.user.User;
-import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.mapper.UserRowMapper;
 
 import lombok.RequiredArgsConstructor;
-
-import javax.swing.text.html.Option;
 
 @RequiredArgsConstructor
 @Repository
