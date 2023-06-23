@@ -9,7 +9,6 @@ import gr.aegean.exception.ServerErrorException;
 import org.bouncycastle.util.encoders.Hex;
 
 public class StringUtils {
-
     public static String hashToken(String token) {
         byte[] hash;
 

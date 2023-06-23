@@ -12,6 +12,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
+import gr.aegean.utility.PasswordValidation;
 import gr.aegean.utility.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PasswordResetService {
     private final EmailService emailService;
-    private final UserService userService;
     private final UserRepository userRepository;
     private final PasswordResetRepository passwordResetRepository;
     private final PasswordEncoder passwordEncoder;
@@ -69,7 +69,7 @@ public class PasswordResetService {
         validatePasswordResetToken(resetConfirmationRequest.token());
 
         //validate/hash the updated password
-        userService.validatePassword(resetConfirmationRequest.updatedPassword());
+        PasswordValidation.validatePassword(resetConfirmationRequest.updatedPassword());
         String hashedPassword = passwordEncoder.encode(resetConfirmationRequest.updatedPassword());
 
         //update the password in db and delete the password reset token record after

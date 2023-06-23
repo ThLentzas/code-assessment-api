@@ -1,5 +1,7 @@
 package gr.aegean.controller;
 
+import gr.aegean.security.password.PasswordResetRequest;
+import gr.aegean.security.password.PasswordResetResult;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,16 +23,20 @@ import gr.aegean.security.auth.RegisterRequest;
 import gr.aegean.security.auth.AuthRequest;
 import gr.aegean.service.AuthService;
 import gr.aegean.service.PasswordResetService;
-import gr.aegean.service.UserService;
 import gr.aegean.repository.UserRepository;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
+@WebMvcTest(AuthController.class)
 @Import({SecurityConfig.class,
         AuthConfig.class,
         JwtConfig.class})
@@ -43,8 +49,7 @@ class AuthControllerTest {
     private UserRepository userRepository;
     @MockBean
     private PasswordResetService passwordResetService;
-    @MockBean
-    private UserService userService;
+
     private static final String AUTH_PATH = "/api/v1/auth";
 
     @Test
@@ -73,8 +78,10 @@ class AuthControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", Matchers.containsString("api/v1/users/" + 1)))
-                .andExpect(jsonPath("$.token", is("jwtToken")));
+                .andExpect(header().string("Location", Matchers.containsString(
+                        "api/v1/users/" +
+                        authResponse.getId())))
+                .andExpect(jsonPath("$.token", is(authResponse.getToken())));
     }
 
     @Test
@@ -97,7 +104,7 @@ class AuthControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token", is("jwtToken")));
+                .andExpect(jsonPath("$.token", is(authResponse.getToken())));
     }
 
     @ParameterizedTest
@@ -242,6 +249,83 @@ class AuthControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.path", is("/api/v1/auth/signup")))
+                .andExpect(jsonPath("$.message", is("The Password field is required.")));
+    }
+
+    @Test
+    void shouldReturnGenericMessageForPasswordResetRequestRegardlessIfEmailExists() throws Exception {
+        //Arrange
+        String requestBody = """
+            {
+                "email": "test@example.com"
+            }
+            """;
+        PasswordResetResult resetResult = new PasswordResetResult("If your email address exists in our database, " +
+                "you will receive a password recovery link at your email address in a few minutes.");
+
+        when(passwordResetService.createPasswordResetToken(any(PasswordResetRequest.class))).thenReturn(resetResult);
+
+        //Act Assert
+        mockMvc.perform(post(AUTH_PATH + "/password_reset")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message", is(resetResult.message())));
+    }
+
+    @Test
+    void shouldReturnStatusCodeOKWhenResetTokenIsValid() throws Exception {
+        //Arrange Act Assert
+        mockMvc.perform(get(AUTH_PATH + "/password_reset?token=validToken")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldResetPasswordWhenTokenAndPasswordAreValid() throws Exception {
+        //Arrange
+        String requestBody = """
+            {
+                "token": "someToken",
+                "updatedPassword": "updatedPassword"
+            }
+            """;
+
+        //Act Assert
+        mockMvc.perform(put(AUTH_PATH + "/password_reset/confirm")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    /*
+        No need to test the token if its null or empty it is already tested in the validatePasswordResetToken() method
+        in PasswordResetServiceTest class void shouldThrowBadCredentialsExceptionWhenTokenIsInvalid(String invalidToken)
+     */
+    @ParameterizedTest
+    @NullSource
+    @EmptySource
+    void shouldThrowBadCredentialsExceptionWhenUpdatedPasswordIsNullOrEmpty(String updatedPassword) throws Exception {
+        //Arrange
+        String updatedPasswordValue = updatedPassword == null ? "null" : "\"" + updatedPassword + "\"";
+        String requestBody = String.format("""
+            {
+                "token": "someToken",
+                "updatedPassword": %s
+            }
+            """, updatedPasswordValue);
+
+        //Act Assert
+        mockMvc.perform(put(AUTH_PATH + "/password_reset/confirm")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.path", is("/api/v1/auth/password_reset/confirm")))
                 .andExpect(jsonPath("$.message", is("The Password field is required.")));
     }
 }

@@ -1,3 +1,8 @@
 package gr.aegean.security.password;
 
-public record PasswordResetConfirmationRequest(String token, String updatedPassword) {}
+import jakarta.validation.constraints.NotBlank;
+
+public record PasswordResetConfirmationRequest(
+        String token,
+        @NotBlank(message = "The Password field is required.")
+        String updatedPassword) {}

@@ -12,7 +12,12 @@ import gr.aegean.service.PasswordResetService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import jakarta.validation.Valid;
@@ -59,7 +64,8 @@ public class AuthController {
     }
 
     @PostMapping("/password_reset")
-    public ResponseEntity<PasswordResetResult> resetPassword(@RequestBody PasswordResetRequest passwordResetRequest) {
+    public ResponseEntity<PasswordResetResult> resetPassword(@Valid @RequestBody
+                                                                 PasswordResetRequest passwordResetRequest) {
         PasswordResetResult passwordResetResult = passwordResetService.createPasswordResetToken(passwordResetRequest);
 
         return new ResponseEntity<>(passwordResetResult, HttpStatus.OK);
@@ -73,7 +79,8 @@ public class AuthController {
     }
 
     @PutMapping("/password_reset/confirm")
-    public ResponseEntity<Void> resetPassword(@RequestBody PasswordResetConfirmationRequest resetConfirmationRequest) {
+    public ResponseEntity<Void> resetPassword(@RequestBody @Valid
+                                                  PasswordResetConfirmationRequest resetConfirmationRequest) {
         passwordResetService.resetPassword(resetConfirmationRequest);
 
         return new ResponseEntity<>(HttpStatus.OK);

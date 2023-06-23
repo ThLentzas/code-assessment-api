@@ -1,3 +1,7 @@
 package gr.aegean.security.password;
 
-public record PasswordResetRequest(String email) {}
+import jakarta.validation.constraints.NotBlank;
+
+public record PasswordResetRequest(
+        @NotBlank(message = "The Email field is required.")
+        String email) {}

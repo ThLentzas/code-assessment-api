@@ -6,9 +6,9 @@ import gr.aegean.model.user.User;
 import gr.aegean.model.user.UserUpdateRequest;
 import gr.aegean.repository.UserRepository;
 
+import gr.aegean.utility.PasswordValidation;
 import lombok.RequiredArgsConstructor;
 
-import org.passay.*;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -38,7 +38,7 @@ public class UserService {
     public void validateUser(User user) {
         validateName(user.getFirstname(), user.getLastname(), user.getUsername());
         validateEmail(user.getEmail());
-        validatePassword(user.getPassword());
+        PasswordValidation.validatePassword(user.getPassword());
         validateBio(user.getBio());
         validateLocation(user.getLocation());
         validateCompany(user.getCompany());
@@ -66,8 +66,6 @@ public class UserService {
         }
     }
 
-
-
     private void validateEmail(String email) {
         if (email.length() > 50) {
             throw new BadCredentialsException("Invalid email. Too many characters");
@@ -75,21 +73,6 @@ public class UserService {
 
         if (!email.contains("@")) {
             throw new BadCredentialsException("Invalid email");
-        }
-    }
-
-    public void validatePassword(String password) {
-        PasswordValidator validator = new PasswordValidator(
-                new LengthRule(8, 128),
-                new CharacterRule(EnglishCharacterData.UpperCase, 1),
-                new CharacterRule(EnglishCharacterData.LowerCase, 1),
-                new CharacterRule(EnglishCharacterData.Digit, 1),
-                new CharacterRule(EnglishCharacterData.Special, 1)
-        );
-
-        RuleResult result = validator.validate(new PasswordData(password));
-        if (!result.isValid()) {
-            throw new BadCredentialsException(validator.getMessages(result).get(0));
         }
     }
 

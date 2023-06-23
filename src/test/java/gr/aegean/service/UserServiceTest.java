@@ -4,6 +4,7 @@ import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.model.user.User;
 import gr.aegean.repository.UserRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

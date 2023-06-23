@@ -36,8 +36,6 @@ import java.time.LocalDateTime;
 class PasswordResetServiceTest extends AbstractTestContainers{
     @Mock
     private EmailService emailService;
-    @Mock
-    private UserService userService;
     private UserRepository userRepository;
     private PasswordResetRepository passwordResetRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -49,7 +47,6 @@ class PasswordResetServiceTest extends AbstractTestContainers{
         userRepository = new UserRepository(getJdbcTemplate());
         underTest = new PasswordResetService(
                 emailService,
-                userService,
                 userRepository,
                 passwordResetRepository,
                 passwordEncoder);
@@ -133,7 +130,7 @@ class PasswordResetServiceTest extends AbstractTestContainers{
 
     /*
         No need to test for the password encoder or to validate the updated password or the email service because they
-        have been tested separately in user service, email service.
+        have been tested separately in email service, etc.
      */
     @Test
     void shouldResetPassword() {
@@ -141,7 +138,7 @@ class PasswordResetServiceTest extends AbstractTestContainers{
         User user = generateUser();
         Integer userId= userRepository.registerUser(user);
 
-        String hashedToken = StringUtils.hashToken("expiredToken");
+        String hashedToken = StringUtils.hashToken("token");
         PasswordResetToken passwordResetToken = new PasswordResetToken(
                 userId,
                 hashedToken,
@@ -149,8 +146,8 @@ class PasswordResetServiceTest extends AbstractTestContainers{
         passwordResetRepository.createPasswordResetToken(passwordResetToken);
 
         PasswordResetConfirmationRequest passwordResetConfirmationRequest = new PasswordResetConfirmationRequest(
-                "expiredToken",
-                "updatedPassword");
+                "token",
+                "3frMH4v!20d4");
 
         //Act
         underTest.resetPassword(passwordResetConfirmationRequest);
