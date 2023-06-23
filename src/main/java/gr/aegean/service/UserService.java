@@ -3,6 +3,7 @@ package gr.aegean.service;
 import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.model.user.User;
+import gr.aegean.model.user.UserUpdateRequest;
 import gr.aegean.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,10 @@ public class UserService {
         }
 
         return userRepository.registerUser(user);
+    }
+
+    public void updateUser(UserUpdateRequest userUpdateRequest) {
+
     }
 
     public void validateUser(User user) {
@@ -61,6 +66,8 @@ public class UserService {
         }
     }
 
+
+
     private void validateEmail(String email) {
         if (email.length() > 50) {
             throw new BadCredentialsException("Invalid email. Too many characters");
@@ -91,7 +98,6 @@ public class UserService {
             throw new BadCredentialsException("Invalid bio. Too many characters");
         }
     }
-
 
     public void validateLocation(String location) {
         if (location.length() > 50) {

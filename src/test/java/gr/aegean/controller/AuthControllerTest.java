@@ -2,6 +2,9 @@ package gr.aegean.controller;
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,6 +21,7 @@ import gr.aegean.security.auth.RegisterRequest;
 import gr.aegean.security.auth.AuthRequest;
 import gr.aegean.service.AuthService;
 import gr.aegean.service.PasswordResetService;
+import gr.aegean.service.UserService;
 import gr.aegean.repository.UserRepository;
 
 import static org.mockito.Mockito.any;
@@ -39,6 +43,8 @@ class AuthControllerTest {
     private UserRepository userRepository;
     @MockBean
     private PasswordResetService passwordResetService;
+    @MockBean
+    private UserService userService;
     private static final String AUTH_PATH = "/api/v1/auth";
 
     @Test
@@ -92,5 +98,150 @@ class AuthControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token", is("jwtToken")));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @EmptySource
+    void shouldReturnBadRequestWhenRegisterFirstnameIsNullOrEmpty(String firstname) throws Exception {
+        //Arrange
+        String firstnameValue = firstname == null ? "null" : "\"" + firstname + "\"";
+        String requestBody = String.format("""
+                {
+                    "firstname": %s,
+                    "lastname": "Test",
+                    "username": "Test",
+                    "email": "test@example.com",
+                    "password": "CyN549^*o2Cr",
+                    "bio": "I have a real passion for teaching",
+                    "location": "Cleveland, OH",
+                    "company": "Code Monkey, LLC"
+                }
+                """, firstnameValue);
+
+        //Act Assert
+        mockMvc.perform(post(AUTH_PATH + "/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.path", is("/api/v1/auth/signup")))
+                .andExpect(jsonPath("$.message", is("The First Name field is required.")));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @EmptySource
+    void shouldReturnBadRequestWhenRegisterLastnameIsNullOrEmpty(String lastname) throws Exception {
+        //Arrange
+        String lastnameValue = lastname == null ? "null" : "\"" + lastname + "\"";
+        String requestBody = String.format("""
+                {
+                    "firstname": "Test",
+                    "lastname": %s,
+                    "username": "Test",
+                    "email": "test@example.com",
+                    "password": "CyN549^*o2Cr",
+                    "bio": "I have a real passion for teaching",
+                    "location": "Cleveland, OH",
+                    "company": "Code Monkey, LLC"
+                }
+                """, lastnameValue);
+
+        //Act Assert
+        mockMvc.perform(post(AUTH_PATH + "/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.path", is("/api/v1/auth/signup")))
+                .andExpect(jsonPath("$.message", is("The Last Name field is required.")));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @EmptySource
+    void shouldReturnBadRequestWhenRegisterUsernameIsNullOrEmpty(String username) throws Exception {
+        //Arrange
+        String usernameValue = username == null ? "null" : "\"" + username + "\"";
+        String requestBody = String.format("""
+                {
+                    "firstname": "Test",
+                    "lastname": "Test",
+                    "username": %s,
+                    "email": "test@example.com",
+                    "password": "CyN549^*o2Cr",
+                    "bio": "I have a real passion for teaching",
+                    "location": "Cleveland, OH",
+                    "company": "Code Monkey, LLC"
+                }
+                """, usernameValue);
+
+        //Act Assert
+        mockMvc.perform(post(AUTH_PATH + "/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.path", is("/api/v1/auth/signup")))
+                .andExpect(jsonPath("$.message", is("The Username field is required.")));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @EmptySource
+    void shouldThrowBadCredentialsExceptionWhenRegisterEmailIsNullOrEmpty(String email) throws Exception {
+        //Arrange
+        String usernameValue = email == null ? "null" : "\"" + email + "\"";
+        String requestBody = String.format("""
+                {
+                    "firstname": "Test",
+                    "lastname": "Test",
+                    "username": "TestT",
+                    "email": %s,
+                    "password": "CyN549^*o2Cr",
+                    "bio": "I have a real passion for teaching",
+                    "location": "Cleveland, OH",
+                    "company": "Code Monkey, LLC"
+                }
+                """, usernameValue);
+
+        //Act Assert
+        mockMvc.perform(post(AUTH_PATH + "/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.path", is("/api/v1/auth/signup")))
+                .andExpect(jsonPath("$.message", is("The Email field is required.")));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @EmptySource
+    void shouldThrowBadCredentialsExceptionWhenRegisterPasswordIsNullOrEmpty(String password) throws Exception {
+        //Arrange
+        String usernameValue = password == null ? "null" : "\"" + password + "\"";
+        String requestBody = String.format("""
+                {
+                    "firstname": "Test",
+                    "lastname": "Test",
+                    "username": "TestT",
+                    "email": "test@example.com",
+                    "password": %s,
+                    "bio": "I have a real passion for teaching",
+                    "location": "Cleveland, OH",
+                    "company": "Code Monkey, LLC"
+                }
+                """, usernameValue);
+
+        //Act Assert
+        mockMvc.perform(post(AUTH_PATH + "/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.path", is("/api/v1/auth/signup")))
+                .andExpect(jsonPath("$.message", is("The Password field is required.")));
     }
 }

@@ -20,6 +20,7 @@ import gr.aegean.security.auth.AuthRequest;
 import gr.aegean.security.auth.RegisterRequest;
 import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.exception.BadCredentialsException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -116,117 +117,6 @@ class AuthServiceTest {
         verify(jwtService, times(1)).assignToken(any(UserDTO.class));
         verify(authenticationManager, times(1)).authenticate(
                 any(UsernamePasswordAuthenticationToken.class));
-    }
-
-
-    @ParameterizedTest
-    @NullSource
-    @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenRegisterFirstnameIsNullOrEmpty(String firstname) {
-        //Arrange
-        RegisterRequest request = new RegisterRequest(
-                firstname,
-                "Test",
-                "TestT",
-                "test@gmail.com",
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
-
-        //Act Assert
-        assertThatThrownBy(() -> underTest.register(request))
-                .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("The First Name field is required.");
-    }
-
-    @ParameterizedTest
-    @NullSource
-    @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenRegisterLastnameIsNullOrEmpty(String lastname) {
-        //Arrange
-        RegisterRequest request = new RegisterRequest(
-                "Test",
-                lastname,
-                "TestT",
-                "test@gmail.com",
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
-
-        //Act Assert
-        assertThatThrownBy(() -> underTest.register(request))
-                .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("The Last Name field is required.");
-    }
-
-    @ParameterizedTest
-    @NullSource
-    @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenRegisterUsernameIsNullOrEmpty(String username) {
-        //Arrange
-        RegisterRequest request = new RegisterRequest(
-                "Test",
-                "Test",
-                username,
-                "test@gmail.com",
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
-
-        //Act Assert
-        assertThatThrownBy(() -> underTest.register(request))
-                .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("The Username field is required.");
-    }
-
-    @ParameterizedTest
-    @NullSource
-    @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenRegisterEmailIsNullOrEmpty(String email) {
-        //Arrange
-        RegisterRequest request = new RegisterRequest(
-                "Test",
-                "Test",
-                "TestT",
-                email,
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
-
-        //Act Assert
-        assertThatThrownBy(() -> underTest.register(request))
-                .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("The Email field is required.");
-    }
-
-    @ParameterizedTest
-    @NullSource
-    @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenRegisterPasswordIsNullOrEmpty(String password) {
-        //Arrange
-        RegisterRequest request = new RegisterRequest(
-                "Test",
-                "Test",
-                "TestT",
-                "test@gmail.com",
-                password,
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
-
-        //Act Assert
-        assertThatThrownBy(() -> underTest.register(request))
-                .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("The Password field is required.");
     }
 
     @ParameterizedTest

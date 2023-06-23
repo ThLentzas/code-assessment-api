@@ -4,17 +4,18 @@ import gr.aegean.security.auth.AuthRequest;
 import gr.aegean.security.password.PasswordResetConfirmationRequest;
 import gr.aegean.security.password.PasswordResetRequest;
 import gr.aegean.security.password.PasswordResetResult;
+import gr.aegean.security.auth.AuthResponse;
+import gr.aegean.security.auth.RegisterRequest;
+import gr.aegean.service.AuthService;
 import gr.aegean.service.PasswordResetService;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import gr.aegean.security.auth.AuthResponse;
-import gr.aegean.security.auth.RegisterRequest;
-import gr.aegean.service.AuthService;
-
+import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class AuthController {
      * @return a ResponseEntity containing the authentication token.
      */
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request,
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request,
                                                  UriComponentsBuilder uriBuilder) {
         AuthResponse authResponse = authService.register(request);
 
