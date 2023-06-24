@@ -1,7 +1,5 @@
 package gr.aegean.controller;
 
-import gr.aegean.security.password.PasswordResetRequest;
-import gr.aegean.security.password.PasswordResetResult;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,6 +19,8 @@ import gr.aegean.config.AuthConfig;
 import gr.aegean.security.auth.AuthResponse;
 import gr.aegean.security.auth.RegisterRequest;
 import gr.aegean.security.auth.AuthRequest;
+import gr.aegean.security.password.PasswordResetRequest;
+import gr.aegean.security.password.PasswordResetResult;
 import gr.aegean.service.AuthService;
 import gr.aegean.service.PasswordResetService;
 import gr.aegean.repository.UserRepository;
@@ -87,7 +87,8 @@ class AuthControllerTest {
     @ParameterizedTest
     @NullSource
     @EmptySource
-    void shouldReturnBadRequestWhenRegisterFirstnameIsNullOrEmpty(String firstname) throws Exception {
+    void shouldReturnHTTP400WhenRegisterFirstnameIsNullOrEmpty(String firstname)
+            throws Exception {
         //Arrange
         String firstnameValue = firstname == null ? "null" : "\"" + firstname + "\"";
         String requestBody = String.format("""
@@ -116,7 +117,7 @@ class AuthControllerTest {
     @ParameterizedTest
     @NullSource
     @EmptySource
-    void shouldReturnBadRequestWhenRegisterLastnameIsNullOrEmpty(String lastname) throws Exception {
+    void shouldReturnHTTP400WhenRegisterLastnameIsNullOrEmpty(String lastname) throws Exception {
         //Arrange
         String lastnameValue = lastname == null ? "null" : "\"" + lastname + "\"";
         String requestBody = String.format("""
@@ -145,7 +146,7 @@ class AuthControllerTest {
     @ParameterizedTest
     @NullSource
     @EmptySource
-    void shouldReturnBadRequestWhenRegisterUsernameIsNullOrEmpty(String username) throws Exception {
+    void shouldReturnHTTP400WhenRegisterUsernameIsNullOrEmpty(String username) throws Exception {
         //Arrange
         String usernameValue = username == null ? "null" : "\"" + username + "\"";
         String requestBody = String.format("""
@@ -174,7 +175,8 @@ class AuthControllerTest {
     @ParameterizedTest
     @NullSource
     @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenRegisterEmailIsNullOrEmpty(String email) throws Exception {
+    void shouldReturnHTTP400WhenRegisterEmailIsNullOrEmpty(String email)
+            throws Exception {
         //Arrange
         String usernameValue = email == null ? "null" : "\"" + email + "\"";
         String requestBody = String.format("""
@@ -203,7 +205,7 @@ class AuthControllerTest {
     @ParameterizedTest
     @NullSource
     @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenRegisterPasswordIsNullOrEmpty(String password) throws Exception {
+    void shouldReturnHTTP400WhenRegisterPasswordIsNullOrEmpty(String password) throws Exception {
         //Arrange
         String usernameValue = password == null ? "null" : "\"" + password + "\"";
         String requestBody = String.format("""
@@ -234,7 +236,7 @@ class AuthControllerTest {
         //Arrange
         String requestBody = """
                 {
-                    "email": "tl@example.com",
+                    "email": "test@example.com",
                     "password": "CyN549^*o2Cr"
                 }
                 """;
@@ -255,7 +257,7 @@ class AuthControllerTest {
     @ParameterizedTest
     @NullSource
     @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenAuthEmailIsNullOrEmpty(String email) throws Exception {
+    void shouldReturnHTTP400WhenAuthEmailIsNullOrEmpty(String email) throws Exception {
         //Arrange
         String emailValue = email == null ? "null" : "\"" + email + "\"";
         String requestBody = String.format("""
@@ -274,6 +276,52 @@ class AuthControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.path", is("/api/v1/auth/login")))
                 .andExpect(jsonPath("$.message", is("All fields are necessary.")));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @EmptySource
+    void shouldReturnHTTP400WhenAuthPasswordIsNullOrEmpty(String password) throws Exception {
+        //Arrange
+        String passwordValue = password == null ? "null" : "\"" + password + "\"";
+        String requestBody = String.format("""
+            {
+                "email": "test@example.com",
+                "password": %s
+            }
+            """, passwordValue);
+
+        //Act Assert
+        mockMvc.perform(post(AUTH_PATH + "/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.path", is("/api/v1/auth/login")))
+                .andExpect(jsonPath("$.message", is("All fields are necessary.")));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @EmptySource
+    void shouldReturnHTTP400WhenPasswordResetRequestEmailIsNullOrEmpty(String email)
+            throws Exception{
+        String emailValue = email == null ? "null" : "\"" + email + "\"";
+        String requestBody = String.format("""
+                {
+                    "email": %s
+                }
+                """, emailValue);
+
+        mockMvc.perform(post(AUTH_PATH + "/password_reset")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.path", is("/api/v1/auth/password_reset")))
+                .andExpect(jsonPath("$.message", is("The Email field is required.")));
     }
 
     @Test
@@ -300,16 +348,19 @@ class AuthControllerTest {
     }
 
     @Test
-    void shouldReturnStatusCodeOKWhenResetTokenIsValid() throws Exception {
-        //Arrange Act Assert
-        mockMvc.perform(get(AUTH_PATH + "/password_reset?token=validToken")
+    void shouldReturnHTTP200WhenResetTokenIsValid() throws Exception {
+        //Arrange
+        String validToken = "token";
+
+        // Act Assert
+        mockMvc.perform(get(AUTH_PATH + "/password_reset?token={token}", validToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void shouldResetPasswordWhenTokenAndPasswordAreValid() throws Exception {
+    void shouldResetPasswordWhenTokenAndUpdatedPasswordAreValid() throws Exception {
         //Arrange
         String requestBody = """
             {
@@ -333,7 +384,8 @@ class AuthControllerTest {
     @ParameterizedTest
     @NullSource
     @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenUpdatedPasswordIsNullOrEmpty(String updatedPassword) throws Exception {
+    void shouldReturnHTTP400WhenUpdatedPasswordIsNullOrEmpty(String updatedPassword)
+            throws Exception {
         //Arrange
         String updatedPasswordValue = updatedPassword == null ? "null" : "\"" + updatedPassword + "\"";
         String requestBody = String.format("""
@@ -348,8 +400,8 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.path", is("/api/v1/auth/password_reset/confirm")))
                 .andExpect(jsonPath("$.message", is("The Password field is required.")));
     }

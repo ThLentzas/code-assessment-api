@@ -3,6 +3,7 @@ package gr.aegean.service;
 import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.model.user.User;
+import gr.aegean.model.user.UserGeneralUpdateRequest;
 import gr.aegean.repository.UserRepository;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -314,6 +315,35 @@ class UserServiceTest extends AbstractTestContainers{
         assertThatThrownBy(() -> underTest.validateUser(user))
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("Invalid company. Too many characters");
+    }
+
+    @Test
+    void shouldUpdateUser() {
+        //Arrange
+        UserGeneralUpdateRequest userGeneralUpdateRequest = new UserGeneralUpdateRequest(
+                "foo",
+                "foo",
+                "Foo",
+                "I have a real passion for teaching",
+                "Miami, OH",
+                "VM, LLC"
+        );
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+
+        //Act
+        underTest.updateUser(userId, userGeneralUpdateRequest);
+
+        //Assert
+        userRepository.findUserByUserId(userId)
+                .ifPresent(updatedUser -> {
+                    assertThat(updatedUser.getFirstname()).isEqualTo(userGeneralUpdateRequest.firstname());
+                    assertThat(updatedUser.getLastname()).isEqualTo(userGeneralUpdateRequest.lastname());
+                    assertThat(updatedUser.getUsername()).isEqualTo(userGeneralUpdateRequest.username());
+                    assertThat(updatedUser.getBio()).isEqualTo(userGeneralUpdateRequest.bio());
+                    assertThat(updatedUser.getLocation()).isEqualTo(userGeneralUpdateRequest.location());
+                    assertThat(updatedUser.getCompany()).isEqualTo(userGeneralUpdateRequest.company());
+                });
     }
 
     private User generateUser() {

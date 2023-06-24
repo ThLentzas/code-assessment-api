@@ -7,13 +7,13 @@ import gr.aegean.security.password.PasswordResetConfirmationRequest;
 import gr.aegean.security.password.PasswordResetRequest;
 import gr.aegean.security.password.PasswordResetResult;
 import gr.aegean.security.password.PasswordResetToken;
+import gr.aegean.utility.PasswordValidation;
+import gr.aegean.utility.StringUtils;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
-import gr.aegean.utility.PasswordValidation;
-import gr.aegean.utility.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +28,6 @@ public class PasswordResetService {
     private final PasswordEncoder passwordEncoder;
 
     public PasswordResetResult createPasswordResetToken(PasswordResetRequest passwordResetRequest) {
-        validatePasswordResetRequest(passwordResetRequest);
-
         userRepository.findUserByEmail(passwordResetRequest.email())
                 .ifPresent(user -> {
                     String token = generateToken();
@@ -98,11 +96,5 @@ public class PasswordResetService {
         secureRandom.nextBytes(randomBytes);
 
         return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
-    }
-
-    private void validatePasswordResetRequest(PasswordResetRequest passwordResetRequest) {
-        if (passwordResetRequest.email() == null || passwordResetRequest.email().isEmpty()) {
-            throw new BadCredentialsException("The Email field is required.");
-        }
     }
 }

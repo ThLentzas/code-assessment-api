@@ -63,9 +63,63 @@ public class UserRepository {
         return id;
     }
 
-    public void updatePassword(Integer userId, String updatedPassword) {
+    public void updateFirstname(Integer userId, String firstname) {
+        final String sql = "UPDATE app_user SET first_name = ? WHERE id = ?";
+        int update = jdbcTemplate.update(sql, firstname, userId);
+
+        if(update != 1) {
+            throw new ResourceNotFoundException("No user was found with the provided id");
+        }
+    }
+
+    public void updateLastname(Integer userId, String lastname) {
+        final String sql = "UPDATE app_user SET last_name = ? WHERE id = ?";
+        int update = jdbcTemplate.update(sql, lastname, userId);
+
+        if(update != 1) {
+            throw new ResourceNotFoundException("No user was found with the provided id");
+        }
+    }
+
+    public void updateBio(Integer userId, String bio) {
+        final String sql = "UPDATE app_user SET bio = ? WHERE id = ?";
+        int update = jdbcTemplate.update(sql, bio, userId);
+
+        if(update != 1) {
+            throw new ResourceNotFoundException("No user was found with the provided id");
+        }
+    }
+
+    public void updateLocation(Integer userId, String location) {
+        final String sql = "UPDATE app_user SET location = ? WHERE id = ?";
+        int update = jdbcTemplate.update(sql, location, userId);
+
+        if(update != 1) {
+            throw new ResourceNotFoundException("No user was found with the provided id");
+        }
+    }
+
+    public void updateCompany(Integer userId, String company) {
+        final String sql = "UPDATE app_user SET company = ? WHERE id = ?";
+        int update = jdbcTemplate.update(sql, company, userId);
+
+        if(update != 1) {
+            throw new ResourceNotFoundException("No user was found with the provided id");
+        }
+    }
+
+    public void updateUsername(Integer userId, String username) {
+        final String sql = "UPDATE app_user SET username = ? WHERE id = ?";
+        int update = jdbcTemplate.update(sql, username, userId);
+
+        if(update != 1) {
+            throw new ResourceNotFoundException("No user was found with the provided id");
+        }
+    }
+
+    public void updatePassword(Integer userId, String password) {
         final String sql = "UPDATE app_user SET password = ? WHERE id = ?";
-        int update = jdbcTemplate.update(sql, updatedPassword, userId);
+        int update = jdbcTemplate.update(sql, password, userId);
 
         if(update != 1) {
             throw new ResourceNotFoundException("No user was found with the provided id");
@@ -76,7 +130,16 @@ public class UserRepository {
      * This method will be used by UsersDetailsService for the user authentication.
      */
     public Optional<User> findUserByEmail(String email) {
-        final String sql = "SELECT id, email, password, username FROM app_user WHERE email = ?";
+        final String sql = "SELECT " +
+                "id, " +
+                "first_name, " +
+                "last_name, " +
+                "username, " +
+                "email, " +
+                "password, " +
+                "bio, " +
+                "location, " +
+                "company FROM app_user WHERE email = ?";
 
         List<User> users = jdbcTemplate.query(sql, new UserRowMapper(), email);
 
@@ -85,7 +148,16 @@ public class UserRepository {
 
 
     public Optional<User> findUserByUserId(Integer userId) {
-        final String sql = "SELECT id, email, password, username FROM app_user WHERE id = ?";
+        final String sql = "SELECT " +
+                "id, " +
+                "first_name, " +
+                "last_name, " +
+                "username, " +
+                "email, " +
+                "password, " +
+                "bio, " +
+                "location, " +
+                "company FROM app_user WHERE id = ?";
 
         List<User> users = jdbcTemplate.query(sql, new UserRowMapper(), userId);
 

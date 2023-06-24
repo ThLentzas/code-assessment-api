@@ -3,7 +3,7 @@ package gr.aegean.service;
 import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.model.user.User;
-import gr.aegean.model.user.UserUpdateRequest;
+import gr.aegean.model.user.UserGeneralUpdateRequest;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.utility.PasswordValidation;
 
@@ -31,12 +31,51 @@ public class UserService {
         return userRepository.registerUser(user);
     }
 
-    public void updateUser(UserUpdateRequest userUpdateRequest) {
+    public void updateUser(Integer userId, UserGeneralUpdateRequest updateRequest) {
+        if(updateRequest.firstname() != null && !updateRequest.firstname().isBlank()) {
+            validateFirstname(updateRequest.firstname());
 
+            userRepository.updateFirstname(userId, updateRequest.firstname());
+        }
+
+        if(updateRequest.lastname() != null && !updateRequest.lastname().isBlank()) {
+            validateLastname(updateRequest.lastname());
+
+            userRepository.updateLastname(userId, updateRequest.lastname());
+        }
+
+        if(updateRequest.username() != null && !updateRequest.username().isBlank()) {
+            validateUsername(updateRequest.username());
+            if(userRepository.existsUserWithUsername(updateRequest.username())) {
+                throw new DuplicateResourceException("The provided username already exists");
+            }
+
+            userRepository.updateUsername(userId, updateRequest.username());
+        }
+
+        if(updateRequest.bio() != null && !updateRequest.bio().isBlank()) {
+            validateBio(updateRequest.bio());
+
+            userRepository.updateBio(userId, updateRequest.bio());
+        }
+
+        if(updateRequest.location() != null && !updateRequest.location().isBlank()) {
+            validateLocation(updateRequest.location());
+
+            userRepository.updateLocation(userId, updateRequest.location());
+        }
+
+        if(updateRequest.company() != null && !updateRequest.company().isBlank()) {
+            validateCompany(updateRequest.company());
+
+            userRepository.updateCompany(userId, updateRequest.company());
+        }
     }
 
     public void validateUser(User user) {
-        validateName(user.getFirstname(), user.getLastname(), user.getUsername());
+        validateFirstname(user.getFirstname());
+        validateLastname(user.getLastname());
+        validateUsername(user.getUsername());
         validateEmail(user.getEmail());
         PasswordValidation.validatePassword(user.getPassword());
         validateBio(user.getBio());
@@ -44,7 +83,7 @@ public class UserService {
         validateCompany(user.getCompany());
     }
 
-    private void validateName(String firstname, String lastname, String username) {
+    private void validateFirstname(String firstname) {
         if (firstname.length() > 30) {
             throw new BadCredentialsException("Invalid firstname. Too many characters");
         }
@@ -52,7 +91,9 @@ public class UserService {
         if (!firstname.matches("^[a-zA-Z]*$")) {
             throw new BadCredentialsException("Invalid firstname. Name should contain only characters");
         }
+    }
 
+    private void validateLastname(String lastname) {
         if (lastname.length() > 30) {
             throw new BadCredentialsException("Invalid lastname. Too many characters");
         }
@@ -60,7 +101,9 @@ public class UserService {
         if (!lastname.matches("^[a-zA-Z]*$")) {
             throw new BadCredentialsException("Invalid lastname. Name should contain only characters");
         }
+    }
 
+    private void validateUsername(String username) {
         if (username.length() > 30) {
             throw new BadCredentialsException("Invalid username. Too many characters");
         }

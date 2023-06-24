@@ -26,9 +26,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.time.LocalDateTime;
 
@@ -84,17 +84,7 @@ class PasswordResetServiceTest extends AbstractTestContainers{
                 "If your email address exists in our database, you will receive a password recovery link at " +
                         "your email address in a few minutes.");
 
-        verify(emailService, never()).sendPasswordResetLinkEmail(eq(user.getEmail()), any(String.class));
-    }
-
-    @ParameterizedTest
-    @NullSource
-    @EmptySource
-    void shouldThrowBadCredentialsExceptionWhenEmailIsInvalid(String invalidEmail) {
-        PasswordResetRequest passwordResetRequest = new PasswordResetRequest(invalidEmail);
-        assertThatThrownBy(() -> underTest.createPasswordResetToken(passwordResetRequest))
-                .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("The Email field is required.");
+        verifyNoInteractions(emailService);
     }
 
     @ParameterizedTest

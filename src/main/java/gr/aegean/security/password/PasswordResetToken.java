@@ -33,7 +33,7 @@ public class PasswordResetToken {
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, resetToken, expiryDate);
+        return Objects.hash(userId, resetToken);
     }
 
 
