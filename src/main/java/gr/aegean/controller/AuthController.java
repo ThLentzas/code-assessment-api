@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import gr.aegean.security.auth.AuthRequest;
-import gr.aegean.security.password.PasswordResetConfirmationRequest;
-import gr.aegean.security.password.PasswordResetRequest;
-import gr.aegean.security.password.PasswordResetResult;
-import gr.aegean.security.auth.AuthResponse;
-import gr.aegean.security.auth.RegisterRequest;
+import gr.aegean.model.auth.AuthRequest;
+import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;
+import gr.aegean.model.passwordreset.PasswordResetRequest;
+import gr.aegean.model.passwordreset.PasswordResetResult;
+import gr.aegean.model.auth.AuthResponse;
+import gr.aegean.model.auth.RegisterRequest;
 import gr.aegean.service.AuthService;
 import gr.aegean.service.PasswordResetService;
 
@@ -38,9 +38,9 @@ public class AuthController {
      * @return a ResponseEntity containing the authentication token.
      */
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request,
-                                                 UriComponentsBuilder uriBuilder) {
-        AuthResponse authResponse = authService.register(request);
+    public ResponseEntity<AuthResponse> registerUser(UriComponentsBuilder uriBuilder,
+                                                     @Valid @RequestBody RegisterRequest request) {
+        AuthResponse authResponse = authService.registerUser(request);
 
         URI location = uriBuilder
                 .path("/api/v1/users/{userID}")
@@ -57,8 +57,8 @@ public class AuthController {
      * @return a ResponseEntity containing the authentication token.
      */
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> authenticate(@Valid @RequestBody AuthRequest request) {
-        AuthResponse authResponse = authService.authenticate(request);
+    public ResponseEntity<AuthResponse> authenticateUser(@Valid @RequestBody AuthRequest request) {
+        AuthResponse authResponse = authService.authenticateUser(request);
 
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
@@ -80,7 +80,7 @@ public class AuthController {
 
     @PutMapping("/password_reset/confirm")
     public ResponseEntity<Void> resetPassword(
-            @RequestBody @Valid PasswordResetConfirmationRequest resetConfirmationRequest) {
+            @Valid @RequestBody PasswordResetConfirmationRequest resetConfirmationRequest) {
         passwordResetService.resetPassword(resetConfirmationRequest);
 
         return new ResponseEntity<>(HttpStatus.OK);

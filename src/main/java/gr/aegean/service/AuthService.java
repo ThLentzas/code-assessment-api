@@ -3,10 +3,10 @@ package gr.aegean.service;
 import gr.aegean.model.user.User;
 import gr.aegean.mapper.UserDTOMapper;
 import gr.aegean.model.user.UserDTO;
-import gr.aegean.security.auth.AuthResponse;
-import gr.aegean.security.auth.RegisterRequest;
+import gr.aegean.model.auth.AuthResponse;
+import gr.aegean.model.auth.RegisterRequest;
 import gr.aegean.exception.UnauthorizedException;
-import gr.aegean.security.auth.AuthRequest;
+import gr.aegean.model.auth.AuthRequest;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,7 +25,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserDTOMapper userDTOMapper;
 
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResponse registerUser(RegisterRequest request) {
         User user = new User(
                 request.firstname(),
                 request.lastname(),
@@ -46,7 +46,7 @@ public class AuthService {
         return new AuthResponse(jwtToken, id);
     }
 
-    public AuthResponse authenticate(AuthRequest request) {
+    public AuthResponse authenticateUser(AuthRequest request) {
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(

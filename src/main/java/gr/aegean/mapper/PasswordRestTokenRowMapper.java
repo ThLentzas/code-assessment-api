@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
-import gr.aegean.security.password.PasswordResetToken;
+import gr.aegean.model.passwordreset.PasswordResetToken;
 
 @Service
 public class PasswordRestTokenRowMapper implements RowMapper<PasswordResetToken> {

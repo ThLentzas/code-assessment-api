@@ -1,4 +1,4 @@
-package gr.aegean.security.auth;
+package gr.aegean.model.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

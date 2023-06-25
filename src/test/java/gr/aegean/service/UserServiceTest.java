@@ -3,7 +3,7 @@ package gr.aegean.service;
 import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.model.user.User;
-import gr.aegean.model.user.UserGeneralUpdateRequest;
+import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.UserRepository;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +25,7 @@ class UserServiceTest extends AbstractTestContainers{
     @BeforeEach
     void setup() {
         userRepository = new UserRepository(getJdbcTemplate());
-        underTest = new UserService(userRepository);
+        underTest = new UserService(passwordEncoder, userRepository);
 
         userRepository.deleteAllUsers();
     }
@@ -54,7 +54,7 @@ class UserServiceTest extends AbstractTestContainers{
         //Assert
         assertThatThrownBy(() -> underTest.registerUser(user2))
                 .isInstanceOf(DuplicateResourceException.class)
-                .hasMessage("The provided email already exists");
+                .hasMessage("Email already in user");
     }
 
     @Test
@@ -320,7 +320,7 @@ class UserServiceTest extends AbstractTestContainers{
     @Test
     void shouldUpdateUser() {
         //Arrange
-        UserGeneralUpdateRequest userGeneralUpdateRequest = new UserGeneralUpdateRequest(
+        UserProfileUpdateRequest userGeneralUpdateRequest = new UserProfileUpdateRequest(
                 "foo",
                 "foo",
                 "Foo",
@@ -332,7 +332,7 @@ class UserServiceTest extends AbstractTestContainers{
         Integer userId = userRepository.registerUser(user);
 
         //Act
-        underTest.updateUser(userId, userGeneralUpdateRequest);
+        underTest.updateProfile(userId, userGeneralUpdateRequest);
 
         //Assert
         userRepository.findUserByUserId(userId)

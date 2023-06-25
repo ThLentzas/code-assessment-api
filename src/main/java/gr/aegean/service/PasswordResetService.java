@@ -3,10 +3,10 @@ package gr.aegean.service;
 import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.repository.PasswordResetRepository;
 import gr.aegean.repository.UserRepository;
-import gr.aegean.security.password.PasswordResetConfirmationRequest;
-import gr.aegean.security.password.PasswordResetRequest;
-import gr.aegean.security.password.PasswordResetResult;
-import gr.aegean.security.password.PasswordResetToken;
+import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;
+import gr.aegean.model.passwordreset.PasswordResetRequest;
+import gr.aegean.model.passwordreset.PasswordResetResult;
+import gr.aegean.model.passwordreset.PasswordResetToken;
 import gr.aegean.utility.PasswordValidation;
 import gr.aegean.utility.StringUtils;
 

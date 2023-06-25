@@ -16,11 +16,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import gr.aegean.config.JwtConfig;
 import gr.aegean.config.SecurityConfig;
 import gr.aegean.config.AuthConfig;
-import gr.aegean.security.auth.AuthResponse;
-import gr.aegean.security.auth.RegisterRequest;
-import gr.aegean.security.auth.AuthRequest;
-import gr.aegean.security.password.PasswordResetRequest;
-import gr.aegean.security.password.PasswordResetResult;
+import gr.aegean.model.auth.AuthResponse;
+import gr.aegean.model.auth.RegisterRequest;
+import gr.aegean.model.auth.AuthRequest;
+import gr.aegean.model.passwordreset.PasswordResetRequest;
+import gr.aegean.model.passwordreset.PasswordResetResult;
 import gr.aegean.service.AuthService;
 import gr.aegean.service.PasswordResetService;
 import gr.aegean.repository.UserRepository;
@@ -69,7 +69,7 @@ class AuthControllerTest {
                 """;
         AuthResponse authResponse = new AuthResponse("jwtToken", 1);
 
-        when(authService.register(any(RegisterRequest.class))).thenReturn(authResponse);
+        when(authService.registerUser(any(RegisterRequest.class))).thenReturn(authResponse);
 
         //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/signup")
@@ -242,7 +242,7 @@ class AuthControllerTest {
                 """;
         AuthResponse authResponse = new AuthResponse("jwtToken");
 
-        when(authService.authenticate(any(AuthRequest.class))).thenReturn(authResponse);
+        when(authService.authenticateUser(any(AuthRequest.class))).thenReturn(authResponse);
 
         //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/login")

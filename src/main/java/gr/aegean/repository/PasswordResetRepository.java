@@ -1,7 +1,7 @@
 package gr.aegean.repository;
 
 import gr.aegean.mapper.PasswordRestTokenRowMapper;
-import gr.aegean.security.password.PasswordResetToken;
+import gr.aegean.model.passwordreset.PasswordResetToken;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -23,7 +23,7 @@ public class PasswordResetRepository {
         jdbcTemplate.update(
                 sql,
                 passwordResetRequest.getUserId(),
-                passwordResetRequest.getResetToken(),
+                passwordResetRequest.getToken(),
                 passwordResetRequest.getExpiryDate());
     }
 

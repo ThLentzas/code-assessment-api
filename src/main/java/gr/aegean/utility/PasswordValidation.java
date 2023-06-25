@@ -1,7 +1,12 @@
 package gr.aegean.utility;
 
 import gr.aegean.exception.BadCredentialsException;
-import org.passay.*;
+import org.passay.CharacterRule;
+import org.passay.EnglishCharacterData;
+import org.passay.LengthRule;
+import org.passay.PasswordData;
+import org.passay.PasswordValidator;
+import org.passay.RuleResult;
 
 public class PasswordValidation {
     public static void validatePassword(String password) {

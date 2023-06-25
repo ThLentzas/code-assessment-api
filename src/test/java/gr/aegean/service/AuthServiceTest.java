@@ -3,9 +3,6 @@ package gr.aegean.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EmptySource;
-import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,12 +12,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import gr.aegean.model.user.User;
 import gr.aegean.mapper.UserDTOMapper;
 import gr.aegean.model.user.UserDTO;
-import gr.aegean.security.auth.AuthResponse;
-import gr.aegean.security.auth.AuthRequest;
-import gr.aegean.security.auth.RegisterRequest;
+import gr.aegean.model.auth.AuthResponse;
+import gr.aegean.model.auth.AuthRequest;
+import gr.aegean.model.auth.RegisterRequest;
 import gr.aegean.exception.UnauthorizedException;
-import gr.aegean.exception.BadCredentialsException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -85,7 +80,7 @@ class AuthServiceTest {
         when(jwtService.assignToken(any(UserDTO.class))).thenReturn(jwtToken);
 
         //Act
-        AuthResponse authResponse = underTest.register(request);
+        AuthResponse authResponse = underTest.registerUser(request);
 
         //Assert
         assertThat(authResponse.getId()).isEqualTo(generatedID);
@@ -109,7 +104,7 @@ class AuthServiceTest {
                 new UsernamePasswordAuthenticationToken(user, "test"));
 
         //Act
-        AuthResponse authResponse = underTest.authenticate(authRequest);
+        AuthResponse authResponse = underTest.authenticateUser(authRequest);
 
         //Assert
         assertThat(authResponse.getToken()).isEqualTo(jwtToken);
@@ -132,7 +127,7 @@ class AuthServiceTest {
         AuthRequest request = new AuthRequest("test@example.com", "password");
 
         //Assert
-        assertThatThrownBy(() -> underTest.authenticate(request))
+        assertThatThrownBy(() -> underTest.authenticateUser(request))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessage("Username or password is incorrect");
 

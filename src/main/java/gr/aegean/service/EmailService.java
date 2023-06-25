@@ -64,7 +64,6 @@ public class EmailService {
             The Jarvis Team
                     """, username, receiver, resetLink);
         try {
-
             SimpleMailMessage emailMessage = new SimpleMailMessage();
 
             emailMessage.setFrom("jarvis.email.from@gmail.com");
@@ -77,5 +76,36 @@ public class EmailService {
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
                     "request. Please try again later.");
         }
+    }
+
+    public void sendEmailUpdateVerificationLinkEmail(String receiver, String username) {
+        String body = String.format("""
+                Jarvis email verification
+                Hello %s,
+                            
+                Simply click the link below to verify your email address. The link expires in 48 hours.
+                            
+                You can always visit https://github.com/settings/emails to review email addresses currently associated with your account.
+                            
+                The Jarvis Team
+                        """, username);
+
+        try {
+            SimpleMailMessage emailMessage = new SimpleMailMessage();
+
+            emailMessage.setFrom("jarvis.email.from@gmail.com");
+            emailMessage.setTo(receiver);
+            emailMessage.setSubject("Verify your email address");
+            emailMessage.setText(body);
+
+            mailSender.send(emailMessage);
+        } catch (MailException me) {
+            throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
+                    "request. Please try again later.");
+        }
+    }
+
+    public void sendPasswordUpdateNotificationEmail(String receiver, String username) {
+
     }
 }

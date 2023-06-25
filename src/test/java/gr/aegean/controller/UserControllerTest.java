@@ -56,7 +56,7 @@ class UserControllerTest {
                 }
                 """;
 
-        mockMvc.perform(put(USER_PATH + "/{userId}/profile/general", 1)
+        mockMvc.perform(put(USER_PATH + "/{userId}/profile", 1)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(requestBody)
                     .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
