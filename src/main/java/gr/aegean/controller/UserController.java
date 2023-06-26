@@ -1,13 +1,10 @@
 package gr.aegean.controller;
 
 import gr.aegean.model.user.UserPasswordUpdateRequest;
+import gr.aegean.model.user.UserProfile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import gr.aegean.model.user.UserEmailUpdateRequest;
 import gr.aegean.model.user.UserProfileUpdateRequest;
@@ -22,6 +19,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+
+    @GetMapping("/{userId}/profile")
+    public ResponseEntity<UserProfile> getProfile(@PathVariable("userId") Integer userId) {
+        UserProfile profile = userService.getProfile(userId);
+
+        return new ResponseEntity<>(profile, HttpStatus.OK);
+    }
 
     @PutMapping("/{userId}/settings/profile")
     public ResponseEntity<Void> updateProfile(@PathVariable("userId") Integer userId,

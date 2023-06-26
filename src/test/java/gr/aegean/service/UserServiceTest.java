@@ -2,7 +2,10 @@ package gr.aegean.service;
 
 import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.DuplicateResourceException;
+import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.model.user.User;
+import gr.aegean.model.user.UserPasswordUpdateRequest;
+import gr.aegean.model.user.UserProfile;
 import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.UserRepository;
 
@@ -12,10 +15,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
 
-import java.util.Random;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Random;
 
 class UserServiceTest extends AbstractTestContainers{
     private UserRepository userRepository;
@@ -54,7 +58,7 @@ class UserServiceTest extends AbstractTestContainers{
         //Assert
         assertThatThrownBy(() -> underTest.registerUser(user2))
                 .isInstanceOf(DuplicateResourceException.class)
-                .hasMessage("Email already in user");
+                .hasMessage("Email already in use");
     }
 
     @Test
@@ -318,9 +322,9 @@ class UserServiceTest extends AbstractTestContainers{
     }
 
     @Test
-    void shouldUpdateUser() {
+    void shouldUpdateUserProfile() {
         //Arrange
-        UserProfileUpdateRequest userGeneralUpdateRequest = new UserProfileUpdateRequest(
+        UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
                 "foo",
                 "foo",
                 "Foo",
@@ -332,18 +336,122 @@ class UserServiceTest extends AbstractTestContainers{
         Integer userId = userRepository.registerUser(user);
 
         //Act
-        underTest.updateProfile(userId, userGeneralUpdateRequest);
+        underTest.updateProfile(userId, profileUpdateRequest);
 
         //Assert
         userRepository.findUserByUserId(userId)
-                .ifPresent(updatedUser -> {
-                    assertThat(updatedUser.getFirstname()).isEqualTo(userGeneralUpdateRequest.firstname());
-                    assertThat(updatedUser.getLastname()).isEqualTo(userGeneralUpdateRequest.lastname());
-                    assertThat(updatedUser.getUsername()).isEqualTo(userGeneralUpdateRequest.username());
-                    assertThat(updatedUser.getBio()).isEqualTo(userGeneralUpdateRequest.bio());
-                    assertThat(updatedUser.getLocation()).isEqualTo(userGeneralUpdateRequest.location());
-                    assertThat(updatedUser.getCompany()).isEqualTo(userGeneralUpdateRequest.company());
+                .ifPresent(user1 -> {
+                    assertThat(user1.getFirstname()).isEqualTo(profileUpdateRequest.firstname());
+                    assertThat(user1.getLastname()).isEqualTo(profileUpdateRequest.lastname());
+                    assertThat(user1.getUsername()).isEqualTo(profileUpdateRequest.username());
+                    assertThat(user1.getBio()).isEqualTo(profileUpdateRequest.bio());
+                    assertThat(user1.getLocation()).isEqualTo(profileUpdateRequest.location());
+                    assertThat(user1.getCompany()).isEqualTo(profileUpdateRequest.company());
                 });
+    }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdateProfile() {
+        //Arrange
+        UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
+                "foo",
+                "foo",
+                "Foo",
+                "I have a real passion for teaching",
+                "Miami, OH",
+                "VM, LLC"
+        );
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+
+        Integer nonExistingId = userId + 1;
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.updateProfile(nonExistingId, profileUpdateRequest))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("User with id " + nonExistingId + " not found");
+    }
+
+    /*
+        Password validation has already being tested.
+     */
+    @Test
+    void shouldUpdateUserPassword() {
+        //Arrange
+        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("test", "CyN549^*o2Cr");
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+
+        //Act
+        underTest.updatePassword(userId, passwordUpdateRequest);
+
+        //Assert
+        userRepository.findUserByUserId(userId)
+                .ifPresent(user1 -> assertTrue(passwordEncoder.matches("CyN549^*o2Cr", user1.getPassword())));
+    }
+
+    @Test
+    void shouldThrowBadCredentialsExceptionWhenOldPasswordIsNotCorrect() {
+        //Arrange
+        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("foo", "CyN549^*o2Cr");
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.updatePassword(userId, passwordUpdateRequest))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessage("Old password is incorrect");
+    }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdatePassword() {
+        //Arrange
+        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("foo", "CyN549^*o2Cr");
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+        Integer nonExistingId = userId + 1;
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.updatePassword(nonExistingId, passwordUpdateRequest))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("User with id " + nonExistingId + " not found");
+    }
+
+    /*
+        Have to override equals() and hashcode() for this work
+     */
+    @Test
+    void shouldGetUserProfile() {
+        //Arrange
+        UserProfile expected = new UserProfile(
+                "Test",
+                "Test",
+                "TestT",
+                "I have a real passion for teaching",
+                "Cleveland, OH",
+                "Code Monkey, LLC"
+        );
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+
+        //Act
+        UserProfile actual = underTest.getProfile(userId);
+
+        //Assert
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToGetProfile() {
+        //Arrange
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+        Integer nonExistingId = userId + 1;
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.getProfile(nonExistingId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("User with id " + nonExistingId + " not found");
     }
 
     private User generateUser() {

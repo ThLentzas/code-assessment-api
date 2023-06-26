@@ -79,8 +79,7 @@ class AuthControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", Matchers.containsString(
-                        "api/v1/users/" +
-                        authResponse.getId())))
+                        "api/v1/users/" + authResponse.getId())))
                 .andExpect(jsonPath("$.token", is(authResponse.getToken())));
     }
 
@@ -178,7 +177,7 @@ class AuthControllerTest {
     void shouldReturnHTTP400WhenRegisterEmailIsNullOrEmpty(String email)
             throws Exception {
         //Arrange
-        String usernameValue = email == null ? "null" : "\"" + email + "\"";
+        String emailValue = email == null ? "null" : "\"" + email + "\"";
         String requestBody = String.format("""
                 {
                     "firstname": "Test",
@@ -190,7 +189,7 @@ class AuthControllerTest {
                     "location": "Cleveland, OH",
                     "company": "Code Monkey, LLC"
                 }
-                """, usernameValue);
+                """, emailValue);
 
         //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/signup")
@@ -207,7 +206,7 @@ class AuthControllerTest {
     @EmptySource
     void shouldReturnHTTP400WhenRegisterPasswordIsNullOrEmpty(String password) throws Exception {
         //Arrange
-        String usernameValue = password == null ? "null" : "\"" + password + "\"";
+        String passwordValue = password == null ? "null" : "\"" + password + "\"";
         String requestBody = String.format("""
                 {
                     "firstname": "Test",
@@ -219,7 +218,7 @@ class AuthControllerTest {
                     "location": "Cleveland, OH",
                     "company": "Code Monkey, LLC"
                 }
-                """, usernameValue);
+                """, passwordValue);
 
         //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/signup")

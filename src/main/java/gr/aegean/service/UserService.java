@@ -3,10 +3,7 @@ package gr.aegean.service;
 import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
-import gr.aegean.model.user.User;
-import gr.aegean.model.user.UserEmailUpdateRequest;
-import gr.aegean.model.user.UserPasswordUpdateRequest;
-import gr.aegean.model.user.UserProfileUpdateRequest;
+import gr.aegean.model.user.*;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.utility.PasswordValidation;
 
@@ -37,45 +34,63 @@ public class UserService {
         return userRepository.registerUser(user);
     }
 
+    public UserProfile getProfile(Integer userId) {
+        return userRepository.findUserByUserId(userId)
+                .map(user -> new UserProfile(
+                        user.getFirstname(),
+                        user.getLastname(),
+                        user.getUsername(),
+                        user.getBio(),
+                        user.getLocation(),
+                        user.getCompany()))
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + userId + " not found"));
+    }
+
+
     public void updateProfile(Integer userId, UserProfileUpdateRequest profileUpdateRequest) {
-        if(profileUpdateRequest.firstname() != null && !profileUpdateRequest.firstname().isBlank()) {
-            validateFirstname(profileUpdateRequest.firstname());
+        userRepository.findUserByUserId(userId)
+                .ifPresentOrElse(user -> {
+                    if(profileUpdateRequest.firstname() != null && !profileUpdateRequest.firstname().isBlank()) {
+                        validateFirstname(profileUpdateRequest.firstname());
 
-            userRepository.updateFirstname(userId, profileUpdateRequest.firstname());
-        }
+                        userRepository.updateFirstname(userId, profileUpdateRequest.firstname());
+                    }
 
-        if(profileUpdateRequest.lastname() != null && !profileUpdateRequest.lastname().isBlank()) {
-            validateLastname(profileUpdateRequest.lastname());
+                    if(profileUpdateRequest.lastname() != null && !profileUpdateRequest.lastname().isBlank()) {
+                        validateLastname(profileUpdateRequest.lastname());
 
-            userRepository.updateLastname(userId, profileUpdateRequest.lastname());
-        }
+                        userRepository.updateLastname(userId, profileUpdateRequest.lastname());
+                    }
 
-        if(profileUpdateRequest.username() != null && !profileUpdateRequest.username().isBlank()) {
-            validateUsername(profileUpdateRequest.username());
-            if(userRepository.existsUserWithUsername(profileUpdateRequest.username())) {
-                throw new DuplicateResourceException("The provided username already exists");
-            }
+                    if(profileUpdateRequest.username() != null && !profileUpdateRequest.username().isBlank()) {
+                        validateUsername(profileUpdateRequest.username());
+                        if(userRepository.existsUserWithUsername(profileUpdateRequest.username())) {
+                            throw new DuplicateResourceException("The provided username already exists");
+                        }
 
-            userRepository.updateUsername(userId, profileUpdateRequest.username());
-        }
+                        userRepository.updateUsername(userId, profileUpdateRequest.username());
+                    }
 
-        if(profileUpdateRequest.bio() != null && !profileUpdateRequest.bio().isBlank()) {
-            validateBio(profileUpdateRequest.bio());
+                    if(profileUpdateRequest.bio() != null && !profileUpdateRequest.bio().isBlank()) {
+                        validateBio(profileUpdateRequest.bio());
 
-            userRepository.updateBio(userId, profileUpdateRequest.bio());
-        }
+                        userRepository.updateBio(userId, profileUpdateRequest.bio());
+                    }
 
-        if(profileUpdateRequest.location() != null && !profileUpdateRequest.location().isBlank()) {
-            validateLocation(profileUpdateRequest.location());
+                    if(profileUpdateRequest.location() != null && !profileUpdateRequest.location().isBlank()) {
+                        validateLocation(profileUpdateRequest.location());
 
-            userRepository.updateLocation(userId, profileUpdateRequest.location());
-        }
+                        userRepository.updateLocation(userId, profileUpdateRequest.location());
+                    }
 
-        if(profileUpdateRequest.company() != null && !profileUpdateRequest.company().isBlank()) {
-            validateCompany(profileUpdateRequest.company());
+                    if(profileUpdateRequest.company() != null && !profileUpdateRequest.company().isBlank()) {
+                        validateCompany(profileUpdateRequest.company());
 
-            userRepository.updateCompany(userId, profileUpdateRequest.company());
-        }
+                        userRepository.updateCompany(userId, profileUpdateRequest.company());
+                    }
+                }, ()-> {
+                    throw new ResourceNotFoundException("User with id " + userId + " not found");
+                });
     }
 
     public void updateEmail(Integer userId, UserEmailUpdateRequest emailUpdateRequest) {
@@ -107,7 +122,6 @@ public class UserService {
                     userRepository.updatePassword(
                             userId,
                             passwordEncoder.encode(passwordUpdateRequest.updatedPassword()));
-                    //toDO: send email notification email
                 }, () -> {
                     throw new ResourceNotFoundException("User with id " + userId + " not found");
                 });
