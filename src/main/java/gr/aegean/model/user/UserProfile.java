@@ -1,7 +1,5 @@
 package gr.aegean.model.user;
 
-import gr.aegean.model.passwordreset.PasswordResetToken;
-
 import java.util.Objects;
 
 public record UserProfile(

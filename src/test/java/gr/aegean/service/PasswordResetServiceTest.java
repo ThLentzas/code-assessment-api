@@ -1,5 +1,6 @@
 package gr.aegean.service;
 
+import gr.aegean.model.token.TokenType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,13 +14,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import gr.aegean.model.user.User;
-import gr.aegean.repository.PasswordResetRepository;
+import gr.aegean.repository.VerificationTokenRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.model.passwordreset.PasswordResetRequest;
 import gr.aegean.model.passwordreset.PasswordResetResult;
 import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;
-import gr.aegean.model.passwordreset.PasswordResetToken;
+import gr.aegean.model.token.VerificationToken;
 import gr.aegean.utility.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,21 +38,21 @@ class PasswordResetServiceTest extends AbstractTestContainers{
     @Mock
     private EmailService emailService;
     private UserRepository userRepository;
-    private PasswordResetRepository passwordResetRepository;
+    private VerificationTokenRepository verificationTokenRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private PasswordResetService underTest;
 
     @BeforeEach
     void setup() {
-        passwordResetRepository = new PasswordResetRepository(getJdbcTemplate());
+        verificationTokenRepository = new VerificationTokenRepository(getJdbcTemplate());
         userRepository = new UserRepository(getJdbcTemplate());
         underTest = new PasswordResetService(
                 emailService,
                 userRepository,
-                passwordResetRepository,
+                verificationTokenRepository,
                 passwordEncoder);
 
-        passwordResetRepository.deleteAllTokens();
+        verificationTokenRepository.deleteAllTokens();
         userRepository.deleteAllUsers();
     }
 
@@ -105,12 +106,13 @@ class PasswordResetServiceTest extends AbstractTestContainers{
         Integer userId= userRepository.registerUser(user);
 
         String hashedToken = StringUtils.hashToken("expiredToken");
-        PasswordResetToken passwordResetToken = new PasswordResetToken(
+        VerificationToken verificationToken = new VerificationToken(
                 userId,
                 hashedToken,
-                LocalDateTime.now().minusHours(1));
+                LocalDateTime.now().minusHours(1),
+                TokenType.PASSWORD_RESET);
         //Act
-        passwordResetRepository.createPasswordResetToken(passwordResetToken);
+        verificationTokenRepository.createPasswordResetToken(verificationToken);
 
         //Assert
         assertThatThrownBy(() -> underTest.validatePasswordResetToken("expiredToken"))
@@ -129,11 +131,12 @@ class PasswordResetServiceTest extends AbstractTestContainers{
         Integer userId= userRepository.registerUser(user);
 
         String hashedToken = StringUtils.hashToken("token");
-        PasswordResetToken passwordResetToken = new PasswordResetToken(
+        VerificationToken verificationToken = new VerificationToken(
                 userId,
                 hashedToken,
-                LocalDateTime.now().plusHours(2));
-        passwordResetRepository.createPasswordResetToken(passwordResetToken);
+                LocalDateTime.now().plusHours(2),
+                TokenType.PASSWORD_RESET);
+        verificationTokenRepository.createPasswordResetToken(verificationToken);
 
         PasswordResetConfirmationRequest passwordResetConfirmationRequest = new PasswordResetConfirmationRequest(
                 "token",

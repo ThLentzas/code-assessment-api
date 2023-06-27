@@ -1,4 +1,4 @@
-package gr.aegean.model.passwordreset;
+package gr.aegean.model.token;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,10 +8,11 @@ import java.util.Objects;
 
 @Getter
 @AllArgsConstructor
-public class PasswordResetToken {
+public class VerificationToken {
     private Integer userId;
     private String token;
     private LocalDateTime expiryDate;
+    private TokenType type;
 
     @Override
     public boolean equals(Object obj) {
@@ -23,9 +24,10 @@ public class PasswordResetToken {
             return false;
         }
 
-        if(obj instanceof PasswordResetToken tokeObj) {
+        if(obj instanceof VerificationToken tokeObj) {
             return userId.equals(tokeObj.userId)
-                    && token.equals(tokeObj.token);
+                    && token.equals(tokeObj.token)
+                    && type.equals(tokeObj.type);
         }
 
         return false;
@@ -33,6 +35,6 @@ public class PasswordResetToken {
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, token);
+        return Objects.hash(userId, token, type);
     }
 }

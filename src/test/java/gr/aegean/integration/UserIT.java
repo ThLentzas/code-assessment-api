@@ -4,19 +4,14 @@ import gr.aegean.model.auth.AuthResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
 @AutoConfigureWebTestClient
-@ActiveProfiles(profiles = "test")
 class UserIT extends AbstractIntegrationTest {
     @Autowired
     private WebTestClient webTestClient;

@@ -1,12 +1,13 @@
 package gr.aegean.service;
 
 import gr.aegean.exception.BadCredentialsException;
-import gr.aegean.repository.PasswordResetRepository;
+import gr.aegean.model.token.TokenType;
+import gr.aegean.repository.VerificationTokenRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;
 import gr.aegean.model.passwordreset.PasswordResetRequest;
 import gr.aegean.model.passwordreset.PasswordResetResult;
-import gr.aegean.model.passwordreset.PasswordResetToken;
+import gr.aegean.model.token.VerificationToken;
 import gr.aegean.utility.PasswordValidation;
 import gr.aegean.utility.StringUtils;
 
@@ -24,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class PasswordResetService {
     private final EmailService emailService;
     private final UserRepository userRepository;
-    private final PasswordResetRepository passwordResetRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
     private final PasswordEncoder passwordEncoder;
 
     public PasswordResetResult createPasswordResetToken(PasswordResetRequest passwordResetRequest) {
@@ -33,11 +34,12 @@ public class PasswordResetService {
                     String token = generateToken();
                     LocalDateTime expiryDate = LocalDateTime.now().plusHours(2);
                     String hashedToken = StringUtils.hashToken(token);
-                    PasswordResetToken passwordResetToken = new PasswordResetToken(
+                    VerificationToken verificationToken = new VerificationToken(
                             user.getId(),
                             hashedToken,
-                            expiryDate);
-                    passwordResetRepository.createPasswordResetToken(passwordResetToken);
+                            expiryDate,
+                            TokenType.PASSWORD_RESET);
+                    verificationTokenRepository.createPasswordResetToken(verificationToken);
 
                     emailService.sendPasswordResetLinkEmail(passwordResetRequest.email(), token);
                 });
@@ -52,7 +54,7 @@ public class PasswordResetService {
         }
 
         String hashedToken = StringUtils.hashToken(token);
-        passwordResetRepository.findPasswordResetToken(hashedToken)
+        verificationTokenRepository.findPasswordResetToken(hashedToken)
                 .ifPresentOrElse(passwordResetToken -> {
                     if (passwordResetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
                         throw new BadCredentialsException("The password reset link has expired. " +
@@ -72,10 +74,10 @@ public class PasswordResetService {
 
         //update the password in db and delete the password reset token record after
         String hashedToken = StringUtils.hashToken(resetConfirmationRequest.token());
-        passwordResetRepository.findPasswordResetToken(hashedToken)
+        verificationTokenRepository.findPasswordResetToken(hashedToken)
                 .ifPresent(passwordResetToken -> {
                     userRepository.updatePassword(passwordResetToken.getUserId(), hashedPassword);
-                    passwordResetRepository.deletePasswordResetToken(hashedToken);
+                    verificationTokenRepository.deletePasswordResetToken(hashedToken);
 
                     // send confirmation email
                     sendConfirmationEmail(passwordResetToken.getUserId());

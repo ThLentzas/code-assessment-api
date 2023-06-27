@@ -7,3 +7,9 @@ spring:
     baseline-description: "init"
     baseline-version: 0
     locations: classpath:db/migration
+
+  mail:
+    host: 127.0.0.1
+    port: 3025
+    username: test
+    password: test
