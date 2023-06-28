@@ -1,11 +1,7 @@
 package gr.aegean.service;
 
-import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.MimeMultipart;
 import org.springframework.hateoas.Link;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -14,33 +10,25 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import gr.aegean.exception.ServerErrorException;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import lombok.RequiredArgsConstructor;
+
 
 @Service
 @RequiredArgsConstructor
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    private final TemplateEngine templateEngine;
 
     public void sendPasswordResetLinkEmail(String recipient, String token) {
         String resetLink = "http://localhost:8080/api/v1/auth/password_reset?token=" + token;
 
-        String body = String.format("""
-    <h1>Jarvis password reset</h1>
-    <p>We heard that you lost your Jarvis password. Sorry about that!</p>
-    <p>But don’t worry! You can use the following button to reset your password:</p>
-    <p>
-        <a style="background-color: #1a73e8; padding: 10px 20px;
-                  color: white; text-decoration:none;font-size:14px;
-                  font-family:Roboto,sans-serif;border-radius:5px" href="%s">
-        Reset Password
-        </a>
-    </p>
-    <p>If you don’t use this link within 2 hours, it will expire. To get a new password reset link, visit:</p>
-    <p>Thanks,</p>
-    <p>The Jarvis Team</p>
-    """, resetLink);
+        Context context = new Context();
+        context.setVariable("resetLink", resetLink);
+        String emailContent = templateEngine.process("password_reset", context);
 
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper;
@@ -50,7 +38,7 @@ public class EmailService {
             helper.setTo("letzasegw@gmail.com");
             helper.setFrom("jarvis.email.from@gmail.com");
             helper.setSubject("Reset your Jarvis password");
-            helper.setText(body, true);
+            helper.setText(emailContent, true);
 
             mailSender.send(mimeMessage);
         } catch (MessagingException me) {
