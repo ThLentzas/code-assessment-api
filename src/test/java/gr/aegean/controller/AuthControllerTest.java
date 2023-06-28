@@ -373,7 +373,7 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     /*

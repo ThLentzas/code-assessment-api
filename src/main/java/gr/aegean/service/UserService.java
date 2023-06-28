@@ -105,7 +105,6 @@ public class UserService {
                     }
 
                     validateEmail(emailUpdateRequest.email());
-
                 }, () -> {
                     throw new ResourceNotFoundException("User with id " + userId + " not found");
                 });

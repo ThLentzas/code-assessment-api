@@ -35,7 +35,7 @@ public class EmailService {
 
         try {
             helper = new MimeMessageHelper(mimeMessage, true);
-            helper.setTo("letzasegw@gmail.com");
+            helper.setTo(recipient);
             helper.setFrom("jarvis.email.from@gmail.com");
             helper.setSubject("Reset your Jarvis password");
             helper.setText(emailContent, true);
@@ -46,7 +46,6 @@ public class EmailService {
                     "request. Please try again later.");
         }
     }
-
 
     public void sendPasswordResetConfirmationEmail(String recipient, String username) {
         String resetLink= Link.of("http://localhost:8080/api/v1/auth/password_reset").toString();
@@ -65,8 +64,8 @@ public class EmailService {
         try {
             SimpleMailMessage emailMessage = new SimpleMailMessage();
 
+            emailMessage.setTo(recipient);
             emailMessage.setFrom("jarvis.email.from@gmail.com");
-            emailMessage.setTo("letzasegw@gmail.com");
             emailMessage.setSubject("Your password was reset");
             emailMessage.setText(body);
 
@@ -84,7 +83,7 @@ public class EmailService {
                             
                 Simply click the link below to verify your email address. The link expires in 48 hours.
                             
-                You can always visit https://github.com/settings/emails to review email addresses currently associated with your account.
+                You can always visit to review email addresses currently associated with your account.
                             
                 The Jarvis Team
                         """, username);
@@ -92,8 +91,8 @@ public class EmailService {
         try {
             SimpleMailMessage emailMessage = new SimpleMailMessage();
 
-            emailMessage.setFrom("jarvis.email.from@gmail.com");
             emailMessage.setTo(receiver);
+            emailMessage.setFrom("jarvis.email.from@gmail.com");
             emailMessage.setSubject("Verify your email address");
             emailMessage.setText(body);
 

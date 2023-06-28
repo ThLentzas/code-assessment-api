@@ -11,12 +11,10 @@ import gr.aegean.model.token.VerificationToken;
 import gr.aegean.utility.PasswordValidation;
 import gr.aegean.utility.StringUtils;
 
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
-import java.util.Base64;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +29,7 @@ public class PasswordResetService {
     public PasswordResetResult createPasswordResetToken(PasswordResetRequest passwordResetRequest) {
         userRepository.findUserByEmail(passwordResetRequest.email())
                 .ifPresent(user -> {
-                    String token = generateToken();
+                    String token = StringUtils.generateToken();
                     LocalDateTime expiryDate = LocalDateTime.now().plusHours(2);
                     String hashedToken = StringUtils.hashToken(token);
                     VerificationToken verificationToken = new VerificationToken(
@@ -89,14 +87,5 @@ public class PasswordResetService {
                 .ifPresent(user -> emailService.sendPasswordResetConfirmationEmail(
                         user.getEmail(),
                         user.getUsername()));
-    }
-
-    private String generateToken() {
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] randomBytes = new byte[16];
-
-        secureRandom.nextBytes(randomBytes);
-
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
     }
 }

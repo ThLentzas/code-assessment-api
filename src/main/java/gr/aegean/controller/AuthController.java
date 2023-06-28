@@ -83,6 +83,6 @@ public class AuthController {
             @Valid @RequestBody PasswordResetConfirmationRequest resetConfirmationRequest) {
         passwordResetService.resetPassword(resetConfirmationRequest);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
