@@ -1,4 +1,4 @@
-package gr.aegean.integration;
+package gr.aegean;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;

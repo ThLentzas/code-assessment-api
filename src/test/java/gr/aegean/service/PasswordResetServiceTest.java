@@ -1,6 +1,7 @@
 package gr.aegean.service;
 
-import gr.aegean.model.token.TokenType;
+import gr.aegean.AbstractTestContainers;
+import gr.aegean.repository.PasswordResetTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,13 +15,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import gr.aegean.model.user.User;
-import gr.aegean.repository.VerificationTokenRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.model.passwordreset.PasswordResetRequest;
 import gr.aegean.model.passwordreset.PasswordResetResult;
 import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;
-import gr.aegean.model.token.VerificationToken;
+import gr.aegean.model.token.PasswordResetToken;
 import gr.aegean.utility.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,41 +34,45 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import java.time.LocalDateTime;
 
 @ExtendWith(MockitoExtension.class)
-class PasswordResetServiceTest extends AbstractTestContainers{
+class PasswordResetServiceTest extends AbstractTestContainers {
     @Mock
     private EmailService emailService;
+    private PasswordResetTokenRepository passwordResetTokenRepository;
     private UserRepository userRepository;
-    private VerificationTokenRepository verificationTokenRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private PasswordResetService underTest;
 
     @BeforeEach
     void setup() {
-        verificationTokenRepository = new VerificationTokenRepository(getJdbcTemplate());
         userRepository = new UserRepository(getJdbcTemplate());
+        passwordResetTokenRepository = new PasswordResetTokenRepository(getJdbcTemplate());
         underTest = new PasswordResetService(
                 emailService,
+                passwordResetTokenRepository,
                 userRepository,
-                verificationTokenRepository,
                 passwordEncoder);
 
-        verificationTokenRepository.deleteAllTokens();
+        passwordResetTokenRepository.deleteAllTokens();
         userRepository.deleteAllUsers();
     }
 
     @Test
     void shouldCreatePasswordResetTokenWhenUserIsFound() {
-        PasswordResetRequest passwordResetRequest = new PasswordResetRequest("test@example.com");
+        //Arrange
         User user = generateUser();
         userRepository.registerUser(user);
 
+        PasswordResetRequest passwordResetRequest = new PasswordResetRequest("test@example.com");
+
+        //Act
         PasswordResetResult passwordResetResult = underTest.createPasswordResetToken(passwordResetRequest);
 
+        //Assert
         assertThat(passwordResetResult.message()).isEqualTo(
                 "If your email address exists in our database, you will receive a password recovery link at " +
                         "your email address in a few minutes.");
 
-        verify(emailService, times(1)).sendPasswordResetLinkEmail(
+        verify(emailService, times(1)).sendPasswordResetRequestEmail(
                 eq(user.getEmail()),
                 any(String.class));
     }
@@ -76,11 +80,11 @@ class PasswordResetServiceTest extends AbstractTestContainers{
     @Test
     void shouldNotCreatePasswordResetTokenWhenUserIsNotFound() {
         PasswordResetRequest passwordResetRequest = new PasswordResetRequest("test1@example.com");
-        User user = generateUser();
-        userRepository.registerUser(user);
 
+        //Act
         PasswordResetResult passwordResetResult = underTest.createPasswordResetToken(passwordResetRequest);
 
+        //Assert
         assertThat(passwordResetResult.message()).isEqualTo(
                 "If your email address exists in our database, you will receive a password recovery link at " +
                         "your email address in a few minutes.");
@@ -92,7 +96,7 @@ class PasswordResetServiceTest extends AbstractTestContainers{
     @NullSource
     @EmptySource
     @ValueSource(strings = {"invalidToken"})
-    void shouldThrowBadCredentialsExceptionWhenTokenIsInvalid(String invalidToken) {
+    void shouldThrowBadCredentialsExceptionWhenPasswordResetTokenIsInvalid(String invalidToken) {
         //Arrange Act Assert
         assertThatThrownBy(() -> underTest.validatePasswordResetToken(invalidToken))
                 .isInstanceOf(BadCredentialsException.class)
@@ -100,19 +104,19 @@ class PasswordResetServiceTest extends AbstractTestContainers{
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenTokenExpired() {
+    void shouldThrowBadCredentialsExceptionWhenPasswordResetTokenExpired() {
         //Arrange
         User user = generateUser();
-        Integer userId= userRepository.registerUser(user);
+        Integer userId = userRepository.registerUser(user);
 
         String hashedToken = StringUtils.hashToken("expiredToken");
-        VerificationToken verificationToken = new VerificationToken(
+        LocalDateTime expiryDate = LocalDateTime.now().minusHours(1);
+        PasswordResetToken passwordResetToken = new PasswordResetToken(
                 userId,
                 hashedToken,
-                LocalDateTime.now().minusHours(1),
-                TokenType.PASSWORD_RESET);
-        //Act
-        verificationTokenRepository.createPasswordResetToken(verificationToken);
+                expiryDate);
+
+        passwordResetTokenRepository.createToken(passwordResetToken);
 
         //Assert
         assertThatThrownBy(() -> underTest.validatePasswordResetToken("expiredToken"))
@@ -122,21 +126,23 @@ class PasswordResetServiceTest extends AbstractTestContainers{
 
     /*
         No need to test for the password encoder or to validate the updated password or the email service because they
-        have been tested separately in email service, etc.
-     */
+        have been tested separately in email service, etc. The validatePasswordResetToken() it's tested here as well
+        for valid token.
+    */
     @Test
     void shouldResetPassword() {
         //Arrange
         User user = generateUser();
-        Integer userId= userRepository.registerUser(user);
+        Integer userId = userRepository.registerUser(user);
 
         String hashedToken = StringUtils.hashToken("token");
-        VerificationToken verificationToken = new VerificationToken(
+        LocalDateTime expiryDate = LocalDateTime.now().plusHours(3);
+        PasswordResetToken passwordResetToken = new PasswordResetToken(
                 userId,
                 hashedToken,
-                LocalDateTime.now().plusHours(2),
-                TokenType.PASSWORD_RESET);
-        verificationTokenRepository.createPasswordResetToken(verificationToken);
+                expiryDate);
+
+        passwordResetTokenRepository.createToken(passwordResetToken);
 
         PasswordResetConfirmationRequest passwordResetConfirmationRequest = new PasswordResetConfirmationRequest(
                 "token",

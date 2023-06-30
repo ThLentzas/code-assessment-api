@@ -1,17 +1,17 @@
 package gr.aegean.service;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import org.springframework.hateoas.Link;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-
-import gr.aegean.exception.ServerErrorException;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.MessagingException;
+
+import gr.aegean.exception.ServerErrorException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,13 +22,14 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
+    private static final String SENDER = "jarvis.email.from@gmail.com";
 
-    public void sendPasswordResetLinkEmail(String recipient, String token) {
-        String resetLink = "http://localhost:8080/api/v1/auth/password_reset?token=" + token;
+    public void sendPasswordResetRequestEmail(String recipient, String token) {
+        final String resetLink = "http://localhost:8080/api/v1/auth/password_reset?token=" + token;
 
         Context context = new Context();
         context.setVariable("resetLink", resetLink);
-        String emailContent = templateEngine.process("password_reset", context);
+        String emailContent = templateEngine.process("password_reset_request", context);
 
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper;
@@ -36,7 +37,7 @@ public class EmailService {
         try {
             helper = new MimeMessageHelper(mimeMessage, true);
             helper.setTo(recipient);
-            helper.setFrom("jarvis.email.from@gmail.com");
+            helper.setFrom(SENDER);
             helper.setSubject("Reset your Jarvis password");
             helper.setText(emailContent, true);
 
@@ -48,35 +49,32 @@ public class EmailService {
     }
 
     public void sendPasswordResetConfirmationEmail(String recipient, String username) {
-        String resetLink= Link.of("http://localhost:8080/api/v1/auth/password_reset").toString();
+        final String password_reset = "http://localhost:8080/api/v1/auth/password_reset";
 
-        String body = String.format("""
-            Hello %s,
-                                               
-            We wanted to let you know that your Jarvis password was reset.
-                                               
-            If you did not perform this action, you can recover access by entering %s into the form at %s
-                                               
-            Please do not reply to this email with your password. We will never ask for your password, and we strongly discourage you from sharing it with anyone.
-            
-            The Jarvis Team
-                    """, username, recipient, resetLink);
+        Context context = new Context();
+        context.setVariable("username", username);
+        context.setVariable("email", recipient);
+        context.setVariable("password_reset", password_reset);
+        String emailContent = templateEngine.process("password_reset_success", context);
+
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper;
+
         try {
-            SimpleMailMessage emailMessage = new SimpleMailMessage();
+            helper = new MimeMessageHelper(mimeMessage, true);
+            helper.setTo(recipient);
+            helper.setFrom(SENDER);
+            helper.setSubject("Your password was reset");
+            helper.setText(emailContent, true);
 
-            emailMessage.setTo(recipient);
-            emailMessage.setFrom("jarvis.email.from@gmail.com");
-            emailMessage.setSubject("Your password was reset");
-            emailMessage.setText(body);
-
-            mailSender.send(emailMessage);
-        } catch (MailException me) {
+            mailSender.send(mimeMessage);
+        } catch (MessagingException me) {
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
                     "request. Please try again later.");
         }
     }
 
-    public void sendEmailUpdateVerificationLinkEmail(String receiver, String username) {
+    public void sendEmailVerification(String receiver, String username) {
         String body = String.format("""
                 Jarvis email verification
                 Hello %s,
@@ -92,7 +90,7 @@ public class EmailService {
             SimpleMailMessage emailMessage = new SimpleMailMessage();
 
             emailMessage.setTo(receiver);
-            emailMessage.setFrom("jarvis.email.from@gmail.com");
+            emailMessage.setFrom(SENDER);
             emailMessage.setSubject("Verify your email address");
             emailMessage.setText(body);
 
@@ -101,9 +99,5 @@ public class EmailService {
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
                     "request. Please try again later.");
         }
-    }
-
-    public void sendPasswordUpdateNotificationEmail(String receiver, String username) {
-
     }
 }

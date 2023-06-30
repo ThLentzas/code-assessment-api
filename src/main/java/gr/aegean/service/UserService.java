@@ -100,11 +100,12 @@ public class UserService {
                         throw new BadCredentialsException("Invalid password");
                     }
 
+                    validateEmail(emailUpdateRequest.email());
                     if(userRepository.existsUserWithEmail(emailUpdateRequest.email())) {
                         throw new DuplicateResourceException("Email already in use");
                     }
 
-                    validateEmail(emailUpdateRequest.email());
+
                 }, () -> {
                     throw new ResourceNotFoundException("User with id " + userId + " not found");
                 });

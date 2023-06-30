@@ -1,5 +1,6 @@
 package gr.aegean.integration;
 
+import gr.aegean.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -287,7 +288,7 @@ class AuthIT extends AbstractIntegrationTest {
 
     @Test
     void shouldNotResetPasswordWhenEmailDoesNotExist() {
-// Create a user
+        // Create a user
         String requestBody = """
                 {
                     "firstname": "Test",

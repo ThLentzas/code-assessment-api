@@ -378,7 +378,7 @@ class AuthControllerTest {
 
     /*
         No need to test the token if its null or empty it is already tested in the validatePasswordResetToken() method
-        in PasswordResetServiceTest class void shouldThrowBadCredentialsExceptionWhenTokenIsInvalid(String invalidToken)
+        in PasswordResetServiceTest -> void shouldThrowBadCredentialsExceptionWhenTokenIsInvalid(String invalidToken)
      */
     @ParameterizedTest
     @NullSource

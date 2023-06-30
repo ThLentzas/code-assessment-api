@@ -1,13 +1,12 @@
 package gr.aegean.service;
 
 import gr.aegean.exception.BadCredentialsException;
-import gr.aegean.model.token.TokenType;
-import gr.aegean.repository.VerificationTokenRepository;
+import gr.aegean.model.token.PasswordResetToken;
+import gr.aegean.repository.PasswordResetTokenRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;
 import gr.aegean.model.passwordreset.PasswordResetRequest;
 import gr.aegean.model.passwordreset.PasswordResetResult;
-import gr.aegean.model.token.VerificationToken;
 import gr.aegean.utility.PasswordValidation;
 import gr.aegean.utility.StringUtils;
 
@@ -22,24 +21,24 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PasswordResetService {
     private final EmailService emailService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final UserRepository userRepository;
-    private final VerificationTokenRepository verificationTokenRepository;
     private final PasswordEncoder passwordEncoder;
 
     public PasswordResetResult createPasswordResetToken(PasswordResetRequest passwordResetRequest) {
         userRepository.findUserByEmail(passwordResetRequest.email())
                 .ifPresent(user -> {
                     String token = StringUtils.generateToken();
-                    LocalDateTime expiryDate = LocalDateTime.now().plusHours(2);
                     String hashedToken = StringUtils.hashToken(token);
-                    VerificationToken verificationToken = new VerificationToken(
+                    LocalDateTime expiryDate = LocalDateTime.now().plusHours(3);
+                    PasswordResetToken passwordResetToken = new PasswordResetToken(
                             user.getId(),
                             hashedToken,
-                            expiryDate,
-                            TokenType.PASSWORD_RESET);
-                    verificationTokenRepository.createPasswordResetToken(verificationToken);
+                            expiryDate);
 
-                    emailService.sendPasswordResetLinkEmail(passwordResetRequest.email(), token);
+                    passwordResetTokenRepository.createToken(passwordResetToken);
+
+                    emailService.sendPasswordResetRequestEmail(passwordResetRequest.email(), token);
                 });
 
         return new PasswordResetResult("If your email address exists in our database, you will receive a password " +
@@ -52,9 +51,9 @@ public class PasswordResetService {
         }
 
         String hashedToken = StringUtils.hashToken(token);
-        verificationTokenRepository.findPasswordResetToken(hashedToken)
+        passwordResetTokenRepository.findToken(hashedToken)
                 .ifPresentOrElse(passwordResetToken -> {
-                    if (passwordResetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+                    if (passwordResetToken.expiryDate().isBefore(LocalDateTime.now())) {
                         throw new BadCredentialsException("The password reset link has expired. " +
                                 "Please request a new one.");
                     }}, () -> {
@@ -70,15 +69,15 @@ public class PasswordResetService {
         PasswordValidation.validatePassword(resetConfirmationRequest.updatedPassword());
         String hashedPassword = passwordEncoder.encode(resetConfirmationRequest.updatedPassword());
 
-        //update the password in db and delete the password reset token record after
+        //update the password in db and delete the password reset token record after so subsequent requests will fail
         String hashedToken = StringUtils.hashToken(resetConfirmationRequest.token());
-        verificationTokenRepository.findPasswordResetToken(hashedToken)
+        passwordResetTokenRepository.findToken(hashedToken)
                 .ifPresent(passwordResetToken -> {
-                    userRepository.updatePassword(passwordResetToken.getUserId(), hashedPassword);
-                    verificationTokenRepository.deletePasswordResetToken(hashedToken);
+                    userRepository.updatePassword(passwordResetToken.userId(), hashedPassword);
+                    passwordResetTokenRepository.deleteToken(hashedToken);
 
                     // send confirmation email
-                    sendConfirmationEmail(passwordResetToken.getUserId());
+                    sendConfirmationEmail(passwordResetToken.userId());
                 });
     }
 

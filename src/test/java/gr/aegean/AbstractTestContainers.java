@@ -1,4 +1,4 @@
-package gr.aegean.service;
+package gr.aegean;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeAll;

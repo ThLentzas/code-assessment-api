@@ -1,19 +1,9 @@
 package gr.aegean.model.token;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Getter
-@AllArgsConstructor
-public class VerificationToken {
-    private Integer userId;
-    private String token;
-    private LocalDateTime expiryDate;
-    private TokenType type;
-
+public record EmailUpdateToken(Integer userId, String token, String email, LocalDateTime expiryDate){
     @Override
     public boolean equals(Object obj) {
         if(this == obj) {
@@ -24,10 +14,10 @@ public class VerificationToken {
             return false;
         }
 
-        if(obj instanceof VerificationToken tokeObj) {
+        if(obj instanceof EmailUpdateToken tokeObj) {
             return userId.equals(tokeObj.userId)
                     && token.equals(tokeObj.token)
-                    && type.equals(tokeObj.type);
+                    && email.equals(tokeObj.email);
         }
 
         return false;
@@ -35,6 +25,6 @@ public class VerificationToken {
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, token, type);
+        return Objects.hash(userId, token, email);
     }
 }

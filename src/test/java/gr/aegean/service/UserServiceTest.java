@@ -1,5 +1,6 @@
 package gr.aegean.service;
 
+import gr.aegean.AbstractTestContainers;
 import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Random;
 
-class UserServiceTest extends AbstractTestContainers{
+class UserServiceTest extends AbstractTestContainers {
     private UserRepository userRepository;
     private UserService underTest;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -301,7 +302,7 @@ class UserServiceTest extends AbstractTestContainers{
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenRegisterCompanyExceedsMaxLength() {
+    void shouldThrowBadCredentialsExceptionWhenCompanyExceedsMaxLength() {
         //Arrange
         Random random = new Random();
         User user = new User(
@@ -324,6 +325,8 @@ class UserServiceTest extends AbstractTestContainers{
     @Test
     void shouldUpdateUserProfile() {
         //Arrange
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
         UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
                 "foo",
                 "foo",
@@ -332,8 +335,6 @@ class UserServiceTest extends AbstractTestContainers{
                 "Miami, OH",
                 "VM, LLC"
         );
-        User user = generateUser();
-        Integer userId = userRepository.registerUser(user);
 
         //Act
         underTest.updateProfile(userId, profileUpdateRequest);
@@ -353,6 +354,8 @@ class UserServiceTest extends AbstractTestContainers{
     @Test
     void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdateProfile() {
         //Arrange
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
         UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
                 "foo",
                 "foo",
@@ -361,9 +364,6 @@ class UserServiceTest extends AbstractTestContainers{
                 "Miami, OH",
                 "VM, LLC"
         );
-        User user = generateUser();
-        Integer userId = userRepository.registerUser(user);
-
         Integer nonExistingId = userId + 1;
 
         //Act Assert
@@ -378,9 +378,9 @@ class UserServiceTest extends AbstractTestContainers{
     @Test
     void shouldUpdateUserPassword() {
         //Arrange
-        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("test", "CyN549^*o2Cr");
         User user = generateUser();
         Integer userId = userRepository.registerUser(user);
+        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("test", "CyN549^*o2Cr");
 
         //Act
         underTest.updatePassword(userId, passwordUpdateRequest);
@@ -393,9 +393,9 @@ class UserServiceTest extends AbstractTestContainers{
     @Test
     void shouldThrowBadCredentialsExceptionWhenOldPasswordIsNotCorrect() {
         //Arrange
-        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("foo", "CyN549^*o2Cr");
         User user = generateUser();
         Integer userId = userRepository.registerUser(user);
+        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("foo", "CyN549^*o2Cr");
 
         //Act Assert
         assertThatThrownBy(() -> underTest.updatePassword(userId, passwordUpdateRequest))
@@ -406,9 +406,9 @@ class UserServiceTest extends AbstractTestContainers{
     @Test
     void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdatePassword() {
         //Arrange
-        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("foo", "CyN549^*o2Cr");
         User user = generateUser();
         Integer userId = userRepository.registerUser(user);
+        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("foo", "CyN549^*o2Cr");
         Integer nonExistingId = userId + 1;
 
         //Act Assert
@@ -418,11 +418,13 @@ class UserServiceTest extends AbstractTestContainers{
     }
 
     /*
-        Have to override equals() and hashcode() for this work
+        Have to override equals() and hashcode() for this to work
      */
     @Test
     void shouldGetUserProfile() {
         //Arrange
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
         UserProfile expected = new UserProfile(
                 "Test",
                 "Test",
@@ -431,8 +433,6 @@ class UserServiceTest extends AbstractTestContainers{
                 "Cleveland, OH",
                 "Code Monkey, LLC"
         );
-        User user = generateUser();
-        Integer userId = userRepository.registerUser(user);
 
         //Act
         UserProfile actual = underTest.getProfile(userId);
