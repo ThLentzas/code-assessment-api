@@ -3,6 +3,7 @@ package gr.aegean.repository;
 import gr.aegean.mapper.PasswordResetTokenRowMapper;
 import gr.aegean.model.token.PasswordResetToken;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -10,12 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class PasswordResetTokenRepository {
+@RequiredArgsConstructor
+public class PasswordResetRepository {
     private final JdbcTemplate jdbcTemplate;
-
-    public PasswordResetTokenRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public void createToken(PasswordResetToken passwordResetToken) {
         final String sql = "INSERT INTO password_reset_token (" +

@@ -3,31 +3,38 @@ package gr.aegean.service;
 import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
+import gr.aegean.model.token.EmailUpdateToken;
 import gr.aegean.model.user.*;
+import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.utility.PasswordValidation;
 
+import gr.aegean.utility.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDateTime;
+
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final EmailUpdateRepository emailUpdateRepository;
+    private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * @return the ID of the newly registered user for the URI
      */
     public Integer registerUser(User user) {
-        if(userRepository.existsUserWithEmail(user.getEmail())) {
+        if (userRepository.existsUserWithEmail(user.getEmail())) {
             throw new DuplicateResourceException("Email already in use");
         }
 
-        if(userRepository.existsUserWithUsername(user.getUsername())) {
+        if (userRepository.existsUserWithUsername(user.getUsername())) {
             throw new DuplicateResourceException("The provided username already exists");
         }
 
@@ -50,71 +57,98 @@ public class UserService {
     public void updateProfile(Integer userId, UserProfileUpdateRequest profileUpdateRequest) {
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
-                    if(profileUpdateRequest.firstname() != null && !profileUpdateRequest.firstname().isBlank()) {
+                    if (profileUpdateRequest.firstname() != null && !profileUpdateRequest.firstname().isBlank()) {
                         validateFirstname(profileUpdateRequest.firstname());
 
                         userRepository.updateFirstname(userId, profileUpdateRequest.firstname());
                     }
 
-                    if(profileUpdateRequest.lastname() != null && !profileUpdateRequest.lastname().isBlank()) {
+                    if (profileUpdateRequest.lastname() != null && !profileUpdateRequest.lastname().isBlank()) {
                         validateLastname(profileUpdateRequest.lastname());
 
                         userRepository.updateLastname(userId, profileUpdateRequest.lastname());
                     }
 
-                    if(profileUpdateRequest.username() != null && !profileUpdateRequest.username().isBlank()) {
+                    if (profileUpdateRequest.username() != null && !profileUpdateRequest.username().isBlank()) {
                         validateUsername(profileUpdateRequest.username());
-                        if(userRepository.existsUserWithUsername(profileUpdateRequest.username())) {
+                        if (userRepository.existsUserWithUsername(profileUpdateRequest.username())) {
                             throw new DuplicateResourceException("The provided username already exists");
                         }
 
                         userRepository.updateUsername(userId, profileUpdateRequest.username());
                     }
 
-                    if(profileUpdateRequest.bio() != null && !profileUpdateRequest.bio().isBlank()) {
+                    if (profileUpdateRequest.bio() != null && !profileUpdateRequest.bio().isBlank()) {
                         validateBio(profileUpdateRequest.bio());
 
                         userRepository.updateBio(userId, profileUpdateRequest.bio());
                     }
 
-                    if(profileUpdateRequest.location() != null && !profileUpdateRequest.location().isBlank()) {
+                    if (profileUpdateRequest.location() != null && !profileUpdateRequest.location().isBlank()) {
                         validateLocation(profileUpdateRequest.location());
 
                         userRepository.updateLocation(userId, profileUpdateRequest.location());
                     }
 
-                    if(profileUpdateRequest.company() != null && !profileUpdateRequest.company().isBlank()) {
+                    if (profileUpdateRequest.company() != null && !profileUpdateRequest.company().isBlank()) {
                         validateCompany(profileUpdateRequest.company());
 
                         userRepository.updateCompany(userId, profileUpdateRequest.company());
                     }
-                }, ()-> {
+                }, () -> {
                     throw new ResourceNotFoundException("User with id " + userId + " not found");
                 });
     }
 
-    public void updateEmail(Integer userId, UserEmailUpdateRequest emailUpdateRequest) {
+    public void createEmailUpdateToken(Integer userId, UserEmailUpdateRequest emailUpdateRequest) {
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
-                    if(!passwordEncoder.matches(emailUpdateRequest.password(), user.getPassword())) {
+                    if (!passwordEncoder.matches(emailUpdateRequest.password(), user.getPassword())) {
                         throw new BadCredentialsException("Invalid password");
                     }
 
                     validateEmail(emailUpdateRequest.email());
-                    if(userRepository.existsUserWithEmail(emailUpdateRequest.email())) {
+                    if (userRepository.existsUserWithEmail(emailUpdateRequest.email())) {
                         throw new DuplicateResourceException("Email already in use");
                     }
 
+                    String token = StringUtils.generateToken();
+                    String hashedToken = StringUtils.hashToken(token);
+                    LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
+                    EmailUpdateToken emailUpdateToken = new EmailUpdateToken(
+                            userId,
+                            hashedToken,
+                            emailUpdateRequest.email(),
+                            expiryDate
+                    );
+                    emailUpdateRepository.createToken(emailUpdateToken);
 
+                    emailService.sendEmailVerification(emailUpdateRequest.email(), user.getUsername());
                 }, () -> {
                     throw new ResourceNotFoundException("User with id " + userId + " not found");
+                });
+    }
+
+    public void updateEmail(String token) {
+        String hashedToken = StringUtils.hashToken(token);
+
+        emailUpdateRepository.findToken(hashedToken)
+                .ifPresentOrElse(emailUpdateToken -> {
+                    if (emailUpdateToken.expiryDate().isBefore(LocalDateTime.now())) {
+                        throw new BadCredentialsException("The email verification link has expired. " +
+                                "Please request a new one.");
+                    }
+
+                    userRepository.updateEmail(emailUpdateToken.userId(), emailUpdateToken.email());
+                }, () -> {
+                    throw new ResourceNotFoundException("Email update token is invalid");
                 });
     }
 
     public void updatePassword(Integer userId, UserPasswordUpdateRequest passwordUpdateRequest) {
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
-                    if(!passwordEncoder.matches(passwordUpdateRequest.oldPassword(), user.getPassword())) {
+                    if (!passwordEncoder.matches(passwordUpdateRequest.oldPassword(), user.getPassword())) {
                         throw new BadCredentialsException("Old password is incorrect");
                     }
 

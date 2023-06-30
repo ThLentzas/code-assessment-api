@@ -116,6 +116,15 @@ public class UserRepository {
         }
     }
 
+    public void updateEmail(Integer userId, String email) {
+        final String sql = "UPDATE app_user SET email = ? WHERE id = ?";
+        int update = jdbcTemplate.update(sql, email, userId);
+
+        if(update != 1) {
+            throw new ResourceNotFoundException("No user was found with the provided id");
+        }
+    }
+
     public void updatePassword(Integer userId, String password) {
         final String sql = "UPDATE app_user SET password = ? WHERE id = ?";
         int update = jdbcTemplate.update(sql, password, userId);
