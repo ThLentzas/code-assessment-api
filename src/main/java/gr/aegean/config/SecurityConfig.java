@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private final JwtDecoder jwtDecoder;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http

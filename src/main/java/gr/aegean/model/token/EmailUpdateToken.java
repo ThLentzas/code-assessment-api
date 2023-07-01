@@ -22,7 +22,6 @@ public record EmailUpdateToken(Integer userId, String token, String email, Local
 
         return false;
     }
-
     @Override
     public int hashCode() {
         return Objects.hash(userId, token, email);

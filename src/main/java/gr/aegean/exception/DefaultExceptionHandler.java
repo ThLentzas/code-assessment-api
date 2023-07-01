@@ -31,7 +31,6 @@ public class DefaultExceptionHandler {
 
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
-
     @ExceptionHandler(DuplicateResourceException.class)
     private ResponseEntity<ApiError> handleDuplicateResourceException(DuplicateResourceException dre,
                                                                       HttpServletRequest httpServletRequest) {
@@ -43,7 +42,6 @@ public class DefaultExceptionHandler {
 
         return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
     }
-
     @ExceptionHandler(BadCredentialsException.class)
     private ResponseEntity<ApiError> handleBadCredentialsException(BadCredentialsException bce,
                                                                    HttpServletRequest httpServletRequest) {
@@ -55,7 +53,6 @@ public class DefaultExceptionHandler {
 
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
-
     @ExceptionHandler(UnauthorizedException.class)
     private ResponseEntity<ApiError> handleUnauthorizedException(UnauthorizedException ue,
                                                                  HttpServletRequest httpServletRequest) {
@@ -67,7 +64,6 @@ public class DefaultExceptionHandler {
 
         return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
     }
-
     @ExceptionHandler(ServerErrorException.class)
     private ResponseEntity<ApiError> handleServerErrorException(ServerErrorException se,
                                                                 HttpServletRequest httpServletRequest) {
@@ -79,7 +75,6 @@ public class DefaultExceptionHandler {
 
         return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
     @ExceptionHandler(ResourceNotFoundException.class)
     private ResponseEntity<ApiError> handleResourceNotFoundException(ResourceNotFoundException se,
                                                                 HttpServletRequest httpServletRequest) {
