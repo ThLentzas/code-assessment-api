@@ -67,8 +67,8 @@ public class PasswordResetService {
         validatePasswordResetToken(resetConfirmationRequest.token());
 
         //validate/hash the updated password
-        PasswordValidation.validatePassword(resetConfirmationRequest.updatedPassword());
-        String hashedPassword = passwordEncoder.encode(resetConfirmationRequest.updatedPassword());
+        PasswordValidation.validatePassword(resetConfirmationRequest.newPassword());
+        String hashedPassword = passwordEncoder.encode(resetConfirmationRequest.newPassword());
 
         //update the password in db and delete the password reset token record after so subsequent requests will fail
         String hashedToken = StringUtils.hashToken(resetConfirmationRequest.token());

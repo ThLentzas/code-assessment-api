@@ -1,9 +1,7 @@
 package gr.aegean.repository;
 
 import gr.aegean.mapper.EmailUpdateTokenRowMapper;
-import gr.aegean.mapper.PasswordResetTokenRowMapper;
 import gr.aegean.model.token.EmailUpdateToken;
-import gr.aegean.model.token.PasswordResetToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -48,5 +46,17 @@ public class EmailUpdateRepository {
         );
 
         return emailUpdateTokens.stream().findFirst();
+    }
+
+    public void deleteToken(String token) {
+        final String sql = "DELETE FROM email_update_token WHERE token = ?";
+
+        jdbcTemplate.update(sql, token);
+    }
+
+    public void deleteAllTokens() {
+        final String sql = "DELETE FROM email_update_token";
+
+        jdbcTemplate.update(sql);
     }
 }

@@ -4,14 +4,25 @@ import gr.aegean.AbstractTestContainers;
 import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
+import gr.aegean.model.token.EmailUpdateToken;
 import gr.aegean.model.user.User;
+import gr.aegean.model.user.UserEmailUpdateRequest;
 import gr.aegean.model.user.UserPasswordUpdateRequest;
 import gr.aegean.model.user.UserProfile;
 import gr.aegean.model.user.UserProfileUpdateRequest;
+import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 
+import gr.aegean.utility.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
@@ -19,19 +30,30 @@ import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+import java.time.LocalDateTime;
 import java.util.Random;
 
+@ExtendWith(MockitoExtension.class)
 class UserServiceTest extends AbstractTestContainers {
+    @Mock
+    private EmailService emailService;
     private UserRepository userRepository;
+    private EmailUpdateRepository emailUpdateRepository;
     private UserService underTest;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @BeforeEach
     void setup() {
         userRepository = new UserRepository(getJdbcTemplate());
-        underTest = new UserService(passwordEncoder, userRepository);
+        emailUpdateRepository = new EmailUpdateRepository(getJdbcTemplate());
+        underTest = new UserService(userRepository, emailUpdateRepository, emailService, passwordEncoder);
 
+        emailUpdateRepository.deleteAllTokens();
         userRepository.deleteAllUsers();
     }
 
@@ -369,7 +391,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.updateProfile(nonExistingId, profileUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User with id " + nonExistingId + " not found");
+                .hasMessage("User with id: " + nonExistingId + " not found");
     }
 
     /*
@@ -414,7 +436,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.updatePassword(nonExistingId, passwordUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User with id " + nonExistingId + " not found");
+                .hasMessage("User with id: " + nonExistingId + " not found");
     }
 
     /*
@@ -451,7 +473,135 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.getProfile(nonExistingId))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User with id " + nonExistingId + " not found");
+                .hasMessage("User with id: " + nonExistingId + " not found");
+    }
+
+    @Test
+    void shouldCreateEmailUpdateToken() {
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+
+        UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
+                "foo@example.com",
+                "test"
+        );
+
+        underTest.createEmailUpdateToken(userId, emailUpdateRequest);
+
+        verify(emailService, times(1)).sendEmailVerification(
+                eq(emailUpdateRequest.email()),
+                any(String.class),
+                any(String.class));
+    }
+
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdateEmail() {
+        //Arrange
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+        Integer nonExistingId = userId + 1;
+
+        UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
+                "foo@example.com",
+                "test"
+        );
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.createEmailUpdateToken(nonExistingId, emailUpdateRequest))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("User with id: " + nonExistingId + " not found");
+    }
+
+    @Test
+    void shouldThrowBadCredentialsExceptionWhenPasswordIsWrongForEmailUpdateRequest() {
+        //Arrange
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+
+        UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
+                "foo@example.com",
+                "foo"
+        );
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.createEmailUpdateToken(userId, emailUpdateRequest))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessage("Wrong password");
+    }
+
+    //Email validation already tested
+    @Test
+    void shouldThrowDuplicateResourceExceptionWhenNewEmailExistsForEmailUpdateRequest() {
+        //Arrange
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+
+        UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
+                "test@example.com",
+                "test"
+        );
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.createEmailUpdateToken(userId, emailUpdateRequest))
+                .isInstanceOf(DuplicateResourceException.class)
+                .hasMessage("Email already in use");
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @EmptySource
+    @ValueSource(strings = {"invalidToken"})
+    void shouldThrowBadCredentialsExceptionWhenEmailUpdateTokenIsInvalid(String invalidToken) {
+        //Arrange Act Assert
+        assertThatThrownBy(() -> underTest.updateEmail(invalidToken))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessage("Email update token is invalid");
+    }
+
+    @Test
+    void shouldThrowBadCredentialsExceptionWhenEmailUpdateTokenExpired() {
+        //Arrange
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+
+        String hashedToken = StringUtils.hashToken("expiredToken");
+        LocalDateTime expiryDate = LocalDateTime.now().minusHours(1);
+        EmailUpdateToken emailUpdateToken = new EmailUpdateToken(
+                userId,
+                hashedToken,
+                user.getEmail(),
+                expiryDate);
+
+        emailUpdateRepository.createToken(emailUpdateToken);
+
+        //Assert
+        assertThatThrownBy(() -> underTest.updateEmail("expiredToken"))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessage("The email verification link has expired. Please request a new one.");
+    }
+
+    @Test
+    void shouldUpdateEmail() {
+        //Arrange
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+
+        String hashedToken = StringUtils.hashToken("token");
+        LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
+        EmailUpdateToken emailUpdateToken = new EmailUpdateToken(
+                userId,
+                hashedToken,
+                user.getEmail(),
+                expiryDate);
+
+        emailUpdateRepository.createToken(emailUpdateToken);
+
+        //Act
+        underTest.updateEmail("token");
+
+        //Assert
+        assertThat(emailUpdateRepository.findToken(hashedToken)).isNotPresent();
     }
 
     private User generateUser() {

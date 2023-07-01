@@ -21,6 +21,7 @@ public record PasswordResetToken(Integer userId, String token, LocalDateTime exp
 
         return false;
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(userId, token);

@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -50,7 +49,7 @@ public class UserService {
                         user.getBio(),
                         user.getLocation(),
                         user.getCompany()))
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + userId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with id: " + userId + " not found"));
     }
 
 
@@ -96,7 +95,7 @@ public class UserService {
                         userRepository.updateCompany(userId, profileUpdateRequest.company());
                     }
                 }, () -> {
-                    throw new ResourceNotFoundException("User with id " + userId + " not found");
+                    throw new ResourceNotFoundException("User with id: " + userId + " not found");
                 });
     }
 
@@ -104,7 +103,7 @@ public class UserService {
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
                     if (!passwordEncoder.matches(emailUpdateRequest.password(), user.getPassword())) {
-                        throw new BadCredentialsException("Invalid password");
+                        throw new BadCredentialsException("Wrong password");
                     }
 
                     validateEmail(emailUpdateRequest.email());
@@ -123,13 +122,17 @@ public class UserService {
                     );
                     emailUpdateRepository.createToken(emailUpdateToken);
 
-                    emailService.sendEmailVerification(emailUpdateRequest.email(), user.getUsername());
+                    emailService.sendEmailVerification(emailUpdateRequest.email(), user.getUsername(), token);
                 }, () -> {
-                    throw new ResourceNotFoundException("User with id " + userId + " not found");
+                    throw new ResourceNotFoundException("User with id: " + userId + " not found");
                 });
     }
 
     public void updateEmail(String token) {
+        if (token == null || token.isEmpty()) {
+            throw new BadCredentialsException("Email update token is invalid");
+        }
+
         String hashedToken = StringUtils.hashToken(token);
 
         emailUpdateRepository.findToken(hashedToken)
@@ -140,8 +143,9 @@ public class UserService {
                     }
 
                     userRepository.updateEmail(emailUpdateToken.userId(), emailUpdateToken.email());
+                    emailUpdateRepository.deleteToken(hashedToken);
                 }, () -> {
-                    throw new ResourceNotFoundException("Email update token is invalid");
+                    throw new BadCredentialsException("Email update token is invalid");
                 });
     }
 
@@ -157,7 +161,7 @@ public class UserService {
                             userId,
                             passwordEncoder.encode(passwordUpdateRequest.updatedPassword()));
                 }, () -> {
-                    throw new ResourceNotFoundException("User with id " + userId + " not found");
+                    throw new ResourceNotFoundException("User with id: " + userId + " not found");
                 });
     }
 

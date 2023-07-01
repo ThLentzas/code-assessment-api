@@ -20,12 +20,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+
     @GetMapping("/{userId}/profile")
     public ResponseEntity<UserProfile> getProfile(@PathVariable("userId") Integer userId) {
         UserProfile profile = userService.getProfile(userId);
 
         return new ResponseEntity<>(profile, HttpStatus.OK);
     }
+
     @PutMapping("/{userId}/settings/profile")
     public ResponseEntity<Void> updateProfile(@PathVariable("userId") Integer userId,
                                               @RequestBody UserProfileUpdateRequest profileUpdateRequest) {
@@ -33,19 +35,22 @@ public class UserController {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
     @PostMapping("/{userId}/settings/email")
     public ResponseEntity<Void> updateEmail(@PathVariable("userId") Integer userId,
                                             @Valid @RequestBody UserEmailUpdateRequest emailUpdateRequest) {
         userService.createEmailUpdateToken(userId, emailUpdateRequest);
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
+
     @GetMapping("/settings/email")
     public ResponseEntity<Void> updateEmail(@PathParam("token") String token) {
         userService.updateEmail(token);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
     @PutMapping("/{userId}/settings/password")
     public ResponseEntity<Void> updatePassword(@PathVariable("userId") Integer userId,
                                                @Valid @RequestBody UserPasswordUpdateRequest passwordUpdateRequest) {

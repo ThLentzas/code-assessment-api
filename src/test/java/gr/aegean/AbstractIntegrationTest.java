@@ -1,5 +1,7 @@
 package gr.aegean;
 
+import gr.aegean.repository.EmailUpdateRepository;
+import gr.aegean.repository.PasswordResetRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +19,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public abstract class AbstractIntegrationTest {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PasswordResetRepository passwordResetRepository;
+    @Autowired
+    private EmailUpdateRepository emailUpdateRepository;
 
     static final PostgreSQLContainer<?> postgreSQLContainer =
             new PostgreSQLContainer<>("postgres:15.2-alpine")
@@ -37,6 +43,8 @@ public abstract class AbstractIntegrationTest {
 
     @BeforeEach
     void setup() {
+        emailUpdateRepository.deleteAllTokens();
+        passwordResetRepository.deleteAllTokens();
         userRepository.deleteAllUsers();
     }
 }

@@ -10,6 +10,7 @@ public record UserProfile(
         String location,
         String company
 ) {
+
     @Override
     public boolean equals(Object obj) {
         if(this == obj) {

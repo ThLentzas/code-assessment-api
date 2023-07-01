@@ -25,6 +25,7 @@ import java.security.interfaces.RSAPublicKey;
 public class JwtConfig {
     private final RSAPublicKey publicKey;
     private final RSAPrivateKey privateKey;
+
     public JwtConfig(){
         KeyPairGenerator keyPairGenerator;
 
@@ -41,6 +42,7 @@ public class JwtConfig {
         publicKey = (RSAPublicKey) keyPair.getPublic();
         privateKey = (RSAPrivateKey) keyPair.getPrivate();
     }
+
     @Bean
     public JwtEncoder jwtEncoder() {
         JWK jwk = new RSAKey
@@ -51,6 +53,7 @@ public class JwtConfig {
 
         return new NimbusJwtEncoder(jwkSet);
     }
+
     @Bean
     public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(publicKey).build();

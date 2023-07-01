@@ -1,7 +1,5 @@
 package gr.aegean.service;
 
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -15,11 +13,9 @@ import gr.aegean.exception.ServerErrorException;
 
 import lombok.RequiredArgsConstructor;
 
-
 @Service
 @RequiredArgsConstructor
 public class EmailService {
-
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
     private static final String SENDER = "jarvis.email.from@gmail.com";
@@ -74,28 +70,26 @@ public class EmailService {
         }
     }
 
-    public void sendEmailVerification(String receiver, String username) {
-        String body = String.format("""
-                Jarvis email verification
-                Hello %s,
-                            
-                Simply click the link below to verify your email address. The link expires in 48 hours.
-                            
-                You can always visit to review email addresses currently associated with your account.
-                            
-                The Jarvis Team
-                        """, username);
+    public void sendEmailVerification(String recipient, String username, String token) {
+        final String verifyLink = "http://localhost:8080/api/v1/users/settings/email?token=" + token;
+
+        Context context = new Context();
+        context.setVariable("username", username);
+        context.setVariable("verifyLink", verifyLink);
+        String emailContent = templateEngine.process("email_verification", context);
+
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper;
 
         try {
-            SimpleMailMessage emailMessage = new SimpleMailMessage();
+            helper = new MimeMessageHelper(mimeMessage, true);
+            helper.setTo(recipient);
+            helper.setFrom(SENDER);
+            helper.setSubject("Verify your email");
+            helper.setText(emailContent, true);
 
-            emailMessage.setTo(receiver);
-            emailMessage.setFrom(SENDER);
-            emailMessage.setSubject("Verify your email address");
-            emailMessage.setText(body);
-
-            mailSender.send(emailMessage);
-        } catch (MailException me) {
+            mailSender.send(mimeMessage);
+        } catch (MessagingException me) {
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
                     "request. Please try again later.");
         }

@@ -47,7 +47,7 @@ public abstract class AbstractTestContainers {
         dataSource.setJdbcUrl(postgreSQLContainer.getJdbcUrl());
         dataSource.setUsername(postgreSQLContainer.getUsername());
         dataSource.setPassword(postgreSQLContainer.getPassword());
-        dataSource.setMaximumPoolSize(2);
+        dataSource.setMaximumPoolSize(1);
 
         return dataSource;
     }

@@ -19,15 +19,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthConfig {
     private final UserRepository userRepository;
+
     @Bean
     public PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public UserDetailsService userDetailsService() {
         return email -> userRepository.findUserByEmail(email)
                 .orElseThrow(() -> new UnauthorizedException("Username or password is incorrect"));
     }
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -37,6 +40,7 @@ public class AuthConfig {
 
         return authProvider;
     }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();

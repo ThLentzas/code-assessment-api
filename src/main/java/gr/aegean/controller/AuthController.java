@@ -62,19 +62,22 @@ public class AuthController {
 
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
+
     @PostMapping("/password_reset")
     public ResponseEntity<PasswordResetResult> resetPassword(
             @Valid @RequestBody PasswordResetRequest passwordResetRequest) {
         PasswordResetResult passwordResetResult = passwordResetService.createPasswordResetToken(passwordResetRequest);
 
-        return new ResponseEntity<>(passwordResetResult, HttpStatus.OK);
+        return new ResponseEntity<>(passwordResetResult, HttpStatus.ACCEPTED);
     }
+
     @GetMapping("/password_reset")
     public ResponseEntity<Void> resetPassword(@PathParam("token") String token) {
         passwordResetService.validatePasswordResetToken(token);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
     @PutMapping("/password_reset/confirm")
     public ResponseEntity<Void> resetPassword(
             @Valid @RequestBody PasswordResetConfirmationRequest resetConfirmationRequest) {

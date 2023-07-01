@@ -342,7 +342,7 @@ class AuthControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.message", is(resetResult.message())));
     }
 
@@ -358,41 +358,24 @@ class AuthControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @Test
-    void shouldResetPasswordWhenTokenAndUpdatedPasswordAreValid() throws Exception {
-        //Arrange
-        String requestBody = """
-            {
-                "token": "someToken",
-                "updatedPassword": "updatedPassword"
-            }
-            """;
-
-        //Act Assert
-        mockMvc.perform(put(AUTH_PATH + "/password_reset/confirm")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody)
-                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
-    }
-
     /*
-        No need to test the token if its null or empty it is already tested in the validatePasswordResetToken() method
-        in PasswordResetServiceTest -> void shouldThrowBadCredentialsExceptionWhenTokenIsInvalid(String invalidToken)
-     */
+    No need to test the token if its null or empty it is already tested in the validatePasswordResetToken() method
+    in PasswordResetServiceTest -> void shouldThrowBadCredentialsExceptionWhenTokenIsInvalid(String invalidToken)
+    We test @Valid annotation here
+    */
     @ParameterizedTest
     @NullSource
     @EmptySource
-    void shouldReturnHTTP400WhenUpdatedPasswordIsNullOrEmpty(String updatedPassword)
+    void shouldReturnHTTP400WhenNewPasswordIsNullOrEmpty(String newPassword)
             throws Exception {
         //Arrange
-        String updatedPasswordValue = updatedPassword == null ? "null" : "\"" + updatedPassword + "\"";
+        String newPasswordValue = newPassword == null ? "null" : "\"" + newPassword + "\"";
         String requestBody = String.format("""
             {
                 "token": "someToken",
-                "updatedPassword": %s
+                "newPassword": %s
             }
-            """, updatedPasswordValue);
+            """, newPasswordValue);
 
         //Act Assert
         mockMvc.perform(put(AUTH_PATH + "/password_reset/confirm")
@@ -403,5 +386,23 @@ class AuthControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.path", is("/api/v1/auth/password_reset/confirm")))
                 .andExpect(jsonPath("$.message", is("The Password field is required.")));
+    }
+
+    @Test
+    void shouldResetPasswordAndReturnHTTP204WhenTokenAndNewPasswordAreValid() throws Exception {
+        //Arrange
+        String requestBody = """
+            {
+                "token": "someToken",
+                "newPassword": "password"
+            }
+            """;
+
+        //Act Assert
+        mockMvc.perform(put(AUTH_PATH + "/password_reset/confirm")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
     }
 }

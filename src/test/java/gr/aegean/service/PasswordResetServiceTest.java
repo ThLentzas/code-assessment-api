@@ -152,6 +152,7 @@ class PasswordResetServiceTest extends AbstractTestContainers {
         underTest.resetPassword(passwordResetConfirmationRequest);
 
         //Assert
+        assertThat(passwordResetRepository.findToken(hashedToken)).isNotPresent();
         verify(emailService, times(1)).sendPasswordResetConfirmationEmail(
                 user.getEmail(),
                 user.getUsername());

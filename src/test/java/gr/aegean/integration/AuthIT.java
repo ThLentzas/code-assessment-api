@@ -220,7 +220,7 @@ class AuthIT extends AbstractIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange()
-                .expectStatus().isOk()
+                .expectStatus().isAccepted()
                 .expectBody()
                 .jsonPath("$.message", is("If your email address exists in our database, you will " +
                         "receive a password recovery link at your email address in a few minutes."));
@@ -266,7 +266,7 @@ class AuthIT extends AbstractIntegrationTest {
         requestBody = String.format("""
             {
                 "token": "%s",
-                "updatedPassword": "3frMH4v!20d4"
+                "newPassword": "3frMH4v!20d4"
             }""", token);
 
         webTestClient.put()
@@ -329,7 +329,7 @@ class AuthIT extends AbstractIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange()
-                .expectStatus().isOk()
+                .expectStatus().isAccepted()
                 .expectBody()
                 .jsonPath("$.message", is("If your email address exists in our database, you will " +
                         "receive a password recovery link at your email address in a few minutes."));
