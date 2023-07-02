@@ -1,15 +1,5 @@
 package gr.aegean.controller;
 
-import gr.aegean.config.AuthConfig;
-import gr.aegean.config.JwtConfig;
-import gr.aegean.config.SecurityConfig;
-import gr.aegean.exception.BadCredentialsException;
-import gr.aegean.exception.DuplicateResourceException;
-import gr.aegean.model.user.UserEmailUpdateRequest;
-import gr.aegean.model.user.UserProfile;
-import gr.aegean.model.user.UserProfileUpdateRequest;
-import gr.aegean.repository.UserRepository;
-import gr.aegean.service.UserService;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,6 +13,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+
+import gr.aegean.config.AuthConfig;
+import gr.aegean.config.JwtConfig;
+import gr.aegean.config.SecurityConfig;
+import gr.aegean.exception.BadCredentialsException;
+import gr.aegean.exception.DuplicateResourceException;
+import gr.aegean.model.user.UserEmailUpdateRequest;
+import gr.aegean.model.user.UserProfile;
+import gr.aegean.model.user.UserProfileUpdateRequest;
+import gr.aegean.repository.UserRepository;
+import gr.aegean.service.UserService;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;

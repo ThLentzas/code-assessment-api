@@ -1,6 +1,7 @@
 package gr.aegean.model.user;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +13,7 @@ import java.util.Collections;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 public class User implements UserDetails {
     private Integer id;
@@ -24,46 +26,9 @@ public class User implements UserDetails {
     private String location;
     private String company;
 
-    public User(String firstname,
-                String lastname,
-                String username,
-                String email,
-                String password,
-                String bio,
-                String location,
-                String company) {
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.bio = bio;
-        this.location = location;
-        this.company = company;
-    }
-
     public User(String email, String password) {
         this.email = email;
         this.password = password;
-    }
-
-    public User(
-            Integer id,
-            String firstname,
-            String lastname,
-            String username,
-            String email,
-            String bio,
-            String location,
-            String company) {
-        this.id = id;
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.username = username;
-        this.email = email;
-        this.bio = bio;
-        this.location = location;
-        this.company = company;
     }
 
     @Override

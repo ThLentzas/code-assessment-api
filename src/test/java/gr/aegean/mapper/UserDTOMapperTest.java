@@ -1,9 +1,10 @@
 package gr.aegean.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import gr.aegean.model.user.User;
 import gr.aegean.model.user.UserDTO;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
 class UserDTOMapperTest {
@@ -12,16 +13,16 @@ class UserDTOMapperTest {
     void shouldConvertUserToUserDTO() {
         UserDTOMapper mapper = new UserDTOMapper();
 
-        User user = new User(
-                1,
-                "Test",
-                "Test",
-                "TestT",
-                "test@example.com",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
+        User user = User.builder()
+                .id(1)
+                .firstname("Test")
+                .lastname("Test")
+                .username("TestT")
+                .email("test@example.com")
+                .bio("I have a real passion for teaching")
+                .location("Cleveland, OH")
+                .company("Code Monkey, LLC")
+                .build();
 
         UserDTO userDTO = mapper.apply(user);
 

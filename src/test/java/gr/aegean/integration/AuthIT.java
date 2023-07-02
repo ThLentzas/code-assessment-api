@@ -1,6 +1,5 @@
 package gr.aegean.integration;
 
-import gr.aegean.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,7 @@ import static org.hamcrest.Matchers.is;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import gr.aegean.AbstractIntegrationTest;
 import gr.aegean.model.auth.AuthResponse;
 
 @AutoConfigureWebTestClient
@@ -253,8 +253,8 @@ class AuthIT extends AbstractIntegrationTest {
         message = messages[0];
 
         //Assertions for the password reset link email
-        assertThat(message.getAllRecipients().length).isEqualTo(1);
-        assertThat(message.getAllRecipients()[0].toString()).isEqualTo("test@example.com");
+        assertThat(message.getAllRecipients()).hasSize(1);
+        assertThat(message.getAllRecipients()[0]).hasToString("test@example.com");
         assertThat(message.getSubject()).isEqualTo("Reset your Jarvis password");
 
         // The user if the password reset token is valid will be redirected by the front end
@@ -281,8 +281,8 @@ class AuthIT extends AbstractIntegrationTest {
         message = messages[1];
 
         //Assertions for the password reset confirmation email
-        assertThat(message.getAllRecipients().length).isEqualTo(1);
-        assertThat(message.getAllRecipients()[0].toString()).isEqualTo("test@example.com");
+        assertThat(message.getAllRecipients()).hasSize(1);
+        assertThat(message.getAllRecipients()[0]).hasToString("test@example.com");
         assertThat(message.getSubject()).isEqualTo("Your password was reset");
     }
 

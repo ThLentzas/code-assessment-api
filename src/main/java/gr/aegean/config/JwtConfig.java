@@ -1,6 +1,5 @@
 package gr.aegean.config;
 
-import gr.aegean.exception.ServerErrorException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -20,6 +19,8 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+
+import gr.aegean.exception.ServerErrorException;
 
 @Configuration
 public class JwtConfig {

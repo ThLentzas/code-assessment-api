@@ -1,18 +1,23 @@
 package gr.aegean.repository;
 
-import gr.aegean.mapper.EmailUpdateTokenRowMapper;
-import gr.aegean.model.token.EmailUpdateToken;
-import lombok.RequiredArgsConstructor;
+import gr.aegean.exception.ServerErrorException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+import gr.aegean.mapper.EmailUpdateTokenRowMapper;
+import gr.aegean.model.token.EmailUpdateToken;
+
+import lombok.RequiredArgsConstructor;
+
 @Repository
 @RequiredArgsConstructor
 public class EmailUpdateRepository {
     private final JdbcTemplate jdbcTemplate;
+    private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
+            "complete your request. Please try again later.";
 
     public void createToken(EmailUpdateToken token) {
         final String sql = "INSERT INTO email_update_token (" +
@@ -22,12 +27,16 @@ public class EmailUpdateRepository {
                 "expiry_date) "  +
                 "VALUES (?, ?, ?, ?)";
 
-        jdbcTemplate.update(
+        int update = jdbcTemplate.update(
                 sql,
                 token.userId(),
                 token.token(),
                 token.email(),
                 token.expiryDate());
+
+        if(update != 1) {
+            throw new ServerErrorException(SERVER_ERROR_MSG);
+        }
     }
 
     public Optional<EmailUpdateToken> findToken(String token) {
@@ -51,12 +60,20 @@ public class EmailUpdateRepository {
     public void deleteToken(String token) {
         final String sql = "DELETE FROM email_update_token WHERE token = ?";
 
-        jdbcTemplate.update(sql, token);
+        int update = jdbcTemplate.update(sql, token);
+
+        if(update != 1) {
+            throw new ServerErrorException(SERVER_ERROR_MSG);
+        }
     }
 
     public void deleteAllTokens() {
         final String sql = "DELETE FROM email_update_token";
 
-        jdbcTemplate.update(sql);
+        int update = jdbcTemplate.update(sql);
+
+        if(update != 1) {
+            throw new ServerErrorException(SERVER_ERROR_MSG);
+        }
     }
 }

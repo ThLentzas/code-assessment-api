@@ -26,15 +26,16 @@ public class AuthService {
     private final UserDTOMapper userDTOMapper;
 
     public AuthResponse registerUser(RegisterRequest request) {
-        User user = new User(
-                request.firstname(),
-                request.lastname(),
-                request.username(),
-                request.email(),
-                request.password(),
-                request.bio(),
-                request.location(),
-                request.company());
+        User user = User.builder()
+                .firstname(request.firstname())
+                .lastname(request.lastname())
+                .username(request.username())
+                .email(request.email())
+                .password(request.password())
+                .bio(request.bio())
+                .location(request.location())
+                .company(request.company())
+                .build();
 
         userService.validateUser(user);
         user.setPassword(passwordEncoder.encode(request.password()));
@@ -48,6 +49,7 @@ public class AuthService {
 
     public AuthResponse authenticateUser(AuthRequest request) {
         Authentication authentication;
+
         try {
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.email(), request.password()));

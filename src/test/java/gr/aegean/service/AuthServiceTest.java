@@ -62,15 +62,16 @@ class AuthServiceTest {
                 "Code Monkey, LLC"
         );
 
-        User user = new User(
-                request.firstname(),
-                request.lastname(),
-                request.username(),
-                request.email(),
-                request.password(),
-                request.bio(),
-                request.location(),
-                request.company());
+        User user = User.builder()
+                .firstname(request.firstname())
+                .lastname(request.lastname())
+                .username(request.username())
+                .email(request.email())
+                .password(request.password())
+                .bio(request.bio())
+                .location(request.location())
+                .company(request.company())
+                .build();
 
         String jwtToken = "jwtToken";
         Integer generatedID = 1;

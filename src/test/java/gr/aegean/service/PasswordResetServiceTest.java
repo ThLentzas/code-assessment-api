@@ -159,15 +159,16 @@ class PasswordResetServiceTest extends AbstractTestContainers {
     }
 
     private User generateUser() {
-        return new User(
-                "Test",
-                "Test",
-                "TestT",
-                "test@example.com",
-                passwordEncoder.encode("test"),
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
+        return User.builder()
+                .firstname("Test")
+                .lastname("Test")
+                .username("TestT")
+                .email("test@example.com")
+                .password(passwordEncoder.encode("test"))
+                .bio("I have a real passion for teaching")
+                .location("Cleveland, OH")
+                .company("Code Monkey, LLC")
+                .build();
     }
+
 }

@@ -12,8 +12,8 @@ import gr.aegean.model.user.UserProfile;
 import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
-
 import gr.aegean.utility.StringUtils;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -103,16 +103,16 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowBadCredentialsExceptionWhenFirstnameExceedsMaxLength() {
         Random random = new Random();
-        User user = new User(
-                generateRandomString(random.nextInt(31) + 31),
-                "Test",
-                "TestT",
-                "test@gmail.com",
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
+        User user = User.builder()
+                .firstname(generateRandomString(random.nextInt(31) + 31))
+                .lastname("Test")
+                .username("TestT")
+                .email("test@example.com")
+                .password(passwordEncoder.encode("test"))
+                .bio("I have a real passion for teaching")
+                .location("Cleveland, OH")
+                .company("Code Monkey, LLC")
+                .build();
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -123,16 +123,16 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowBadCredentialsExceptionWhenFirstnameContainsNumbers() {
         //Arrange
-        User user = new User(
-                "T3st",
-                "Test",
-                "TestT",
-                "test@gmail.com",
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
+        User user = User.builder()
+                .firstname("T3st")
+                .lastname("Test")
+                .username("TestT")
+                .email("test@example.com")
+                .password(passwordEncoder.encode("test"))
+                .bio("I have a real passion for teaching")
+                .location("Cleveland, OH")
+                .company("Code Monkey, LLC")
+                .build();
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -143,16 +143,16 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowBadCredentialsExceptionWhenFirstnameContainsSpecialCharacters() {
         //Arrange
-        User user = new User(
-                "T^st",
-                "Test",
-                "TestT",
-                "test@gmail.com",
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
+        User user = User.builder()
+                .firstname("T^st")
+                .lastname("Test")
+                .username("TestT")
+                .email("test@example.com")
+                .password(passwordEncoder.encode("test"))
+                .bio("I have a real passion for teaching")
+                .location("Cleveland, OH")
+                .company("Code Monkey, LLC")
+                .build();
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -163,16 +163,16 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowBadCredentialsExceptionWhenLastnameExceedsMaxLength() {
         Random random = new Random();
-        User user = new User(
-                "Test",
-                generateRandomString(random.nextInt(31) + 31),
-                "TestT",
-                "test@gmail.com",
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
+        User user = User.builder()
+                .firstname("Test")
+                .lastname(generateRandomString(random.nextInt(31) + 31))
+                .username("TestT")
+                .email("test@example.com")
+                .password(passwordEncoder.encode("test"))
+                .bio("I have a real passion for teaching")
+                .location("Cleveland, OH")
+                .company("Code Monkey, LLC")
+                .build();
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -183,16 +183,16 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowBadCredentialsExceptionWhenLastnameContainsNumbers() {
         //Arrange
-        User user = new User(
-                "Test",
-                "T3st",
-                "TestT",
-                "test@gmail.com",
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
+        User user = User.builder()
+                .firstname("Test")
+                .lastname("T3st")
+                .username("TestT")
+                .email("test@example.com")
+                .password(passwordEncoder.encode("test"))
+                .bio("I have a real passion for teaching")
+                .location("Cleveland, OH")
+                .company("Code Monkey, LLC")
+                .build();
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -203,16 +203,16 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowBadCredentialsExceptionWhenLastnameContainsSpecialCharacters() {
         //Arrange
-        User user = new User(
-                "Test",
-                "T^st",
-                "TestT",
-                "test@gmail.com",
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
+        User user = User.builder()
+                .firstname("Test")
+                .lastname("T^st")
+                .username("TestT")
+                .email("test@example.com")
+                .password(passwordEncoder.encode("test"))
+                .bio("I have a real passion for teaching")
+                .location("Cleveland, OH")
+                .company("Code Monkey, LLC")
+                .build();
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -223,16 +223,16 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowBadCredentialsExceptionWhenUsernameExceedsMaxLength() {
         Random random = new Random();
-        User user = new User(
-                "Test",
-                "TestT",
-                generateRandomString(random.nextInt(31) + 31),
-                "test@gmail.com",
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
+        User user = User.builder()
+                .firstname("Test")
+                .lastname("Test")
+                .username(generateRandomString(random.nextInt(31) + 31))
+                .email("test@example.com")
+                .password(passwordEncoder.encode("test"))
+                .bio("I have a real passion for teaching")
+                .location("Cleveland, OH")
+                .company("Code Monkey, LLC")
+                .build();
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -244,16 +244,16 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowBadCredentialsExceptionWhenEmailExceedsMaxLength() {
         //Arrange
         Random random = new Random();
-        User user = new User(
-                "Test",
-                "Test",
-                "TestT",
-                generateRandomString(random.nextInt(51) + 51),
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
+        User user = User.builder()
+                .firstname("Test")
+                .lastname("Test")
+                .username("TestT")
+                .email(generateRandomString(random.nextInt(51) + 51))
+                .password(passwordEncoder.encode("test"))
+                .bio("I have a real passion for teaching")
+                .location("Cleveland, OH")
+                .company("Code Monkey, LLC")
+                .build();
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -264,16 +264,16 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowBadCredentialsExceptionWhenEmailDoesNotContainAtSymbol() {
         //Arrange
-        User user = new User(
-                "Test",
-                "Test",
-                "TestT",
-                "testgmail.com",
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
+        User user = User.builder()
+                .firstname("Test")
+                .lastname("Test")
+                .username("TestT")
+                .email("testexample.com")
+                .password(passwordEncoder.encode("test"))
+                .bio("I have a real passion for teaching")
+                .location("Cleveland, OH")
+                .company("Code Monkey, LLC")
+                .build();
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -285,16 +285,16 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowBadCredentialsExceptionWhenBioExceedsMaxLength() {
         //Arrange
         Random random = new Random();
-        User user = new User(
-                "Test",
-                "Test",
-                "TestT",
-                "test@gmail.com",
-                "CyN549^*o2Cr",
-                generateRandomString(random.nextInt(151) + 151),
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
+        User user = User.builder()
+                .firstname("Test")
+                .lastname("Test")
+                .username("TestT")
+                .email("test@example.com")
+                .password(passwordEncoder.encode("test"))
+                .bio(generateRandomString(random.nextInt(151) + 151))
+                .location("Cleveland, OH")
+                .company("Code Monkey, LLC")
+                .build();
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -306,16 +306,16 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowBadCredentialsExceptionWhenLocationExceedsMaxLength() {
         //Arrange
         Random random = new Random();
-        User user = new User(
-                "Test",
-                "Test",
-                "TestT",
-                "test@gmail.com",
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                generateRandomString(random.nextInt(51) + 51),
-                "Code Monkey, LLC"
-        );
+        User user = User.builder()
+                .firstname("Test")
+                .lastname("Test")
+                .username("TestT")
+                .email("test@example.com")
+                .password(passwordEncoder.encode("test"))
+                .bio("I have a real passion for teaching")
+                .location(generateRandomString(random.nextInt(51) + 51))
+                .company("Code Monkey, LLC")
+                .build();
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -327,16 +327,16 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowBadCredentialsExceptionWhenCompanyExceedsMaxLength() {
         //Arrange
         Random random = new Random();
-        User user = new User(
-                "Test",
-                "Test",
-                "TestT",
-                "test@gmail.com",
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                generateRandomString(random.nextInt(51) + 51)
-        );
+        User user = User.builder()
+                .firstname("Test")
+                .lastname("Test")
+                .username("TestT")
+                .email("test@example.com")
+                .password(passwordEncoder.encode("test"))
+                .bio("I have a real passion for teaching")
+                .location("Cleveland, OH")
+                .company(generateRandomString(random.nextInt(51) + 51))
+                .build();
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -605,17 +605,18 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     private User generateUser() {
-        return new User(
-                "Test",
-                "Test",
-                "TestT",
-                "test@example.com",
-                passwordEncoder.encode("test"),
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
-        );
+        return User.builder()
+                .firstname("Test")
+                .lastname("Test")
+                .username("TestT")
+                .email("test@example.com")
+                .password(passwordEncoder.encode("test"))
+                .bio("I have a real passion for teaching")
+                .location("Cleveland, OH")
+                .company("Code Monkey, LLC")
+                .build();
     }
+
 
     private String generateRandomString(int length) {
         return RandomStringUtils.randomAlphabetic(length);

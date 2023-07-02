@@ -4,18 +4,23 @@ import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.model.token.EmailUpdateToken;
-import gr.aegean.model.user.*;
+import gr.aegean.model.user.User;
+import gr.aegean.model.user.UserEmailUpdateRequest;
+import gr.aegean.model.user.UserPasswordUpdateRequest;
+import gr.aegean.model.user.UserProfile;
+import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
-import gr.aegean.utility.PasswordValidation;
-
 import gr.aegean.utility.StringUtils;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.function.Consumer;
+
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -52,51 +57,55 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User with id: " + userId + " not found"));
     }
 
-
     public void updateProfile(Integer userId, UserProfileUpdateRequest profileUpdateRequest) {
         userRepository.findUserByUserId(userId)
-                .ifPresentOrElse(user -> {
-                    if (profileUpdateRequest.firstname() != null && !profileUpdateRequest.firstname().isBlank()) {
-                        validateFirstname(profileUpdateRequest.firstname());
+                .ifPresentOrElse(user -> updateProfileProperties(user, profileUpdateRequest),
+                        () -> { throw new ResourceNotFoundException("User with id: " + userId + " not found"); });
+    }
 
-                        userRepository.updateFirstname(userId, profileUpdateRequest.firstname());
-                    }
+    private void updateProfileProperties(User user, UserProfileUpdateRequest profileUpdateRequest) {
+        updatePropertyIfNonNullAndNotBlank(
+                profileUpdateRequest.firstname(),
+                this::validateFirstname,
+                value -> userRepository.updateFirstname(user.getId(), value));
 
-                    if (profileUpdateRequest.lastname() != null && !profileUpdateRequest.lastname().isBlank()) {
-                        validateLastname(profileUpdateRequest.lastname());
+        updatePropertyIfNonNullAndNotBlank(
+                profileUpdateRequest.lastname(),
+                this::validateLastname,
+                value -> userRepository.updateLastname(user.getId(), value));
 
-                        userRepository.updateLastname(userId, profileUpdateRequest.lastname());
-                    }
+        if (profileUpdateRequest.username() != null && !profileUpdateRequest.username().isBlank()) {
+            validateUsername(profileUpdateRequest.username());
+            if (userRepository.existsUserWithUsername(profileUpdateRequest.username())) {
+                throw new DuplicateResourceException("The provided username already exists");
+            }
 
-                    if (profileUpdateRequest.username() != null && !profileUpdateRequest.username().isBlank()) {
-                        validateUsername(profileUpdateRequest.username());
-                        if (userRepository.existsUserWithUsername(profileUpdateRequest.username())) {
-                            throw new DuplicateResourceException("The provided username already exists");
-                        }
+            userRepository.updateUsername(user.getId(), profileUpdateRequest.username());
+        }
 
-                        userRepository.updateUsername(userId, profileUpdateRequest.username());
-                    }
+        updatePropertyIfNonNullAndNotBlank(
+                profileUpdateRequest.bio(),
+                this::validateBio,
+                value -> userRepository.updateBio(user.getId(), value));
 
-                    if (profileUpdateRequest.bio() != null && !profileUpdateRequest.bio().isBlank()) {
-                        validateBio(profileUpdateRequest.bio());
+        updatePropertyIfNonNullAndNotBlank(
+                profileUpdateRequest.location(),
+                this::validateLocation,
+                value -> userRepository.updateLocation(user.getId(), value));
 
-                        userRepository.updateBio(userId, profileUpdateRequest.bio());
-                    }
+        updatePropertyIfNonNullAndNotBlank(
+                profileUpdateRequest.company(),
+                this::validateCompany,
+                value -> userRepository.updateCompany(user.getId(), value));
+    }
 
-                    if (profileUpdateRequest.location() != null && !profileUpdateRequest.location().isBlank()) {
-                        validateLocation(profileUpdateRequest.location());
-
-                        userRepository.updateLocation(userId, profileUpdateRequest.location());
-                    }
-
-                    if (profileUpdateRequest.company() != null && !profileUpdateRequest.company().isBlank()) {
-                        validateCompany(profileUpdateRequest.company());
-
-                        userRepository.updateCompany(userId, profileUpdateRequest.company());
-                    }
-                }, () -> {
-                    throw new ResourceNotFoundException("User with id: " + userId + " not found");
-                });
+    private void updatePropertyIfNonNullAndNotBlank(String property,
+                                                    Consumer<String> validator,
+                                                    Consumer<String> updater) {
+        if (property != null && !property.isBlank()) {
+            validator.accept(property);
+            updater.accept(property);
+        }
     }
 
     public void createEmailUpdateToken(Integer userId, UserEmailUpdateRequest emailUpdateRequest) {
@@ -156,7 +165,7 @@ public class UserService {
                         throw new BadCredentialsException("Old password is incorrect");
                     }
 
-                    PasswordValidation.validatePassword(passwordUpdateRequest.updatedPassword());
+                    StringUtils.validatePassword(passwordUpdateRequest.updatedPassword());
                     userRepository.updatePassword(
                             userId,
                             passwordEncoder.encode(passwordUpdateRequest.updatedPassword()));
@@ -170,7 +179,7 @@ public class UserService {
         validateLastname(user.getLastname());
         validateUsername(user.getUsername());
         validateEmail(user.getEmail());
-        PasswordValidation.validatePassword(user.getPassword());
+        StringUtils.validatePassword(user.getPassword());
         validateBio(user.getBio());
         validateLocation(user.getLocation());
         validateCompany(user.getCompany());

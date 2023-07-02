@@ -7,7 +7,6 @@ import gr.aegean.repository.UserRepository;
 import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;
 import gr.aegean.model.passwordreset.PasswordResetRequest;
 import gr.aegean.model.passwordreset.PasswordResetResult;
-import gr.aegean.utility.PasswordValidation;
 import gr.aegean.utility.StringUtils;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -67,7 +66,7 @@ public class PasswordResetService {
         validatePasswordResetToken(resetConfirmationRequest.token());
 
         //validate/hash the updated password
-        PasswordValidation.validatePassword(resetConfirmationRequest.newPassword());
+        StringUtils.validatePassword(resetConfirmationRequest.newPassword());
         String hashedPassword = passwordEncoder.encode(resetConfirmationRequest.newPassword());
 
         //update the password in db and delete the password reset token record after so subsequent requests will fail

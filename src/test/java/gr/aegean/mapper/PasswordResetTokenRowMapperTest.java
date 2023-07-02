@@ -1,9 +1,5 @@
 package gr.aegean.mapper;
 
-import gr.aegean.model.token.PasswordResetToken;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -12,6 +8,11 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import gr.aegean.model.token.PasswordResetToken;
 
 class PasswordResetTokenRowMapperTest {
 

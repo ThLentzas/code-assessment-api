@@ -27,21 +27,7 @@ public class EmailService {
         context.setVariable("resetLink", resetLink);
         String emailContent = templateEngine.process("password_reset_request", context);
 
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper;
-
-        try {
-            helper = new MimeMessageHelper(mimeMessage, true);
-            helper.setTo(recipient);
-            helper.setFrom(SENDER);
-            helper.setSubject("Reset your Jarvis password");
-            helper.setText(emailContent, true);
-
-            mailSender.send(mimeMessage);
-        } catch (MessagingException me) {
-            throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
-                    "request. Please try again later.");
-        }
+        sendEmail(recipient, "Reset your Jarvis password", emailContent);
     }
 
     public void sendPasswordResetConfirmationEmail(String recipient, String username) {
@@ -53,21 +39,7 @@ public class EmailService {
         context.setVariable("password_reset", password_reset);
         String emailContent = templateEngine.process("password_reset_success", context);
 
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper;
-
-        try {
-            helper = new MimeMessageHelper(mimeMessage, true);
-            helper.setTo(recipient);
-            helper.setFrom(SENDER);
-            helper.setSubject("Your password was reset");
-            helper.setText(emailContent, true);
-
-            mailSender.send(mimeMessage);
-        } catch (MessagingException me) {
-            throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
-                    "request. Please try again later.");
-        }
+        sendEmail(recipient, "Your password was reset", emailContent);
     }
 
     public void sendEmailVerification(String recipient, String username, String token) {
@@ -78,6 +50,10 @@ public class EmailService {
         context.setVariable("verifyLink", verifyLink);
         String emailContent = templateEngine.process("email_verification", context);
 
+        sendEmail(recipient, "Verify your email", emailContent);
+    }
+
+    private void sendEmail(String recipient, String subject, String emailContent) {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper;
 
@@ -85,7 +61,7 @@ public class EmailService {
             helper = new MimeMessageHelper(mimeMessage, true);
             helper.setTo(recipient);
             helper.setFrom(SENDER);
-            helper.setSubject("Verify your email");
+            helper.setSubject(subject);
             helper.setText(emailContent, true);
 
             mailSender.send(mimeMessage);

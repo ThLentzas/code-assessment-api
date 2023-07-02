@@ -1,7 +1,5 @@
 package gr.aegean;
 
-import gr.aegean.repository.EmailUpdateRepository;
-import gr.aegean.repository.PasswordResetRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,6 +8,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+import gr.aegean.repository.EmailUpdateRepository;
+import gr.aegean.repository.PasswordResetRepository;
 import gr.aegean.repository.UserRepository;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;

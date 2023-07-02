@@ -1,19 +1,23 @@
 package gr.aegean.repository;
 
-import gr.aegean.mapper.PasswordResetTokenRowMapper;
-import gr.aegean.model.token.PasswordResetToken;
-
-import lombok.RequiredArgsConstructor;
+import gr.aegean.exception.ServerErrorException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+import gr.aegean.mapper.PasswordResetTokenRowMapper;
+import gr.aegean.model.token.PasswordResetToken;
+
+import lombok.RequiredArgsConstructor;
+
 @Repository
 @RequiredArgsConstructor
 public class PasswordResetRepository {
     private final JdbcTemplate jdbcTemplate;
+    private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
+            "complete your request. Please try again later.";
 
     public void createToken(PasswordResetToken passwordResetToken) {
         final String sql = "INSERT INTO password_reset_token (" +
@@ -22,11 +26,15 @@ public class PasswordResetRepository {
                 "expiry_date) "  +
                 "VALUES (?, ?, ?)";
 
-        jdbcTemplate.update(
+        int update = jdbcTemplate.update(
                 sql,
                 passwordResetToken.userId(),
                 passwordResetToken.token(),
                 passwordResetToken.expiryDate());
+
+        if(update != 1) {
+            throw new ServerErrorException(SERVER_ERROR_MSG);
+        }
     }
 
     public Optional<PasswordResetToken> findToken(String token) {
@@ -49,12 +57,20 @@ public class PasswordResetRepository {
     public void deleteToken(String token) {
         final String sql = "DELETE FROM password_reset_token WHERE token = ?";
 
-        jdbcTemplate.update(sql, token);
+        int update = jdbcTemplate.update(sql, token);
+
+        if(update != 1) {
+            throw new ServerErrorException(SERVER_ERROR_MSG);
+        }
     }
 
     public void deleteAllTokens() {
         final String sql = "DELETE FROM password_reset_token";
 
-        jdbcTemplate.update(sql);
+        int update = jdbcTemplate.update(sql);
+
+        if(update != 1) {
+            throw new ServerErrorException(SERVER_ERROR_MSG);
+        }
     }
 }

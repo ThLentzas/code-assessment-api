@@ -1,14 +1,5 @@
 package gr.aegean.integration;
 
-import com.icegreen.greenmail.configuration.GreenMailConfiguration;
-import com.icegreen.greenmail.junit5.GreenMailExtension;
-import com.icegreen.greenmail.util.GreenMailUtil;
-import com.icegreen.greenmail.util.ServerSetupTest;
-import gr.aegean.AbstractIntegrationTest;
-import gr.aegean.model.auth.AuthResponse;
-import gr.aegean.model.user.UserProfile;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +9,20 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import com.icegreen.greenmail.configuration.GreenMailConfiguration;
+import com.icegreen.greenmail.junit5.GreenMailExtension;
+import com.icegreen.greenmail.util.GreenMailUtil;
+import com.icegreen.greenmail.util.ServerSetupTest;
+
+import gr.aegean.AbstractIntegrationTest;
+import gr.aegean.model.auth.AuthResponse;
+import gr.aegean.model.user.UserProfile;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -201,8 +204,9 @@ class UserIT extends AbstractIntegrationTest {
         }
 
         message = messages[0];
-        assertThat(message.getAllRecipients().length).isEqualTo(1);
-        assertThat(message.getAllRecipients()[0].toString()).isEqualTo("foo@example.com");
+
+        assertThat(message.getAllRecipients()).hasSize(1);
+        assertThat(message.getAllRecipients()[0]).hasToString("foo@example.com");
         assertThat(message.getSubject()).isEqualTo("Verify your email");
 
         webTestClient.get()

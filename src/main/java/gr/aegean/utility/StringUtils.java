@@ -1,16 +1,28 @@
 package gr.aegean.utility;
 
+import org.bouncycastle.util.encoders.Hex;
+import org.passay.CharacterRule;
+import org.passay.EnglishCharacterData;
+import org.passay.LengthRule;
+import org.passay.PasswordData;
+import org.passay.PasswordValidator;
+import org.passay.RuleResult;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.ServerErrorException;
 
-import org.bouncycastle.util.encoders.Hex;
+public final class StringUtils {
+    private StringUtils() {
 
-public class StringUtils {
+        // prevent instantiation
+        throw new UnsupportedOperationException("StringUtils is a utility class and cannot be instantiated.");
+    }
 
     public static String generateToken() {
         SecureRandom secureRandom = new SecureRandom();
@@ -36,6 +48,21 @@ public class StringUtils {
         }
 
         return new String(Hex.encode(hash));
+    }
+
+    public static void validatePassword(String password) {
+        PasswordValidator validator = new PasswordValidator(
+                new LengthRule(8, 128),
+                new CharacterRule(EnglishCharacterData.UpperCase, 1),
+                new CharacterRule(EnglishCharacterData.LowerCase, 1),
+                new CharacterRule(EnglishCharacterData.Digit, 1),
+                new CharacterRule(EnglishCharacterData.Special, 1)
+        );
+
+        RuleResult result = validator.validate(new PasswordData(password));
+        if (!result.isValid()) {
+            throw new BadCredentialsException(validator.getMessages(result).get(0));
+        }
     }
 }
 
