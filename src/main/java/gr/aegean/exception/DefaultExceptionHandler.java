@@ -3,6 +3,7 @@ package gr.aegean.exception;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -51,6 +52,18 @@ public class DefaultExceptionHandler {
         ApiError apiError = new ApiError(
                 httpServletRequest.getRequestURI(),
                 bce.getMessage(),
+                HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now());
+
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    private ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException iae,
+                                                                   HttpServletRequest httpServletRequest) {
+        ApiError apiError = new ApiError(
+                httpServletRequest.getRequestURI(),
+                iae.getMessage(),
                 HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now());
 

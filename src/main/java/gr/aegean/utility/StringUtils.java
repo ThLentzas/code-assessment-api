@@ -1,5 +1,11 @@
 package gr.aegean.utility;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Base64;
+
 import org.bouncycastle.util.encoders.Hex;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
@@ -8,16 +14,11 @@ import org.passay.PasswordData;
 import org.passay.PasswordValidator;
 import org.passay.RuleResult;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Base64;
-
-import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.ServerErrorException;
+import org.springframework.security.authentication.BadCredentialsException;
 
 public final class StringUtils {
+
     private StringUtils() {
 
         // prevent instantiation
@@ -65,4 +66,5 @@ public final class StringUtils {
         }
     }
 }
+
 

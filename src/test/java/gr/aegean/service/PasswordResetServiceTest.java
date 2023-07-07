@@ -9,15 +9,15 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import gr.aegean.model.user.User;
 import gr.aegean.model.passwordreset.PasswordResetRequest;
-import gr.aegean.model.passwordreset.PasswordResetResult;
+import gr.aegean.model.passwordreset.PasswordResetResponse;
 import gr.aegean.model.token.PasswordResetToken;
 import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;
-import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.repository.PasswordResetRepository;
 import gr.aegean.utility.StringUtils;
@@ -65,10 +65,10 @@ class PasswordResetServiceTest extends AbstractTestContainers {
         PasswordResetRequest passwordResetRequest = new PasswordResetRequest("test@example.com");
 
         //Act
-        PasswordResetResult passwordResetResult = underTest.createPasswordResetToken(passwordResetRequest);
+        PasswordResetResponse passwordResetResponse = underTest.createPasswordResetToken(passwordResetRequest);
 
         //Assert
-        assertThat(passwordResetResult.message()).isEqualTo(
+        assertThat(passwordResetResponse.message()).isEqualTo(
                 "If your email address exists in our database, you will receive a password recovery link at " +
                         "your email address in a few minutes.");
 
@@ -82,10 +82,10 @@ class PasswordResetServiceTest extends AbstractTestContainers {
         PasswordResetRequest passwordResetRequest = new PasswordResetRequest("test1@example.com");
 
         //Act
-        PasswordResetResult passwordResetResult = underTest.createPasswordResetToken(passwordResetRequest);
+        PasswordResetResponse passwordResetResponse = underTest.createPasswordResetToken(passwordResetRequest);
 
         //Assert
-        assertThat(passwordResetResult.message()).isEqualTo(
+        assertThat(passwordResetResponse.message()).isEqualTo(
                 "If your email address exists in our database, you will receive a password recovery link at " +
                         "your email address in a few minutes.");
 

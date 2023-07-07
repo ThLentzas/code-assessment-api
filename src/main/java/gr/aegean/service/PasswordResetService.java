@@ -1,14 +1,14 @@
 package gr.aegean.service;
 
-import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.model.token.PasswordResetToken;
 import gr.aegean.repository.PasswordResetRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;
 import gr.aegean.model.passwordreset.PasswordResetRequest;
-import gr.aegean.model.passwordreset.PasswordResetResult;
+import gr.aegean.model.passwordreset.PasswordResetResponse;
 import gr.aegean.utility.StringUtils;
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class PasswordResetService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public PasswordResetResult createPasswordResetToken(PasswordResetRequest resetRequest) {
+    public PasswordResetResponse createPasswordResetToken(PasswordResetRequest resetRequest) {
         userRepository.findUserByEmail(resetRequest.email())
                 .ifPresent(user -> {
                     String token = StringUtils.generateToken();
@@ -40,12 +40,12 @@ public class PasswordResetService {
                     emailService.sendPasswordResetRequestEmail(resetRequest.email(), token);
                 });
 
-        return new PasswordResetResult("If your email address exists in our database, you will receive a password " +
+        return new PasswordResetResponse("If your email address exists in our database, you will receive a password " +
                 "recovery link at your email address in a few minutes.");
     }
 
     public void validatePasswordResetToken(String token) {
-        if (token == null || token.isEmpty()) {
+        if (token == null || token.isBlank()) {
             throw new BadCredentialsException("Reset password token is invalid");
         }
 

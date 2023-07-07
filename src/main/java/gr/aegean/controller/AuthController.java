@@ -14,7 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import gr.aegean.model.auth.AuthRequest;
 import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;
 import gr.aegean.model.passwordreset.PasswordResetRequest;
-import gr.aegean.model.passwordreset.PasswordResetResult;
+import gr.aegean.model.passwordreset.PasswordResetResponse;
 import gr.aegean.model.auth.AuthResponse;
 import gr.aegean.model.auth.RegisterRequest;
 import gr.aegean.service.AuthService;
@@ -64,11 +64,11 @@ public class AuthController {
     }
 
     @PostMapping("/password_reset")
-    public ResponseEntity<PasswordResetResult> resetPassword(
+    public ResponseEntity<PasswordResetResponse> resetPassword(
             @Valid @RequestBody PasswordResetRequest passwordResetRequest) {
-        PasswordResetResult passwordResetResult = passwordResetService.createPasswordResetToken(passwordResetRequest);
+        PasswordResetResponse passwordResetResponse = passwordResetService.createPasswordResetToken(passwordResetRequest);
 
-        return new ResponseEntity<>(passwordResetResult, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(passwordResetResponse, HttpStatus.ACCEPTED);
     }
 
     @GetMapping("/password_reset")

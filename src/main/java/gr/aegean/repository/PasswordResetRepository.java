@@ -57,20 +57,13 @@ public class PasswordResetRepository {
     public void deleteToken(String token) {
         final String sql = "DELETE FROM password_reset_token WHERE token = ?";
 
-        int update = jdbcTemplate.update(sql, token);
+        jdbcTemplate.update(sql, token);
 
-        if(update != 1) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        }
     }
 
     public void deleteAllTokens() {
         final String sql = "DELETE FROM password_reset_token";
 
-        int update = jdbcTemplate.update(sql);
-
-        if(update != 1) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        }
+        jdbcTemplate.update(sql);
     }
 }

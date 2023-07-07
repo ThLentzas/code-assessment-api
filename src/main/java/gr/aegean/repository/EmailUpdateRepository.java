@@ -24,7 +24,7 @@ public class EmailUpdateRepository {
                 "user_id, " +
                 "token, " +
                 "email, " +
-                "expiry_date) "  +
+                "expiry_date) " +
                 "VALUES (?, ?, ?, ?)";
 
         int update = jdbcTemplate.update(
@@ -34,7 +34,7 @@ public class EmailUpdateRepository {
                 token.email(),
                 token.expiryDate());
 
-        if(update != 1) {
+        if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }
@@ -60,20 +60,13 @@ public class EmailUpdateRepository {
     public void deleteToken(String token) {
         final String sql = "DELETE FROM email_update_token WHERE token = ?";
 
-        int update = jdbcTemplate.update(sql, token);
-
-        if(update != 1) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        }
+        jdbcTemplate.update(sql, token);
     }
 
     public void deleteAllTokens() {
         final String sql = "DELETE FROM email_update_token";
 
-        int update = jdbcTemplate.update(sql);
-
-        if(update != 1) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        }
+        jdbcTemplate.update(sql);
     }
 }
+

@@ -1,6 +1,5 @@
 package gr.aegean.service;
 
-import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.model.token.EmailUpdateToken;
@@ -13,6 +12,7 @@ import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.utility.StringUtils;
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -187,55 +187,55 @@ public class UserService {
 
     private void validateFirstname(String firstname) {
         if (firstname.length() > 30) {
-            throw new BadCredentialsException("Invalid firstname. Too many characters");
+            throw new IllegalArgumentException("Invalid firstname. Too many characters");
         }
 
         if (!firstname.matches("^[a-zA-Z]*$")) {
-            throw new BadCredentialsException("Invalid firstname. Name should contain only characters");
+            throw new IllegalArgumentException("Invalid firstname. Name should contain only characters");
         }
     }
 
     private void validateLastname(String lastname) {
         if (lastname.length() > 30) {
-            throw new BadCredentialsException("Invalid lastname. Too many characters");
+            throw new IllegalArgumentException("Invalid lastname. Too many characters");
         }
 
         if (!lastname.matches("^[a-zA-Z]*$")) {
-            throw new BadCredentialsException("Invalid lastname. Name should contain only characters");
+            throw new IllegalArgumentException("Invalid lastname. Name should contain only characters");
         }
     }
 
     private void validateUsername(String username) {
         if (username.length() > 30) {
-            throw new BadCredentialsException("Invalid username. Too many characters");
+            throw new IllegalArgumentException("Invalid username. Too many characters");
         }
     }
 
     private void validateEmail(String email) {
         if (email.length() > 50) {
-            throw new BadCredentialsException("Invalid email. Too many characters");
+            throw new IllegalArgumentException("Invalid email. Too many characters");
         }
 
         if (!email.contains("@")) {
-            throw new BadCredentialsException("Invalid email");
+            throw new IllegalArgumentException("Invalid email");
         }
     }
 
     public void validateBio(String bio) {
         if (bio.length() > 150) {
-            throw new BadCredentialsException("Invalid bio. Too many characters");
+            throw new IllegalArgumentException("Invalid bio. Too many characters");
         }
     }
 
     public void validateLocation(String location) {
         if (location.length() > 50) {
-            throw new BadCredentialsException("Invalid location. Too many characters");
+            throw new IllegalArgumentException("Invalid location. Too many characters");
         }
     }
 
     public void validateCompany(String company) {
         if (company.length() > 50) {
-            throw new BadCredentialsException("Invalid company. Too many characters");
+            throw new IllegalArgumentException("Invalid company. Too many characters");
         }
     }
 }

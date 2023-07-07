@@ -1,7 +1,6 @@
 package gr.aegean.service;
 
 import gr.aegean.AbstractTestContainers;
-import gr.aegean.exception.BadCredentialsException;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.model.token.EmailUpdateToken;
@@ -23,6 +22,7 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
@@ -116,7 +116,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
-                .isInstanceOf(BadCredentialsException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid firstname. Too many characters");
     }
 
@@ -136,7 +136,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
-                .isInstanceOf(BadCredentialsException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid firstname. Name should contain only characters");
     }
 
@@ -156,7 +156,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
-                .isInstanceOf(BadCredentialsException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid firstname. Name should contain only characters");
     }
 
@@ -176,7 +176,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
-                .isInstanceOf(BadCredentialsException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid lastname. Too many characters");
     }
 
@@ -196,7 +196,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
-                .isInstanceOf(BadCredentialsException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid lastname. Name should contain only characters");
     }
 
@@ -216,7 +216,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
-                .isInstanceOf(BadCredentialsException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid lastname. Name should contain only characters");
     }
 
@@ -236,7 +236,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
-                .isInstanceOf(BadCredentialsException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid username. Too many characters");
     }
 
@@ -257,7 +257,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
-                .isInstanceOf(BadCredentialsException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid email. Too many characters");
     }
 
@@ -277,7 +277,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
-                .isInstanceOf(BadCredentialsException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid email");
     }
 
@@ -298,7 +298,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
-                .isInstanceOf(BadCredentialsException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid bio. Too many characters");
     }
 
@@ -319,7 +319,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
-                .isInstanceOf(BadCredentialsException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid location. Too many characters");
     }
 
@@ -340,7 +340,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
-                .isInstanceOf(BadCredentialsException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid company. Too many characters");
     }
 

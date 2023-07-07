@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 
 import gr.aegean.model.user.User;
 import gr.aegean.mapper.UserRowMapper;
-import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.exception.ServerErrorException;
 
 import lombok.RequiredArgsConstructor;
@@ -206,10 +205,6 @@ public class UserRepository {
     public void deleteAllUsers() {
         final String sql = "DELETE FROM app_user";
 
-        int update = jdbcTemplate.update(sql);
-
-        if(update != 1) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        }
+        jdbcTemplate.update(sql);
     }
 }

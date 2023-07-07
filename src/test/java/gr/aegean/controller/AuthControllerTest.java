@@ -20,7 +20,7 @@ import gr.aegean.model.auth.AuthResponse;
 import gr.aegean.model.auth.RegisterRequest;
 import gr.aegean.model.auth.AuthRequest;
 import gr.aegean.model.passwordreset.PasswordResetRequest;
-import gr.aegean.model.passwordreset.PasswordResetResult;
+import gr.aegean.model.passwordreset.PasswordResetResponse;
 import gr.aegean.service.AuthService;
 import gr.aegean.service.PasswordResetService;
 import gr.aegean.repository.UserRepository;
@@ -331,7 +331,7 @@ class AuthControllerTest {
                 "email": "test@example.com"
             }
             """;
-        PasswordResetResult resetResult = new PasswordResetResult("If your email address exists in our database, " +
+        PasswordResetResponse resetResult = new PasswordResetResponse("If your email address exists in our database, " +
                 "you will receive a password recovery link at your email address in a few minutes.");
 
         when(passwordResetService.createPasswordResetToken(any(PasswordResetRequest.class))).thenReturn(resetResult);
