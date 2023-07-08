@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PasswordResetRepository {
     private final JdbcTemplate jdbcTemplate;
+    private final PasswordResetTokenRowMapper mapper;
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 
@@ -45,11 +46,7 @@ public class PasswordResetRepository {
                 "FROM password_reset_token " +
                 "WHERE token = ?";
 
-        List<PasswordResetToken> passwordResetToken = jdbcTemplate.query(
-                sql,
-                new PasswordResetTokenRowMapper(),
-                token
-        );
+        List<PasswordResetToken> passwordResetToken = jdbcTemplate.query(sql, mapper, token);
 
         return passwordResetToken.stream().findFirst();
     }

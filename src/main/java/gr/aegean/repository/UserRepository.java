@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @Repository
 public class UserRepository {
     private final JdbcTemplate jdbcTemplate;
+    private final UserRowMapper mapper;
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 
@@ -163,7 +164,7 @@ public class UserRepository {
                 "location, " +
                 "company FROM app_user WHERE email = ?";
 
-        List<User> users = jdbcTemplate.query(sql, new UserRowMapper(), email);
+        List<User> users = jdbcTemplate.query(sql, mapper, email);
 
         return users.stream().findFirst();
     }
@@ -181,7 +182,7 @@ public class UserRepository {
                 "location, " +
                 "company FROM app_user WHERE id = ?";
 
-        List<User> users = jdbcTemplate.query(sql, new UserRowMapper(), userId);
+        List<User> users = jdbcTemplate.query(sql, mapper, userId);
 
         return users.stream().findFirst();
     }

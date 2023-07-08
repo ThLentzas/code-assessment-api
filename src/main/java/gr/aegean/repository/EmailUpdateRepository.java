@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmailUpdateRepository {
     private final JdbcTemplate jdbcTemplate;
+    private final EmailUpdateTokenRowMapper mapper;
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 
@@ -48,11 +49,7 @@ public class EmailUpdateRepository {
                 "FROM email_update_token " +
                 "WHERE token = ?";
 
-        List<EmailUpdateToken> emailUpdateTokens = jdbcTemplate.query(
-                sql,
-                new EmailUpdateTokenRowMapper(),
-                token
-        );
+        List<EmailUpdateToken> emailUpdateTokens = jdbcTemplate.query(sql, mapper, token);
 
         return emailUpdateTokens.stream().findFirst();
     }

@@ -3,6 +3,9 @@ package gr.aegean.service;
 import gr.aegean.AbstractTestContainers;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
+import gr.aegean.mapper.EmailUpdateTokenRowMapper;
+import gr.aegean.mapper.PasswordResetTokenRowMapper;
+import gr.aegean.mapper.UserRowMapper;
 import gr.aegean.model.token.EmailUpdateToken;
 import gr.aegean.model.user.User;
 import gr.aegean.model.user.UserEmailUpdateRequest;
@@ -44,13 +47,15 @@ class UserServiceTest extends AbstractTestContainers {
     private EmailService emailService;
     private UserRepository userRepository;
     private EmailUpdateRepository emailUpdateRepository;
-    private UserService underTest;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final UserRowMapper userMapper = new UserRowMapper();
+    private final EmailUpdateTokenRowMapper tokenRowMapper = new EmailUpdateTokenRowMapper();
+    private UserService underTest;
 
     @BeforeEach
     void setup() {
-        userRepository = new UserRepository(getJdbcTemplate());
-        emailUpdateRepository = new EmailUpdateRepository(getJdbcTemplate());
+        userRepository = new UserRepository(getJdbcTemplate(), userMapper);
+        emailUpdateRepository = new EmailUpdateRepository(getJdbcTemplate(), tokenRowMapper);
         underTest = new UserService(userRepository, emailUpdateRepository, emailService, passwordEncoder);
 
         emailUpdateRepository.deleteAllTokens();
@@ -101,7 +106,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenFirstnameExceedsMaxLength() {
+    void shouldThrowIllegalArgumentExceptionWhenFirstnameExceedsMaxLength() {
         Random random = new Random();
         User user = User.builder()
                 .firstname(generateRandomString(random.nextInt(31) + 31))
@@ -121,7 +126,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenFirstnameContainsNumbers() {
+    void shouldThrowIllegalArgumentExceptionWhenFirstnameContainsNumbers() {
         //Arrange
         User user = User.builder()
                 .firstname("T3st")
@@ -141,7 +146,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenFirstnameContainsSpecialCharacters() {
+    void shouldThrowIllegalArgumentExceptionWhenFirstnameContainsSpecialCharacters() {
         //Arrange
         User user = User.builder()
                 .firstname("T^st")
@@ -161,7 +166,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenLastnameExceedsMaxLength() {
+    void shouldThrowIllegalArgumentExceptionWhenLastnameExceedsMaxLength() {
         Random random = new Random();
         User user = User.builder()
                 .firstname("Test")
@@ -181,7 +186,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenLastnameContainsNumbers() {
+    void shouldThrowIllegalArgumentExceptionWhenLastnameContainsNumbers() {
         //Arrange
         User user = User.builder()
                 .firstname("Test")
@@ -201,7 +206,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenLastnameContainsSpecialCharacters() {
+    void shouldThrowIllegalArgumentExceptionWhenLastnameContainsSpecialCharacters() {
         //Arrange
         User user = User.builder()
                 .firstname("Test")
@@ -221,7 +226,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenUsernameExceedsMaxLength() {
+    void shouldThrowIllegalArgumentExceptionWhenUsernameExceedsMaxLength() {
         Random random = new Random();
         User user = User.builder()
                 .firstname("Test")
@@ -241,7 +246,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenEmailExceedsMaxLength() {
+    void shouldThrowIllegalArgumentExceptionWhenEmailExceedsMaxLength() {
         //Arrange
         Random random = new Random();
         User user = User.builder()
@@ -262,7 +267,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenEmailDoesNotContainAtSymbol() {
+    void shouldThrowIllegalArgumentExceptionWhenEmailDoesNotContainAtSymbol() {
         //Arrange
         User user = User.builder()
                 .firstname("Test")
@@ -282,7 +287,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenBioExceedsMaxLength() {
+    void shouldThrowIllegalArgumentExceptionWhenBioExceedsMaxLength() {
         //Arrange
         Random random = new Random();
         User user = User.builder()
@@ -303,7 +308,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenLocationExceedsMaxLength() {
+    void shouldThrowIllegalArgumentExceptionWhenLocationExceedsMaxLength() {
         //Arrange
         Random random = new Random();
         User user = User.builder()
@@ -324,7 +329,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenCompanyExceedsMaxLength() {
+    void shouldThrowIllegalArgumentExceptionWhenCompanyExceedsMaxLength() {
         //Arrange
         Random random = new Random();
         User user = User.builder()

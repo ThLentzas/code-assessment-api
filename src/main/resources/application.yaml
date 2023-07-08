@@ -29,3 +29,6 @@ spring:
           auth: true
           starttls:
             enable: true
+
+projects:
+  base-directory: F:\\Projects

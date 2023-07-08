@@ -119,7 +119,7 @@ class AuthServiceTest {
     //if password is wrong or EmptyResultDataAccessException if the user's email doesn't exist. In any case both are run
     //time exceptions.
     @Test
-    void shouldThrowBadCredentialsExceptionWhenAuthEmailOrPasswordIsWrong() {
+    void shouldThrowUnauthorizedExceptionWhenAuthEmailOrPasswordIsWrong() {
         //Arrange
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new RuntimeException());

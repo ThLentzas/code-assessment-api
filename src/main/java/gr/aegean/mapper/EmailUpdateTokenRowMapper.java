@@ -5,9 +5,10 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-import gr.aegean.model.token.EmailUpdateToken;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
+
+import gr.aegean.model.token.EmailUpdateToken;
 
 @Service
 public class EmailUpdateTokenRowMapper implements RowMapper<EmailUpdateToken> {
