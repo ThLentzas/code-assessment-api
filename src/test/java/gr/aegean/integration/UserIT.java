@@ -27,6 +27,7 @@ import jakarta.mail.internet.MimeMessage;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 @AutoConfigureWebTestClient
 class UserIT extends AbstractIntegrationTest {
     @Autowired

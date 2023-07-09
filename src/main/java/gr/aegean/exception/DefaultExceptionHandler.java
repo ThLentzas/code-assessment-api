@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+
 @ControllerAdvice
 public class DefaultExceptionHandler {
 

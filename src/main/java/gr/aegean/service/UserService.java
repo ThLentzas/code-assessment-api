@@ -99,15 +99,6 @@ public class UserService {
                 value -> userRepository.updateCompany(user.getId(), value));
     }
 
-    private void updatePropertyIfNonNullAndNotBlank(String property,
-                                                    Consumer<String> validator,
-                                                    Consumer<String> updater) {
-        if (property != null && !property.isBlank()) {
-            validator.accept(property);
-            updater.accept(property);
-        }
-    }
-
     public void createEmailUpdateToken(Integer userId, UserEmailUpdateRequest emailUpdateRequest) {
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
@@ -236,6 +227,15 @@ public class UserService {
     public void validateCompany(String company) {
         if (company.length() > 50) {
             throw new IllegalArgumentException("Invalid company. Too many characters");
+        }
+    }
+
+    private void updatePropertyIfNonNullAndNotBlank(String property,
+                                                    Consumer<String> validator,
+                                                    Consumer<String> updater) {
+        if (property != null && !property.isBlank()) {
+            validator.accept(property);
+            updater.accept(property);
         }
     }
 }

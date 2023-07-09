@@ -3,6 +3,7 @@ package gr.aegean.model.token;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+
 public record PasswordResetToken(Integer userId, String token, LocalDateTime expiryDate){
     @Override
     public boolean equals(Object obj) {

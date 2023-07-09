@@ -13,6 +13,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
 
+
 @Testcontainers
 public abstract class AbstractTestContainers {
     @BeforeAll

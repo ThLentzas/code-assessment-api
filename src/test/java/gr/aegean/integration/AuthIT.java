@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import gr.aegean.AbstractIntegrationTest;
 import gr.aegean.model.auth.AuthResponse;
 
+
 @AutoConfigureWebTestClient
 class AuthIT extends AbstractIntegrationTest {
     @Autowired

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import gr.aegean.model.token.PasswordResetToken;
 
+
 class PasswordResetTokenRowMapperTest {
 
     private PasswordResetTokenRowMapper mapper;

@@ -8,6 +8,7 @@ import gr.aegean.model.user.User;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
+
 @Service
 public class UserRowMapper implements RowMapper<User> {
 

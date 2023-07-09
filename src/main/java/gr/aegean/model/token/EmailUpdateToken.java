@@ -3,6 +3,7 @@ package gr.aegean.model.token;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+
 public record EmailUpdateToken(Integer userId, String token, String email, LocalDateTime expiryDate){
     @Override
     public boolean equals(Object obj) {

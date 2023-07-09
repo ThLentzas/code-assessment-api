@@ -12,6 +12,7 @@ import gr.aegean.model.token.PasswordResetToken;
 
 import lombok.RequiredArgsConstructor;
 
+
 @Repository
 @RequiredArgsConstructor
 public class PasswordResetRepository {

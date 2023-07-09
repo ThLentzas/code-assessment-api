@@ -12,6 +12,7 @@ import gr.aegean.model.token.EmailUpdateToken;
 
 import lombok.RequiredArgsConstructor;
 
+
 @Repository
 @RequiredArgsConstructor
 public class EmailUpdateRepository {

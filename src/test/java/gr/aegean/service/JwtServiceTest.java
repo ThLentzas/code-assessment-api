@@ -22,6 +22,7 @@ import java.util.Map;
 
 import gr.aegean.model.user.UserDTO;
 
+
 @ExtendWith(MockitoExtension.class)
 class JwtServiceTest {
     @Mock

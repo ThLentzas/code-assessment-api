@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import gr.aegean.model.token.EmailUpdateToken;
 
+
 @Service
 public class EmailUpdateTokenRowMapper implements RowMapper<EmailUpdateToken> {
     @Override

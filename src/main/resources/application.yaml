@@ -32,3 +32,6 @@ spring:
 
 projects:
   base-directory: F:\\Projects
+#spring:
+#  config:
+#    import: C:\Users\Thanos\Desktop\application.yaml

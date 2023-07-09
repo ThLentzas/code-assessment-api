@@ -40,7 +40,7 @@ class ProjectServiceTest {
         The download functionality will be tested with IT.
      */
     @Mock
-    private GitService gitService;
+    private GitHubService gitHubService;
     private ProjectService underTest;
 
     @BeforeAll
@@ -50,7 +50,7 @@ class ProjectServiceTest {
 
     @BeforeEach
     void setup() throws Exception{
-        underTest = new ProjectService(baseDirectoryPath, gitService);
+        underTest = new ProjectService(baseDirectoryPath, gitHubService);
 
         /*
             Delete all files. Exclude the base temp directory itself
@@ -69,8 +69,8 @@ class ProjectServiceTest {
                 "https://github.com/user/repo2"));
 
         Git gitMock = mock(Git.class);
-        when(gitService.cloneRepository(any(String.class), any(File.class))).thenReturn(gitMock);
-        when(gitService.isValidGitHubUrl(any(String.class))).thenReturn(true);
+        when(gitHubService.cloneRepository(any(String.class), any(File.class))).thenReturn(gitMock);
+        when(gitHubService.isValidGitHubUrl(any(String.class))).thenReturn(true);
 
         File clonedDir = underTest.cloneProject(request);
 
@@ -83,7 +83,7 @@ class ProjectServiceTest {
                 .isAbsolute()
                 .startsWith(tempDirectory.toAbsolutePath());
 
-        verify(gitService, times(2)).cloneRepository(anyString(), any(File.class));
+        verify(gitHubService, times(2)).cloneRepository(anyString(), any(File.class));
     }
 
     @Test
@@ -92,7 +92,7 @@ class ProjectServiceTest {
                 "https://test.com/user",
                 "https://test.com"));
 
-        when(gitService.isValidGitHubUrl(any(String.class))).thenReturn(false);
+        when(gitHubService.isValidGitHubUrl(any(String.class))).thenReturn(false);
 
         assertThatThrownBy(() -> underTest.cloneProject(request))
                 .isInstanceOf(IllegalArgumentException.class)

@@ -17,6 +17,7 @@ import org.passay.RuleResult;
 import gr.aegean.exception.ServerErrorException;
 import org.springframework.security.authentication.BadCredentialsException;
 
+
 public final class StringUtils {
 
     private StringUtils() {

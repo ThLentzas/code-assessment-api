@@ -1,10 +1,12 @@
 package gr.aegean.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,18 +19,18 @@ import gr.aegean.model.analysis.AnalysisRequest;
 @Service
 public class ProjectService {
     private final String baseDirectoryPath;
+    private final GitHubService gitHubService;
     private final File baseDirectory;
-    private final GitService gitService;
 
-    public ProjectService(@Value("${projects.base-directory}") String baseDirectoryPath, GitService gitService) {
+    public ProjectService(@Value("${projects.base-directory}") String baseDirectoryPath, GitHubService gitHubService) {
         this.baseDirectoryPath = baseDirectoryPath;
-        this.gitService = gitService;
+        this.gitHubService = gitHubService;
         baseDirectory = new File(baseDirectoryPath);
     }
 
     public File cloneProject(AnalysisRequest request) {
         List<String> failedUrls = new ArrayList<>();
-        File requestFolder = new File(baseDirectory +  "\\" + UUID.randomUUID());
+        File requestFolder = new File(baseDirectory + "\\" + UUID.randomUUID());
 
         if (!requestFolder.mkdir()) {
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
@@ -40,7 +42,7 @@ public class ProjectService {
                 Have a message saying that if in the analysis report they don't see a repository from those they
                 provided, it wasn't a valid GitHub repository URL, or it was a private one.
              */
-            if (!gitService.isValidGitHubUrl(projectUrl)) {
+            if (!gitHubService.isValidGitHubUrl(projectUrl)) {
                 failedUrls.add(projectUrl);
 
                 continue;
@@ -51,11 +53,9 @@ public class ProjectService {
                 F:\Projects\UUID1\UUID2, F:\Projects\UUID1\UUID3. Each request will have a unique subfolder in the
                 Projects folder that will contain all the repositories for that request.
              */
-
-            try (Git git = gitService.cloneRepository(
+            try (Git git = gitHubService.cloneRepository(
                     projectUrl,
                     new File(requestFolder, UUID.randomUUID().toString()))) {
-                System.out.println();
             } catch (GitAPIException e) {
 
                 /*
@@ -72,5 +72,9 @@ public class ProjectService {
         }
 
         return requestFolder;
+    }
+
+    public void deleteProjectsDirectory(File projectDirectory) throws IOException {
+        FileUtils.deleteDirectory(projectDirectory);
     }
 }

@@ -22,6 +22,7 @@ import java.security.interfaces.RSAPublicKey;
 
 import gr.aegean.exception.ServerErrorException;
 
+
 @Configuration
 public class JwtConfig {
     private final RSAPublicKey publicKey;

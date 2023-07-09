@@ -17,6 +17,7 @@ import gr.aegean.exception.ServerErrorException;
 
 import lombok.RequiredArgsConstructor;
 
+
 @RequiredArgsConstructor
 @Repository
 public class UserRepository {

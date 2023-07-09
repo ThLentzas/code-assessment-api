@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import lombok.RequiredArgsConstructor;
 
+
 /**
  * The authentication is handled by an AuthenticationProvider, and JWT tokens are used.
  */
@@ -31,8 +32,8 @@ public class SecurityConfig {
                     /* We allow this endpoint because it's the GET request when a user clicks the verification link on
                        their email.
                      */
-                    auth.requestMatchers(HttpMethod.GET, "/api/v1/users/settings/email").permitAll();
                     auth.requestMatchers("/api/v1/analysis").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/api/v1/users/settings/email").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .csrf(AbstractHttpConfigurer:: disable)

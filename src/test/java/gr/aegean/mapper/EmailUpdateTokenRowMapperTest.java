@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import gr.aegean.model.token.EmailUpdateToken;
 
+
 class EmailUpdateTokenRowMapperTest {
 
     private EmailUpdateTokenRowMapper rowMapper;

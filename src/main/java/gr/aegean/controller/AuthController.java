@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.net.URI;
 
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")

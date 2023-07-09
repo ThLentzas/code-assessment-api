@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import gr.aegean.model.token.PasswordResetToken;
 
+
 @Service
 public class PasswordResetTokenRowMapper implements RowMapper<PasswordResetToken> {
     @Override

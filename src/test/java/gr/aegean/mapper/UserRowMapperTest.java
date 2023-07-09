@@ -12,6 +12,7 @@ import java.sql.SQLException;
 
 import gr.aegean.model.user.User;
 
+
 class UserRowMapperTest {
 
     private UserRowMapper mapper;

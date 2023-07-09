@@ -13,6 +13,7 @@ import gr.aegean.exception.ServerErrorException;
 
 import lombok.RequiredArgsConstructor;
 
+
 @Service
 @RequiredArgsConstructor
 public class EmailService {

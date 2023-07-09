@@ -15,20 +15,21 @@ import gr.aegean.exception.UnauthorizedException;
 
 import lombok.RequiredArgsConstructor;
 
+
 @Configuration
 @RequiredArgsConstructor
 public class AuthConfig {
     private final UserRepository userRepository;
 
     @Bean
-    public PasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public UserDetailsService userDetailsService() {
         return email -> userRepository.findUserByEmail(email)
                 .orElseThrow(() -> new UnauthorizedException("Username or password is incorrect"));
+    }
+
+    @Bean
+    public PasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

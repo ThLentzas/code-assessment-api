@@ -41,6 +41,7 @@ import static org.mockito.Mockito.verify;
 import java.time.LocalDateTime;
 import java.util.Random;
 
+
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest extends AbstractTestContainers {
     @Mock
