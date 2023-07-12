@@ -18,12 +18,10 @@ import gr.aegean.model.analysis.AnalysisRequest;
 
 @Service
 public class ProjectService {
-    private final String baseDirectoryPath;
     private final GitHubService gitHubService;
     private final File baseDirectory;
 
     public ProjectService(@Value("${projects.base-directory}") String baseDirectoryPath, GitHubService gitHubService) {
-        this.baseDirectoryPath = baseDirectoryPath;
         this.gitHubService = gitHubService;
         baseDirectory = new File(baseDirectoryPath);
     }
@@ -74,7 +72,7 @@ public class ProjectService {
         return requestFolder;
     }
 
-    public void deleteProjectsDirectory(File projectDirectory) throws IOException {
+    public void deleteProjectDirectory(File projectDirectory) throws IOException {
         FileUtils.deleteDirectory(projectDirectory);
     }
 }

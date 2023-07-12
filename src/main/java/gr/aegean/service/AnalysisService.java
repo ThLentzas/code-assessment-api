@@ -2,7 +2,11 @@ package gr.aegean.service;
 
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.model.analysis.AnalysisRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -25,6 +29,7 @@ public class AnalysisService {
     private final ProjectService projectService;
     private final LanguageService languageService;
     private final ProcessBuilder processBuilder;
+    private final SonarService sonarService;
 
     public void analyzeProject(AnalysisRequest request) {
         File projectsDirectory = projectService.cloneProject(request);
@@ -48,27 +53,16 @@ public class AnalysisService {
                             .ifPresent(pomXmlPath -> findFilePath(folder.toString(), "src")
                                     .ifPresent(srcPath ->
                                             analyzeMavenProject(folder.toString(), srcPath, pomXmlPath)));
+                } else {
+                    String projectKey = folder.toString().split("\\\\")[3];
+
+                    sonarService.analyzeProject(projectKey, folder.toString());
+                    sonarService.fetchReport(projectKey);
                 }
-
-                processBuilder.command("sonar-scanner.bat",
-                        "-Dsonar.projectKey=" + folder.toString().split("\\\\")[3],
-                        "-Dsonar.sources=.",
-                        "-Dsonar.host.url=http://localhost:9000",
-                        "-Dsonar.login=squ_60f35502b8270842c5c3e620e0f440038a3a6b09"
-                );
-
-            /*
-               Setting the directory of the command execution to be the projects directory, so we can use
-               sources=.
-             */
-                processBuilder.directory(new File(folder.toString()));
-                Process process = processBuilder.start();
-                process.waitFor();
-
-
             }
-            //projectService.deleteProjectsDirectory(projectsDirectory);
-        } catch (IOException | InterruptedException e) {
+
+            projectService.deleteProjectDirectory(projectsDirectory);
+        } catch (IOException | InterruptedException ioe) {
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
                     "request. Please try again later.");
         }
@@ -98,7 +92,6 @@ public class AnalysisService {
         Path directory = Paths.get(directoryPath);
         Path src = Paths.get(srcPath);
         Path pomXml = Paths.get(pomXmlPath);
-
         Path srcRelative = directory.relativize(src);
         Path pomXmlRelative = directory.relativize(pomXml);
 
@@ -120,15 +113,14 @@ public class AnalysisService {
              */
             Files.write(dockerfilePath, dockerfileContent.getBytes());
 
+            /*
+                Splitting with the escape character which is also the file seperator in Windows
+             */
             String dockerImage = directoryPath.split("\\\\")[3];
-
             processBuilder.command(
                     "docker",
                     "build",
                     "-t",
-                    /*
-                        Splitting with the escape character which is also the file seperator in Windows
-                     */
                     dockerImage,
                     "."
             );

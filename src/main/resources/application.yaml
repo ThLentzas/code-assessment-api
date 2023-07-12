@@ -32,6 +32,10 @@ spring:
 
 projects:
   base-directory: F:\\Projects
+
+sonar:
+  token: squ_60f35502b8270842c5c3e620e0f440038a3a6b09
+
 #spring:
 #  config:
 #    import: C:\Users\Thanos\Desktop\application.yaml
