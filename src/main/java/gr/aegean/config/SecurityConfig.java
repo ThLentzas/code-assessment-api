@@ -28,7 +28,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers( "/api/v1/auth/**").permitAll();
+                    auth.requestMatchers("/api/v1/auth/**").permitAll();
                     /* We allow this endpoint because it's the GET request when a user clicks the verification link on
                        their email.
                      */
@@ -36,9 +36,9 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.GET, "/api/v1/users/settings/email").permitAll();
                     auth.anyRequest().authenticated();
                 })
-                .csrf(AbstractHttpConfigurer:: disable)
+                .csrf(AbstractHttpConfigurer::disable)
                 .oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(jwt -> jwt.decoder(jwtDecoder)))
-                .formLogin(AbstractHttpConfigurer:: disable)
+                .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)

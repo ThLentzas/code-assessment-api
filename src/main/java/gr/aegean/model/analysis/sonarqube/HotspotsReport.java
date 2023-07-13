@@ -5,8 +5,9 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class Hotspot {
+public class HotspotsReport {
     private List<HotspotDetails> hotspots;
+    private Paging paging;
 
     @Getter
     public static class HotspotDetails {

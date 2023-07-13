@@ -1,24 +1,20 @@
 package gr.aegean.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import gr.aegean.exception.ServerErrorException;
+import gr.aegean.model.analysis.AnalysisReport;
 import gr.aegean.model.analysis.AnalysisRequest;
-import jakarta.validation.Valid;
+import gr.aegean.model.analysis.language.Language;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,19 +27,29 @@ public class AnalysisService {
     private final ProcessBuilder processBuilder;
     private final SonarService sonarService;
 
-    public void analyzeProject(AnalysisRequest request) {
+    public List<AnalysisReport> analyzeProject(AnalysisRequest request) {
         File projectsDirectory = projectService.cloneProject(request);
 
-        try {
-            List<Path> directories = Files.list(projectsDirectory.toPath())
+        List<AnalysisReport> reports = new ArrayList<>();
+        List<Path> directories;
+
+        try (Stream<Path> paths = Files.list(projectsDirectory.toPath())) {
+            directories = paths
                     .filter(Files::isDirectory)
                     .toList();
-
              /*
                 For each project we downloaded and stored locally we detect the languages used.
              */
             for (Path folder : directories) {
                 Map<Double, String> detectedLanguages = languageService.detectLanguage(folder.toString());
+
+                if (!languageService.verifySupportedLanguages(detectedLanguages)) {
+                    //toDO: What should we do when a language that is supported gets detected.
+                    /*
+                        If there are only unsupported languages submitted an empty arraylist will be returned.
+                     */
+                    continue;
+                }
 
                 if (detectedLanguages.containsValue("Java")) {
                     /*
@@ -55,9 +61,11 @@ public class AnalysisService {
                                             analyzeMavenProject(folder.toString(), srcPath, pomXmlPath)));
                 } else {
                     String projectKey = folder.toString().split("\\\\")[3];
-
                     sonarService.analyzeProject(projectKey, folder.toString());
-                    sonarService.fetchReport(projectKey);
+
+                    AnalysisReport analysisReport = sonarService.createAnalysisReport(projectKey);
+                    reports = new ArrayList<>();
+                    reports.add(analysisReport);
                 }
             }
 
@@ -66,6 +74,8 @@ public class AnalysisService {
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
                     "request. Please try again later.");
         }
+
+        return reports;
     }
 
     private Optional<String> findFilePath(String projectDirectory, String requestedFile) {

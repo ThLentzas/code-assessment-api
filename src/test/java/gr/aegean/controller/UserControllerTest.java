@@ -62,9 +62,9 @@ class UserControllerTest {
                 """;
 
         mockMvc.perform(put(USER_PATH + "/{userId}/settings/profile", 1)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(requestBody)
-                    .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
 
@@ -94,7 +94,7 @@ class UserControllerTest {
     }
 
     @Test
-    void shouldReturnHTTP401WhenUpdateProfileIsCalledByUnauthenticatedUser() throws Exception{
+    void shouldReturnHTTP401WhenUpdateProfileIsCalledByUnauthenticatedUser() throws Exception {
         String requestBody = """
                 {
                     "firstname": "Foo",
@@ -133,7 +133,7 @@ class UserControllerTest {
     }
 
     @Test
-    void shouldReturnHTTP401WhenUpdatePasswordIsCalledByUnauthenticatedUser() throws Exception{
+    void shouldReturnHTTP401WhenUpdatePasswordIsCalledByUnauthenticatedUser() throws Exception {
         String requestBody = """
                 {
                     "oldPassword": "3frMH4v!20d4",
@@ -248,7 +248,7 @@ class UserControllerTest {
     }
 
     @Test
-    void shouldReturnHTTP401WhenUpdateEmailIsCalledByUnauthenticatedUser() throws Exception{
+    void shouldReturnHTTP401WhenUpdateEmailIsCalledByUnauthenticatedUser() throws Exception {
         String requestBody = """
                 {
                     "email": "letzasegw@gmail.com",
@@ -311,7 +311,7 @@ class UserControllerTest {
     @NullSource
     @EmptySource
     @WithMockUser(username = "test")
-    void shouldReturnHTTP400WhenPasswordProvidedIsNullOrEmptyForEmailUpdate(String password) throws Exception{
+    void shouldReturnHTTP400WhenPasswordProvidedIsNullOrEmptyForEmailUpdate(String password) throws Exception {
         String passwordValue = password == null ? "null" : "\"" + password + "\"";
         String requestBody = String.format("""
                 {
@@ -333,7 +333,7 @@ class UserControllerTest {
     @NullSource
     @EmptySource
     @WithMockUser(username = "test")
-    void shouldReturnHTTP400WhenEmailProvidedIsNullOrEmptyForEmailUpdate(String email) throws Exception{
+    void shouldReturnHTTP400WhenEmailProvidedIsNullOrEmptyForEmailUpdate(String email) throws Exception {
         String emailValue = email == null ? "null" : "\"" + email + "\"";
         String requestBody = String.format("""
                 {

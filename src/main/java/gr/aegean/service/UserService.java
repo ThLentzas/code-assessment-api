@@ -60,7 +60,9 @@ public class UserService {
     public void updateProfile(Integer userId, UserProfileUpdateRequest profileUpdateRequest) {
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> updateProfileProperties(user, profileUpdateRequest),
-                        () -> { throw new ResourceNotFoundException("User with id: " + userId + " not found"); });
+                        () -> {
+                            throw new ResourceNotFoundException("User with id: " + userId + " not found");
+                        });
     }
 
     private void updateProfileProperties(User user, UserProfileUpdateRequest profileUpdateRequest) {

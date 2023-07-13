@@ -8,5 +8,5 @@ public record UserDTO(
         String email,
         String bio,
         String location,
-        String company
-) {}
+        String company) {
+}

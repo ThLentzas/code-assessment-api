@@ -20,6 +20,7 @@ target/
 *.zip
 *.tar.gz
 *.rar
+*.json
 
 # Other
 .DS_Store

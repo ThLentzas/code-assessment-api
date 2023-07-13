@@ -7,4 +7,5 @@ public record AuthRequest(
         @NotBlank(message = "All fields are necessary.")
         String email,
         @NotBlank(message = "All fields are necessary.")
-        String password) {}
+        String password) {
+}

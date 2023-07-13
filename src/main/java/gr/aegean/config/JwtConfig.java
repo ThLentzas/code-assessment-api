@@ -28,7 +28,7 @@ public class JwtConfig {
     private final RSAPublicKey publicKey;
     private final RSAPrivateKey privateKey;
 
-    public JwtConfig(){
+    public JwtConfig() {
         KeyPairGenerator keyPairGenerator;
 
         try {

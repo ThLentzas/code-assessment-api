@@ -49,7 +49,7 @@ class ProjectServiceTest {
     }
 
     @BeforeEach
-    void setup() throws Exception{
+    void setup() throws Exception {
         underTest = new ProjectService(baseDirectoryPath, gitHubService);
 
         /*
@@ -97,6 +97,6 @@ class ProjectServiceTest {
         assertThatThrownBy(() -> underTest.cloneProject(request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("All provided URLs are invalid or the repositories are private. Please" +
-                    " provide at least one valid GitHub URL for a public repository.");
+                        " provide at least one valid GitHub URL for a public repository.");
     }
 }

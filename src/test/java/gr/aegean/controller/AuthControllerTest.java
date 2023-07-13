@@ -285,11 +285,11 @@ class AuthControllerTest {
         //Arrange
         String passwordValue = password == null ? "null" : "\"" + password + "\"";
         String requestBody = String.format("""
-            {
-                "email": "test@example.com",
-                "password": %s
-            }
-            """, passwordValue);
+                {
+                    "email": "test@example.com",
+                    "password": %s
+                }
+                """, passwordValue);
 
         //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/login")
@@ -306,7 +306,7 @@ class AuthControllerTest {
     @NullSource
     @EmptySource
     void shouldReturnHTTP400WhenPasswordResetRequestEmailIsNullOrEmpty(String email)
-            throws Exception{
+            throws Exception {
         String emailValue = email == null ? "null" : "\"" + email + "\"";
         String requestBody = String.format("""
                 {
@@ -328,10 +328,10 @@ class AuthControllerTest {
     void shouldReturnGenericMessageForPasswordResetRequestRegardlessIfEmailExists() throws Exception {
         //Arrange
         String requestBody = """
-            {
-                "email": "test@example.com"
-            }
-            """;
+                {
+                    "email": "test@example.com"
+                }
+                """;
         PasswordResetResponse resetResult = new PasswordResetResponse("If your email address exists in our database, " +
                 "you will receive a password recovery link at your email address in a few minutes.");
 
@@ -372,11 +372,11 @@ class AuthControllerTest {
         //Arrange
         String newPasswordValue = newPassword == null ? "null" : "\"" + newPassword + "\"";
         String requestBody = String.format("""
-            {
-                "token": "someToken",
-                "newPassword": %s
-            }
-            """, newPasswordValue);
+                {
+                    "token": "someToken",
+                    "newPassword": %s
+                }
+                """, newPasswordValue);
 
         //Act Assert
         mockMvc.perform(put(AUTH_PATH + "/password_reset/confirm")
@@ -393,11 +393,11 @@ class AuthControllerTest {
     void shouldResetPasswordAndReturnHTTP204WhenTokenAndNewPasswordAreValid() throws Exception {
         //Arrange
         String requestBody = """
-            {
-                "token": "someToken",
-                "newPassword": "password"
-            }
-            """;
+                {
+                    "token": "someToken",
+                    "newPassword": "password"
+                }
+                """;
 
         //Act Assert
         mockMvc.perform(put(AUTH_PATH + "/password_reset/confirm")

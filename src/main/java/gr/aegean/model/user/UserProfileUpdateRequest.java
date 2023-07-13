@@ -7,4 +7,5 @@ public record UserProfileUpdateRequest(
         String bio,
         String location,
         String company
-) {}
+) {
+}

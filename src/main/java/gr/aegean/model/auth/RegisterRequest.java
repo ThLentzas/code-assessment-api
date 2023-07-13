@@ -16,5 +16,7 @@ public record RegisterRequest(
         String password,
         String bio,
         String location,
-        String company) {}
+        String company
+) {
+}
 

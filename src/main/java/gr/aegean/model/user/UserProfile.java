@@ -8,20 +8,19 @@ public record UserProfile(
         String username,
         String bio,
         String location,
-        String company
-) {
+        String company) {
 
     @Override
     public boolean equals(Object obj) {
-        if(this == obj) {
+        if (this == obj) {
             return true;
         }
 
-        if(obj == null) {
+        if (obj == null) {
             return false;
         }
 
-        if(obj instanceof UserProfile profileObj) {
+        if (obj instanceof UserProfile profileObj) {
             return firstname.equals(profileObj.firstname)
                     && lastname.equals(profileObj.lastname)
                     && username.equals(profileObj.username)

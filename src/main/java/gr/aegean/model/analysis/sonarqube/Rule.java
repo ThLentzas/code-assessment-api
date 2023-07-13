@@ -15,7 +15,6 @@ public class Rule {
         private Severity severity;
         private List<DescriptionSection> descriptionSections;
 
-
         @Getter
         public static class DescriptionSection {
             private String key;

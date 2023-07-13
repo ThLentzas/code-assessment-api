@@ -9,6 +9,7 @@ import lombok.Getter;
 public class AuthResponse {
     private String token;
     private Integer id;
+
     public AuthResponse(String token) {
         this.token = token;
     }

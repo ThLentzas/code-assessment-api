@@ -75,7 +75,7 @@ public class UserRepository {
 
         int update = jdbcTemplate.update(sql, firstname, userId);
 
-        if(update != 1) {
+        if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }
@@ -85,7 +85,7 @@ public class UserRepository {
 
         int update = jdbcTemplate.update(sql, lastname, userId);
 
-        if(update != 1) {
+        if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }
@@ -95,7 +95,7 @@ public class UserRepository {
 
         int update = jdbcTemplate.update(sql, bio, userId);
 
-        if(update != 1) {
+        if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }
@@ -105,7 +105,7 @@ public class UserRepository {
 
         int update = jdbcTemplate.update(sql, location, userId);
 
-        if(update != 1) {
+        if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }
@@ -115,7 +115,7 @@ public class UserRepository {
 
         int update = jdbcTemplate.update(sql, company, userId);
 
-        if(update != 1) {
+        if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }
@@ -125,7 +125,7 @@ public class UserRepository {
 
         int update = jdbcTemplate.update(sql, username, userId);
 
-        if(update != 1) {
+        if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }
@@ -135,7 +135,7 @@ public class UserRepository {
 
         int update = jdbcTemplate.update(sql, email, userId);
 
-        if(update != 1) {
+        if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }
@@ -145,7 +145,7 @@ public class UserRepository {
 
         int update = jdbcTemplate.update(sql, password, userId);
 
-        if(update != 1) {
+        if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }

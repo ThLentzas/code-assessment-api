@@ -61,7 +61,7 @@ public class DefaultExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     private ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException iae,
-                                                                   HttpServletRequest httpServletRequest) {
+                                                                    HttpServletRequest httpServletRequest) {
         ApiError apiError = new ApiError(
                 httpServletRequest.getRequestURI(),
                 iae.getMessage(),
@@ -97,7 +97,7 @@ public class DefaultExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     private ResponseEntity<ApiError> handleResourceNotFoundException(ResourceNotFoundException se,
-                                                                HttpServletRequest httpServletRequest) {
+                                                                     HttpServletRequest httpServletRequest) {
         ApiError apiError = new ApiError(
                 httpServletRequest.getRequestURI(),
                 se.getMessage(),

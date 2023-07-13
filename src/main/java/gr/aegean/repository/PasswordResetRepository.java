@@ -25,7 +25,7 @@ public class PasswordResetRepository {
         final String sql = "INSERT INTO password_reset_token (" +
                 "user_id, " +
                 "token, " +
-                "expiry_date) "  +
+                "expiry_date) " +
                 "VALUES (?, ?, ?)";
 
         int update = jdbcTemplate.update(
@@ -34,7 +34,7 @@ public class PasswordResetRepository {
                 passwordResetToken.token(),
                 passwordResetToken.expiryDate());
 
-        if(update != 1) {
+        if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }

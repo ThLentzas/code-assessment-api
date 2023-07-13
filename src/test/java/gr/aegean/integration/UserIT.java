@@ -119,15 +119,15 @@ class UserIT extends AbstractIntegrationTest {
         Integer userId = Integer.parseInt(locationHeader.substring(locationHeader.lastIndexOf('/') + 1));
 
         requestBody = """
-               {
-                    "firstname": "Foo",
-                    "lastname": "Foo",
-                    "username": "FooBar",
-                    "bio": "I like Java",
-                    "location": "Miami, OH",
-                    "company": "VM, LLC"
-                }
-                """;
+                {
+                     "firstname": "Foo",
+                     "lastname": "Foo",
+                     "username": "FooBar",
+                     "bio": "I like Java",
+                     "location": "Miami, OH",
+                     "company": "VM, LLC"
+                 }
+                 """;
 
         webTestClient.put()
                 .uri(USER_PATH + "/{userId}/settings/profile", userId)

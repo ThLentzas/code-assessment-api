@@ -57,7 +57,8 @@ public class PasswordResetService {
                     if (passwordResetToken.expiryDate().isBefore(LocalDateTime.now())) {
                         throw new BadCredentialsException("The password reset link has expired. " +
                                 "Please request a new one.");
-                    }}, () -> {
+                    }
+                }, () -> {
                     throw new BadCredentialsException("Reset password token is invalid");
                 });
     }

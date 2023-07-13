@@ -128,7 +128,8 @@ class AuthIT extends AbstractIntegrationTest {
                 .exchange()
                 .expectStatus().isUnauthorized()
                 .expectBody()
-                .jsonPath("$.error", is("Username or password is incorrect"));;
+                .jsonPath("$.error", is("Username or password is incorrect"));
+        ;
     }
 
     @Test
@@ -265,10 +266,10 @@ class AuthIT extends AbstractIntegrationTest {
                 .expectStatus().isOk();
 
         requestBody = String.format("""
-            {
-                "token": "%s",
-                "newPassword": "3frMH4v!20d4"
-            }""", token);
+                {
+                    "token": "%s",
+                    "newPassword": "3frMH4v!20d4"
+                }""", token);
 
         webTestClient.put()
                 .uri(AUTH_PATH + "/password_reset/confirm")

@@ -6,6 +6,7 @@ import java.util.List;
 
 
 public record AnalysisRequest(
-       // @NotBlank(message = "Provide at least one GitHub url repository")
-        List<String> projectUrls) {}
+        // @NotBlank(message = "Provide at least one GitHub url repository")
+        List<String> projectUrls) {
+}
 //private qualityAttribues
