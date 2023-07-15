@@ -3,10 +3,10 @@ package gr.aegean.controller;
 import gr.aegean.model.analysis.AnalysisReport;
 import gr.aegean.model.analysis.AnalysisRequest;
 import gr.aegean.service.AnalysisService;
+import gr.aegean.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,13 +18,13 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/analysis")
-public class AnalysisController {
-    private final AnalysisService analysisService;
+@RequestMapping("/api/v1/projects")
+public class ProjectController {
+    private final ProjectService projectService;
 
-    @PostMapping
-    public ResponseEntity<List<AnalysisReport>> analyze(@Valid @RequestBody AnalysisRequest request) {
-        List<AnalysisReport> reports = analysisService.analyzeProject(request);
+    @PostMapping("/analysis")
+    public ResponseEntity<List<AnalysisReport>> processProject(@Valid @RequestBody AnalysisRequest request) {
+        List<AnalysisReport> reports = projectService.processProject(request).join();
 
         return new ResponseEntity<>(reports, HttpStatus.OK);
     }

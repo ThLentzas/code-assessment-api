@@ -14,68 +14,58 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 
 @Service
 @RequiredArgsConstructor
 public class AnalysisService {
-    private final ProjectService projectService;
     private final LanguageService languageService;
     private final ProcessBuilder processBuilder;
     private final SonarService sonarService;
 
-    public List<AnalysisReport> analyzeProject(AnalysisRequest request) {
-        File projectsDirectory = projectService.cloneProject(request);
+    public Optional<AnalysisReport> analyzeProjects(Path project) {
+        AnalysisReport analysisReport = null;
+        System.out.println(Thread.currentThread().getName());
 
-        List<AnalysisReport> reports = new ArrayList<>();
-        List<Path> directories;
+        /*
+            For each project we downloaded and stored locally we detect the languages used.
+         */
+        Map<Double, String> detectedLanguages = languageService.detectLanguage(project.toString());
+        System.out.println(detectedLanguages);
+        if (!languageService.verifySupportedLanguages(detectedLanguages)) {
+            //toDO: What should we do when a language that is supported gets detected.
 
-        try (Stream<Path> paths = Files.list(projectsDirectory.toPath())) {
-            directories = paths
-                    .filter(Files::isDirectory)
-                    .toList();
-             /*
-                For each project we downloaded and stored locally we detect the languages used.
-             */
-            for (Path folder : directories) {
-                Map<Double, String> detectedLanguages = languageService.detectLanguage(folder.toString());
-
-                if (!languageService.verifySupportedLanguages(detectedLanguages)) {
-                    //toDO: What should we do when a language that is supported gets detected.
-                    /*
-                        If there are only unsupported languages submitted an empty arraylist will be returned.
-                     */
-                    continue;
-                }
-
-                if (detectedLanguages.containsValue("Java")) {
-                    /*
-                        Find the path of pom.xml and src.
-                    */
-                    findFilePath(folder.toString(), "pom.xml")
-                            .ifPresent(pomXmlPath -> findFilePath(folder.toString(), "src")
-                                    .ifPresent(srcPath ->
-                                            analyzeMavenProject(folder.toString(), srcPath, pomXmlPath)));
-                } else {
-                    String projectKey = folder.toString().split("\\\\")[3];
-                    sonarService.analyzeProject(projectKey, folder.toString());
-
-                    AnalysisReport analysisReport = sonarService.createAnalysisReport(projectKey);
-                    reports = new ArrayList<>();
-                    reports.add(analysisReport);
-                }
-            }
-
-            projectService.deleteProjectDirectory(projectsDirectory);
-        } catch (IOException | InterruptedException ioe) {
-            throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
-                    "request. Please try again later.");
+            throw new IllegalArgumentException("Please submit repositories based on the supported languages");
         }
 
-        return reports;
+        if (detectedLanguages.containsValue("Java")) {
+            /*
+                Find the path of pom.xml and src.
+            */
+            findFilePath(project.toString(), "pom.xml")
+                    .ifPresent(pomXmlPath -> findFilePath(project.toString(), "src")
+                            .ifPresent(srcPath ->
+                                    analyzeMavenProject(project.toString(), srcPath, pomXmlPath)));
+        } else {
+            String projectKey = project.toString().split("\\\\")[3];
+            sonarService.analyzeProject(projectKey, project.toString());
+
+            try {
+                analysisReport = sonarService.createAnalysisReport(projectKey);
+
+            } catch (IOException | InterruptedException ioe) {
+                ioe.printStackTrace();
+                throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
+                        "request. Please try again later.");
+            }
+        }
+
+        return Optional.ofNullable(analysisReport);
     }
 
     private Optional<String> findFilePath(String projectDirectory, String requestedFile) {
@@ -92,6 +82,7 @@ public class AnalysisService {
                     .findFirst()
                     .map(Path::toString);
         } catch (IOException ioe) {
+            ioe.printStackTrace();
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
                     "request. Please try again later.");
         }

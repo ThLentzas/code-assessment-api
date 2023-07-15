@@ -29,10 +29,10 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/api/v1/auth/**").permitAll();
+                    auth.requestMatchers("/api/v1/projects/analysis").permitAll();
                     /* We allow this endpoint because it's the GET request when a user clicks the verification link on
                        their email.
                      */
-                    auth.requestMatchers("/api/v1/analysis").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/api/v1/users/settings/email").permitAll();
                     auth.anyRequest().authenticated();
                 })

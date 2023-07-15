@@ -65,9 +65,10 @@ public class SonarService {
             }
 
             int exitCode = process.waitFor();
-            System.out.println("\nExited with error code : " + exitCode);
+
 
         } catch (IOException | InterruptedException ioe) {
+            ioe.printStackTrace();
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
                     "request. Please try again later.");
         }
@@ -75,9 +76,9 @@ public class SonarService {
 
     public AnalysisReport createAnalysisReport(String projectKey) throws InterruptedException, IOException {
         /*
-            Wait 5 seconds for the report to be uploaded on the server.
+            Wait 4 seconds for the report to be uploaded on the server.
          */
-        await().pollDelay(Duration.ofSeconds(5)).until(() -> true);
+        await().pollDelay(Duration.ofSeconds(4)).until(() -> true);
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -98,7 +99,7 @@ public class SonarService {
     }
 
     private boolean projectExists(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
-        String sonarUrl = "http://localhost:9000/api/projects/search?projects=" + projectKey;
+        String projectUrl = String.format("http://localhost:9000/api/projects/search?projects=%s", projectKey);
 
         /*
             The request to check if a project is on the server does not return 404 but an empty components array if the
@@ -106,7 +107,7 @@ public class SonarService {
          */
         try {
             ResponseEntity<String> response = restTemplate.exchange(
-                    sonarUrl,
+                    projectUrl,
                     HttpMethod.GET,
                     entity,
                     String.class);
@@ -138,10 +139,10 @@ public class SonarService {
             more than 1 request to get all the issues from a single report.
          */
         while (page <= totalNumberOfPages) {
-            String issuesUrl = "http://localhost:9000/api/issues/search?"
-                    + "componentKeys=" + projectKey
-                    + "&p=" + page
-                    + "&ps=" + pageSize;
+            String issuesUrl = String.format("http://localhost:9000/api/issues/search?"
+                    + "componentKeys=%s"
+                    + "&p=%d"
+                    + "&ps=%d", projectKey, page, pageSize);
             ResponseEntity<IssuesReport> response = restTemplate.exchange(
                     issuesUrl,
                     HttpMethod.GET,
@@ -175,10 +176,10 @@ public class SonarService {
             more than 1 request to get all the issues from a single report.
          */
         while (page <= totalNumberOfPages) {
-            String hotspotUrl = "http://localhost:9000/api/hotspots/search?"
-                    + "projectKey=" + projectKey
-                    + "&p=" + page
-                    + "&ps=" + pageSize;
+            String hotspotUrl = String.format("http://localhost:9000/api/hotspots/search?"
+                    + "projectKey=%s"
+                    + "&p=%d"
+                    + "&ps=%d", projectKey, page, pageSize);
 
             ResponseEntity<HotspotsReport> response = restTemplate.exchange(
                     hotspotUrl,
@@ -214,7 +215,7 @@ public class SonarService {
         hotspotsReport.getHotspots().stream()
                 .map(HotspotsReport.HotspotDetails::getRuleKey)
                 .forEach(ruleKey -> {
-                    String ruleUrl = "http://localhost:9000/api/rules/show?key=" + ruleKey;
+                    String ruleUrl = String.format("http://localhost:9000/api/rules/show?key=%s", ruleKey);
                     ResponseEntity<Rule> response = restTemplate.exchange(
                             ruleUrl,
                             HttpMethod.GET,
@@ -231,7 +232,7 @@ public class SonarService {
         issuesReport.getIssues().stream()
                 .map(IssuesReport.IssueDetails::getRule)
                 .forEach(rule -> {
-                    String ruleUrl = "http://localhost:9000/api/rules/show?key=" + rule;
+                    String ruleUrl = String.format("http://localhost:9000/api/rules/show?key=%s", rule);
                     ResponseEntity<Rule> response = restTemplate.exchange(
                             ruleUrl,
                             HttpMethod.GET,
@@ -323,9 +324,9 @@ public class SonarService {
         toDO:For the color on the frontend subtract the technical dept ratio from 100
      */
     private double fetchMaintainability(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
-        String maintainabilityUrl = "http://localhost:9000/api/measures/search?projectKeys="
-                + projectKey
-                + "&metricKeys=sqale_debt_ratio";
+        String maintainabilityUrl = String.format("http://localhost:9000/api/measures/search?"
+                + "projectKeys=%s"
+                + "&metricKeys=%s", projectKey, "sqale_debt_ratio");
 
         ResponseEntity<MetricReport> response = restTemplate.exchange(
                 maintainabilityUrl,
@@ -339,9 +340,9 @@ public class SonarService {
     }
 
     private List<Double> fetchComplexity(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
-        String complexityUrl = "http://localhost:9000/api/measures/search?projectKeys="
-                + projectKey
-                + "&metricKeys=cognitive_complexity,complexity";
+        String complexityUrl = String.format("http://localhost:9000/api/measures/search?"
+                + "projectKeys=%s"
+                + "&metricKeys=%s", projectKey, "cognitive_complexity,complexity");
 
         ResponseEntity<MetricReport> response = restTemplate.exchange(
                 complexityUrl,
@@ -361,9 +362,9 @@ public class SonarService {
         Value is in minutes. Convert it to days, hour, minutes in the front end
      */
     private double fetchTechnicalDept(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
-        String technicalDeptUrl = "http://localhost:9000/api/measures/search?projectKeys="
-                + projectKey
-                + "&metricKeys=sqale_index";
+        String technicalDeptUrl = String.format("http://localhost:9000/api/measures/search?"
+                + "projectKeys=%s"
+                + "&metricKeys=%s", projectKey, "sqale_index");
 
         ResponseEntity<MetricReport> response = restTemplate.exchange(
                 technicalDeptUrl,

@@ -57,6 +57,7 @@ public class LanguageService {
                 reportBuilder = new StringBuilder();
             }
         } catch (IOException ioe) {
+            ioe.printStackTrace();
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
                     "request. Please try again later.");
         }
