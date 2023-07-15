@@ -15,10 +15,10 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import gr.aegean.model.user.User;
+import gr.aegean.model.entity.User;
 import gr.aegean.model.passwordreset.PasswordResetRequest;
 import gr.aegean.model.passwordreset.PasswordResetResponse;
-import gr.aegean.model.token.PasswordResetToken;
+import gr.aegean.model.entity.PasswordResetToken;
 import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.repository.PasswordResetRepository;

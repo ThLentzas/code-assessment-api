@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import gr.aegean.exception.ServerErrorException;
-import gr.aegean.model.analysis.AnalysisReport;
+import gr.aegean.model.entity.AnalysisReport;
 import gr.aegean.model.analysis.sonarqube.HotspotsReport;
 import gr.aegean.model.analysis.sonarqube.IssuesReport;
 import gr.aegean.model.analysis.sonarqube.MetricReport;
@@ -38,11 +38,11 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class SonarService {
-    private final ProcessBuilder processBuilder;
     @Value("${sonar.token}")
     private String authToken;
 
     public void analyzeProject(String projectKey, String projectDirectory) {
+        ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command("sonar-scanner.bat",
                 "-Dsonar.projectKey=" + projectKey,
                 "-Dsonar.sources=.",
@@ -61,7 +61,7 @@ public class SonarService {
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+               // System.out.println(line);
             }
 
             int exitCode = process.waitFor();
@@ -78,7 +78,7 @@ public class SonarService {
         /*
             Wait 4 seconds for the report to be uploaded on the server.
          */
-        await().pollDelay(Duration.ofSeconds(4)).until(() -> true);
+        await().pollDelay(Duration.ofSeconds(5)).until(() -> true);
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();

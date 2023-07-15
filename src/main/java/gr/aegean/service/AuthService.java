@@ -1,6 +1,6 @@
 package gr.aegean.service;
 
-import gr.aegean.model.user.User;
+import gr.aegean.model.entity.User;
 import gr.aegean.mapper.UserDTOMapper;
 import gr.aegean.model.user.UserDTO;
 import gr.aegean.model.auth.AuthResponse;

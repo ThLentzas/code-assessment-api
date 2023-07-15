@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 import gr.aegean.mapper.PasswordResetTokenRowMapper;
-import gr.aegean.model.token.PasswordResetToken;
+import gr.aegean.model.entity.PasswordResetToken;
 
 import lombok.RequiredArgsConstructor;
 

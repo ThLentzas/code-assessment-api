@@ -1,6 +1,6 @@
 package gr.aegean.service;
 
-import gr.aegean.model.token.PasswordResetToken;
+import gr.aegean.model.entity.PasswordResetToken;
 import gr.aegean.repository.PasswordResetRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;

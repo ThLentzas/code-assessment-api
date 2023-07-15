@@ -9,7 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import gr.aegean.model.user.User;
+import gr.aegean.model.entity.User;
 import gr.aegean.mapper.UserDTOMapper;
 import gr.aegean.model.user.UserDTO;
 import gr.aegean.model.auth.AuthResponse;

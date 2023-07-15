@@ -2,8 +2,8 @@ package gr.aegean.service;
 
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
-import gr.aegean.model.token.EmailUpdateToken;
-import gr.aegean.model.user.User;
+import gr.aegean.model.entity.EmailUpdateToken;
+import gr.aegean.model.entity.User;
 import gr.aegean.model.user.UserEmailUpdateRequest;
 import gr.aegean.model.user.UserPasswordUpdateRequest;
 import gr.aegean.model.user.UserProfile;

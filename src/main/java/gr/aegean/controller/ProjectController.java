@@ -1,8 +1,7 @@
 package gr.aegean.controller;
 
-import gr.aegean.model.analysis.AnalysisReport;
+import gr.aegean.model.entity.AnalysisReport;
 import gr.aegean.model.analysis.AnalysisRequest;
-import gr.aegean.service.AnalysisService;
 import gr.aegean.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

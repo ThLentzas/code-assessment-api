@@ -1,6 +1,6 @@
 package gr.aegean.mapper;
 
-import gr.aegean.model.user.User;
+import gr.aegean.model.entity.User;
 import gr.aegean.model.user.UserDTO;
 
 import org.springframework.stereotype.Service;

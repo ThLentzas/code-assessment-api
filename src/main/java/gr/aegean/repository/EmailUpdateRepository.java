@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 import gr.aegean.mapper.EmailUpdateTokenRowMapper;
-import gr.aegean.model.token.EmailUpdateToken;
+import gr.aegean.model.entity.EmailUpdateToken;
 
 import lombok.RequiredArgsConstructor;
 

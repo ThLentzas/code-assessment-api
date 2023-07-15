@@ -1,4 +1,4 @@
-package gr.aegean.model.analysis;
+package gr.aegean.model.entity;
 
 import gr.aegean.model.analysis.sonarqube.HotspotsReport;
 import gr.aegean.model.analysis.sonarqube.IssuesReport;

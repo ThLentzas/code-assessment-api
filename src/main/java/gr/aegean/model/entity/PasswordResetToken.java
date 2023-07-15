@@ -1,10 +1,10 @@
-package gr.aegean.model.token;
+package gr.aegean.model.entity;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 
-public record EmailUpdateToken(Integer userId, String token, String email, LocalDateTime expiryDate) {
+public record PasswordResetToken(Integer userId, String token, LocalDateTime expiryDate) {
 
     @Override
     public boolean equals(Object obj) {
@@ -16,10 +16,9 @@ public record EmailUpdateToken(Integer userId, String token, String email, Local
             return false;
         }
 
-        if (obj instanceof EmailUpdateToken tokeObj) {
+        if (obj instanceof PasswordResetToken tokeObj) {
             return userId.equals(tokeObj.userId)
-                    && token.equals(tokeObj.token)
-                    && email.equals(tokeObj.email);
+                    && token.equals(tokeObj.token);
         }
 
         return false;
@@ -27,6 +26,6 @@ public record EmailUpdateToken(Integer userId, String token, String email, Local
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, token, email);
+        return Objects.hash(userId, token);
     }
 }

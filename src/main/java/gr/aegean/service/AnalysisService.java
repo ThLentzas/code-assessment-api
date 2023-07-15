@@ -1,12 +1,10 @@
 package gr.aegean.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import gr.aegean.exception.ServerErrorException;
-import gr.aegean.model.analysis.AnalysisReport;
-import gr.aegean.model.analysis.AnalysisRequest;
-import gr.aegean.model.analysis.language.Language;
+import gr.aegean.model.entity.AnalysisReport;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -14,21 +12,21 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+
 
 
 @Service
 @RequiredArgsConstructor
 public class AnalysisService {
     private final LanguageService languageService;
-    private final ProcessBuilder processBuilder;
     private final SonarService sonarService;
+    private static final Logger logger = LoggerFactory.getLogger(AnalysisService.class);
 
     public Optional<AnalysisReport> analyzeProjects(Path project) {
+        logger.info("Analyzing project at path: " + project.toString());
         AnalysisReport analysisReport = null;
         System.out.println(Thread.currentThread().getName());
 
@@ -89,6 +87,7 @@ public class AnalysisService {
     }
 
     private void analyzeMavenProject(String directoryPath, String srcPath, String pomXmlPath) {
+        ProcessBuilder processBuilder = new ProcessBuilder();
         Path dockerfilePath = Paths.get(directoryPath, "Dockerfile");
         Path directory = Paths.get(directoryPath);
         Path src = Paths.get(srcPath);
