@@ -18,7 +18,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AnalysisReport {
-    private Integer reportId;
+    private Integer id;
     private Integer analysisId;
     private Map<String, Double> languages;
     private IssuesReport issuesReport;

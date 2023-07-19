@@ -13,15 +13,14 @@ public class AnalysisReportDTOMapper implements Function<AnalysisReport, Analysi
     @Override
     public AnalysisReportDTO apply(AnalysisReport report) {
         return new AnalysisReportDTO(
-                report.getReportId(),
+                report.getId(),
                 report.getAnalysisId(),
                 report.getLanguages(),
                 report.getIssuesReport(),
                 report.getHotspotsReport(),
                 report.getRuleDetails(),
                 report.getQualityMetricDetails(),
-                Link.of(getBaseUrl() + "/projects/" + report.getReportId() +
-                        "/analysis" + "/" + report.getAnalysisId())
+                Link.of(getBaseUrl() + "/analysis" + "/report" + "/" + report.getId())
         );
     }
 

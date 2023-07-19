@@ -18,7 +18,6 @@ public class IssuesReport {
 
     @Getter
     public static class IssueDetails {
-        private String key;
         private String rule;
         private Severity severity;
         private String component;

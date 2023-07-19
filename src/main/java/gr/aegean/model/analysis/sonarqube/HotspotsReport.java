@@ -11,7 +11,6 @@ public class HotspotsReport {
 
     @Getter
     public static class HotspotDetails {
-        private String key;
         private String component;
         private String securityCategory;
         private String vulnerabilityProbability;

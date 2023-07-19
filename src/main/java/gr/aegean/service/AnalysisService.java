@@ -7,6 +7,7 @@ import gr.aegean.entity.AnalysisReport;
 import gr.aegean.repository.AnalysisRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -211,6 +212,12 @@ public class AnalysisService {
 
     public void saveQualityMetricDetails(Integer analysisId, List<QualityMetricDetails> metricDetails) {
         metricDetails.forEach(details -> analysisRepository.saveQualityMetricDetails(analysisId, details));
+    }
+
+    public List<AnalysisReport> findAnalysisReportByAnalysisId(Integer analysisId) {
+        return analysisRepository.findAnalysisReportByAnalysisId(analysisId).orElseThrow(() -> new ServerErrorException(
+                "The server encountered an internal error and was unable " + "to complete your request. " +
+                        "Please try again later."));
     }
 }
 
