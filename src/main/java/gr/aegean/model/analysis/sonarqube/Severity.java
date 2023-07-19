@@ -5,11 +5,11 @@ import lombok.Getter;
 
 @Getter
 public enum Severity {
-    BLOCKER(20.0),
-    CRITICAL(40.0),
-    MAJOR(60.0),
-    MINOR(80.0),
-    INFO(99.0);
+    BLOCKER(0.2),
+    CRITICAL(0.4),
+    MAJOR(0.6),
+    MINOR(0.8),
+    INFO(0.99);
 
     private final double value;
 

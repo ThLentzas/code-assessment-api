@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 import gr.aegean.mapper.PasswordResetTokenRowMapper;
-import gr.aegean.model.entity.PasswordResetToken;
+import gr.aegean.entity.PasswordResetToken;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,20 +21,19 @@ public class PasswordResetRepository {
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 
-    public void createToken(PasswordResetToken passwordResetToken) {
+    public void saveToken(PasswordResetToken passwordResetToken) {
         final String sql = "INSERT INTO password_reset_token (" +
                 "user_id, " +
                 "token, " +
                 "expiry_date) " +
                 "VALUES (?, ?, ?)";
 
-        int update = jdbcTemplate.update(
+        int insert = jdbcTemplate.update(
                 sql,
                 passwordResetToken.userId(),
                 passwordResetToken.token(),
                 passwordResetToken.expiryDate());
-
-        if (update != 1) {
+        if (insert != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }

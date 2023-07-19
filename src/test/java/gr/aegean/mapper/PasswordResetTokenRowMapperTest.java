@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import gr.aegean.model.entity.PasswordResetToken;
+import gr.aegean.entity.PasswordResetToken;
 
 
 class PasswordResetTokenRowMapperTest {

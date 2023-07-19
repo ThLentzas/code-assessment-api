@@ -11,7 +11,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import gr.aegean.model.entity.User;
+import gr.aegean.entity.User;
 import gr.aegean.mapper.UserRowMapper;
 import gr.aegean.exception.ServerErrorException;
 

@@ -7,13 +7,13 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Getter
-public class MetricReport {
-    private List<MetricDetails> measures;
+public class QualityMetricReport {
+    private List<QualityMetricDetails> measures;
 
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class MetricDetails {
+    public static class QualityMetricDetails {
         private String metric;
         private double value;
     }

@@ -5,10 +5,10 @@ import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.mapper.EmailUpdateTokenRowMapper;
 import gr.aegean.mapper.UserRowMapper;
-import gr.aegean.model.entity.EmailUpdateToken;
-import gr.aegean.model.entity.User;
-import gr.aegean.model.user.UserEmailUpdateRequest;
-import gr.aegean.model.user.UserPasswordUpdateRequest;
+import gr.aegean.entity.EmailUpdateToken;
+import gr.aegean.entity.User;
+import gr.aegean.model.user.UserUpdateEmailRequest;
+import gr.aegean.model.user.UserUpdatePasswordRequest;
 import gr.aegean.model.user.UserProfile;
 import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.EmailUpdateRepository;
@@ -407,7 +407,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Arrange
         User user = generateUser();
         Integer userId = userRepository.registerUser(user);
-        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("test", "CyN549^*o2Cr");
+        UserUpdatePasswordRequest passwordUpdateRequest = new UserUpdatePasswordRequest("test", "CyN549^*o2Cr");
 
         //Act
         underTest.updatePassword(userId, passwordUpdateRequest);
@@ -422,7 +422,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Arrange
         User user = generateUser();
         Integer userId = userRepository.registerUser(user);
-        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("foo", "CyN549^*o2Cr");
+        UserUpdatePasswordRequest passwordUpdateRequest = new UserUpdatePasswordRequest("foo", "CyN549^*o2Cr");
 
         //Act Assert
         assertThatThrownBy(() -> underTest.updatePassword(userId, passwordUpdateRequest))
@@ -435,7 +435,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Arrange
         User user = generateUser();
         Integer userId = userRepository.registerUser(user);
-        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("foo", "CyN549^*o2Cr");
+        UserUpdatePasswordRequest passwordUpdateRequest = new UserUpdatePasswordRequest("foo", "CyN549^*o2Cr");
         Integer nonExistingId = userId + 1;
 
         //Act Assert
@@ -486,7 +486,7 @@ class UserServiceTest extends AbstractTestContainers {
         User user = generateUser();
         Integer userId = userRepository.registerUser(user);
 
-        UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
+        UserUpdateEmailRequest emailUpdateRequest = new UserUpdateEmailRequest(
                 "foo@example.com",
                 "test"
         );
@@ -507,7 +507,7 @@ class UserServiceTest extends AbstractTestContainers {
         Integer userId = userRepository.registerUser(user);
         Integer nonExistingId = userId + 1;
 
-        UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
+        UserUpdateEmailRequest emailUpdateRequest = new UserUpdateEmailRequest(
                 "foo@example.com",
                 "test"
         );
@@ -524,7 +524,7 @@ class UserServiceTest extends AbstractTestContainers {
         User user = generateUser();
         Integer userId = userRepository.registerUser(user);
 
-        UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
+        UserUpdateEmailRequest emailUpdateRequest = new UserUpdateEmailRequest(
                 "foo@example.com",
                 "foo"
         );
@@ -542,7 +542,7 @@ class UserServiceTest extends AbstractTestContainers {
         User user = generateUser();
         Integer userId = userRepository.registerUser(user);
 
-        UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
+        UserUpdateEmailRequest emailUpdateRequest = new UserUpdateEmailRequest(
                 "test@example.com",
                 "test"
         );
@@ -578,7 +578,7 @@ class UserServiceTest extends AbstractTestContainers {
                 user.getEmail(),
                 expiryDate);
 
-        emailUpdateRepository.createToken(emailUpdateToken);
+        emailUpdateRepository.saveToken(emailUpdateToken);
 
         //Assert
         assertThatThrownBy(() -> underTest.updateEmail("expiredToken"))
@@ -600,7 +600,7 @@ class UserServiceTest extends AbstractTestContainers {
                 user.getEmail(),
                 expiryDate);
 
-        emailUpdateRepository.createToken(emailUpdateToken);
+        emailUpdateRepository.saveToken(emailUpdateToken);
 
         //Act
         underTest.updateEmail("token");

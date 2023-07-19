@@ -1,13 +1,13 @@
 package gr.aegean.controller;
 
-import gr.aegean.model.user.UserPasswordUpdateRequest;
+import gr.aegean.model.user.UserUpdatePasswordRequest;
 import gr.aegean.model.user.UserProfile;
 import jakarta.websocket.server.PathParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import gr.aegean.model.user.UserEmailUpdateRequest;
+import gr.aegean.model.user.UserUpdateEmailRequest;
 import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.service.UserService;
 
@@ -39,7 +39,7 @@ public class UserController {
 
     @PostMapping("/{userId}/settings/email")
     public ResponseEntity<Void> updateEmail(@PathVariable("userId") Integer userId,
-                                            @Valid @RequestBody UserEmailUpdateRequest emailUpdateRequest) {
+                                            @Valid @RequestBody UserUpdateEmailRequest emailUpdateRequest) {
         userService.createEmailUpdateToken(userId, emailUpdateRequest);
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -54,9 +54,11 @@ public class UserController {
 
     @PutMapping("/{userId}/settings/password")
     public ResponseEntity<Void> updatePassword(@PathVariable("userId") Integer userId,
-                                               @Valid @RequestBody UserPasswordUpdateRequest passwordUpdateRequest) {
+                                               @Valid @RequestBody UserUpdatePasswordRequest passwordUpdateRequest) {
         userService.updatePassword(userId, passwordUpdateRequest);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+
 }

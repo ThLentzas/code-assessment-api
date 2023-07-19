@@ -1,6 +1,7 @@
 package gr.aegean.service;
 
-import gr.aegean.model.entity.User;
+import gr.aegean.exception.ServerErrorException;
+import gr.aegean.entity.User;
 import gr.aegean.mapper.UserDTOMapper;
 import gr.aegean.model.user.UserDTO;
 import gr.aegean.model.auth.AuthResponse;
@@ -8,10 +9,13 @@ import gr.aegean.model.auth.RegisterRequest;
 import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.model.auth.AuthRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -25,6 +29,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final UserDTOMapper userDTOMapper;
+    private final JwtDecoder jwtDecoder;
 
     public AuthResponse registerUser(RegisterRequest request) {
         User user = User.builder()
@@ -42,10 +47,10 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.password()));
         UserDTO userDTO = userDTOMapper.apply(user);
 
-        Integer id = userService.registerUser(user);
+        Integer userId = userService.registerUser(user);
         String jwtToken = jwtService.assignToken(userDTO);
 
-        return new AuthResponse(jwtToken, id);
+        return new AuthResponse(jwtToken, userId);
     }
 
     public AuthResponse authenticateUser(AuthRequest request) {
@@ -62,6 +67,31 @@ public class AuthService {
         UserDTO userDTO = userDTOMapper.apply(principal);
         String jwtToken = jwtService.assignToken(userDTO);
 
-        return new AuthResponse(jwtToken);
+        return new AuthResponse(jwtToken, principal.getId());
+    }
+
+    /*
+        Extracting email from jwt, to call findUserByEmail() in order to get the userId.
+    */
+    public Integer getIdFromSubject(HttpServletRequest httpServletRequest) {
+        String email = getSubjectFromJwt(httpServletRequest);
+
+        return userService.findUserByEmail(email)
+                .map(User::getId)
+                .orElseThrow(() -> new ServerErrorException("The server encountered an internal error and was unable " +
+                        "to complete your request. Please try again later."));
+    }
+
+    private String getSubjectFromJwt(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        String bearerToken = null;
+
+        if (!token.isBlank() && token.startsWith("Bearer ")) {
+            bearerToken = token.substring(7);
+        }
+
+        Jwt jwt = jwtDecoder.decode(bearerToken);
+
+        return jwt.getSubject();
     }
 }

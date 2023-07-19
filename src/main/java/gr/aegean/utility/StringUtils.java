@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.bouncycastle.util.encoders.Hex;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
@@ -16,6 +17,8 @@ import org.passay.RuleResult;
 
 import gr.aegean.exception.ServerErrorException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 
 public final class StringUtils {

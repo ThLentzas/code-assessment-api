@@ -1,5 +1,7 @@
 package gr.aegean.service;
 
+import gr.aegean.model.analysis.QualityMetric;
+import org.apache.commons.math3.util.Precision;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -17,16 +19,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import gr.aegean.exception.ServerErrorException;
-import gr.aegean.model.entity.AnalysisReport;
+import gr.aegean.entity.AnalysisReport;
 import gr.aegean.model.analysis.sonarqube.HotspotsReport;
 import gr.aegean.model.analysis.sonarqube.IssuesReport;
-import gr.aegean.model.analysis.sonarqube.MetricReport;
+import gr.aegean.model.analysis.sonarqube.QualityMetricReport;
 import gr.aegean.model.analysis.sonarqube.Rule;
 import gr.aegean.model.analysis.sonarqube.Severity;
 
@@ -50,6 +49,7 @@ public class SonarService {
                 "-Dsonar.login=" + authToken
         );
 
+
         /*
             Setting the directory of the command execution to be the projects directory, so we can use
             sources=.
@@ -61,9 +61,12 @@ public class SonarService {
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-               // System.out.println(line);
+                System.out.println(line);
             }
 
+            /*
+                Waiting for the analysis to end not to upload the analysis to the server.
+             */
             int exitCode = process.waitFor();
 
 
@@ -74,7 +77,8 @@ public class SonarService {
         }
     }
 
-    public AnalysisReport createAnalysisReport(String projectKey) throws InterruptedException, IOException {
+    public AnalysisReport createAnalysisReport(String projectKey, Map<String, Double> languages) throws
+            InterruptedException, IOException {
         /*
             Wait 4 seconds for the report to be uploaded on the server.
          */
@@ -93,9 +97,13 @@ public class SonarService {
         IssuesReport issuesReport = fetchIssues(restTemplate, entity, projectKey);
         HotspotsReport hotspotsReport = fetchHotspots(restTemplate, entity, projectKey);
         Map<String, Rule> ruleDetails = mapRuleToRuleDetails(restTemplate, entity, issuesReport, hotspotsReport);
-        List<MetricReport.MetricDetails> metricDetails = fetchMetrics(issuesReport.getIssues(), restTemplate, entity, projectKey);
+        EnumMap<QualityMetric, Double> qualityMetricDetails = getQualityMetrics(
+                issuesReport.getIssues(),
+                restTemplate,
+                entity,
+                projectKey);
 
-        return new AnalysisReport(issuesReport, hotspotsReport, ruleDetails, metricDetails);
+        return new AnalysisReport(languages, issuesReport, hotspotsReport, ruleDetails, qualityMetricDetails);
     }
 
     private boolean projectExists(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
@@ -227,7 +235,7 @@ public class SonarService {
                 });
 
         /*
-            Similar to before now for every BUG, CODE SMELL, VULNERABILITY rule we are getting the rule details.
+            Similar to HOTSPOTS now for every BUG, CODE SMELL, VULNERABILITY rule we are getting the rule details.
          */
         issuesReport.getIssues().stream()
                 .map(IssuesReport.IssueDetails::getRule)
@@ -246,29 +254,29 @@ public class SonarService {
         return ruleDetails;
     }
 
-    private List<MetricReport.MetricDetails> fetchMetrics(List<IssuesReport.IssueDetails> issueDetails,
-                                                          RestTemplate restTemplate,
-                                                          HttpEntity<String> entity,
-                                                          String projectKey) {
-        List<MetricReport.MetricDetails> metricDetails = new ArrayList<>();
+    private EnumMap<QualityMetric, Double> getQualityMetrics(List<IssuesReport.IssueDetails> issueDetails,
+                                                        RestTemplate restTemplate,
+                                                        HttpEntity<String> entity,
+                                                        String projectKey) {
+        EnumMap<QualityMetric, Double> metricDetails = new EnumMap<>(QualityMetric.class);
 
         double reliabilityValue = measureReliability(issueDetails);
-        metricDetails.add(new MetricReport.MetricDetails("Reliability", reliabilityValue));
+        metricDetails.put(QualityMetric.RELIABILITY, reliabilityValue);
 
         double securityValue = measureSecurity(issueDetails);
-        metricDetails.add(new MetricReport.MetricDetails("Security", securityValue));
+        metricDetails.put(QualityMetric.SECURITY, securityValue);
 
         double maintainabilityValue = fetchMaintainability(restTemplate, entity, projectKey);
-        metricDetails.add(new MetricReport.MetricDetails("Maintainability", maintainabilityValue));
+        metricDetails.put(QualityMetric.MAINTAINABILITY, maintainabilityValue);
 
         List<Double> complexityValue = fetchComplexity(restTemplate, entity, projectKey);
         double cognitiveComplexityValue = complexityValue.get(0);
         double cyclomaticComplexityValue = complexityValue.get(1);
-        metricDetails.add(new MetricReport.MetricDetails("Cognitive Complexity", cognitiveComplexityValue));
-        metricDetails.add(new MetricReport.MetricDetails("Cyclomatic Complexity", cyclomaticComplexityValue));
+        metricDetails.put(QualityMetric.COGNITIVE_COMPLEXITY, cognitiveComplexityValue);
+        metricDetails.put(QualityMetric.CYCLOMATIC_COMPLEXITY, cyclomaticComplexityValue);
 
         double technicalDeptValue = fetchTechnicalDept(restTemplate, entity, projectKey);
-        metricDetails.add(new MetricReport.MetricDetails("Technical Dept", technicalDeptValue));
+        metricDetails.put(QualityMetric.TECHNICAL_DEPT, technicalDeptValue);
 
         return metricDetails;
     }
@@ -283,11 +291,12 @@ public class SonarService {
                 .sorted()
                 .toList();
 
-    /*
-        If no Bugs were found the attributeValue has the max value.
-     */
+        /*
+            If no Bugs were found the attributeValue has the max value.
+        */
         if (sortedIssues.isEmpty()) {
-            attributeValue = 100.0;
+            attributeValue = 1.0;
+
             return attributeValue;
         }
 
@@ -305,11 +314,12 @@ public class SonarService {
                                 "complete your request. Please try again later.");
             }
         }
+        /*
+            Only 1 decimal digit.
+        */
+        attributeValue = Precision.round(attributeValue, 1);
 
-    /*
-        Only 1 decimal digit.
-     */
-        return Math.round(attributeValue * 10.0) / 10.0;
+        return attributeValue;
     }
 
     private double measureReliability(List<IssuesReport.IssueDetails> issueDetails) {
@@ -328,15 +338,15 @@ public class SonarService {
                 + "projectKeys=%s"
                 + "&metricKeys=%s", projectKey, "sqale_debt_ratio");
 
-        ResponseEntity<MetricReport> response = restTemplate.exchange(
+        ResponseEntity<QualityMetricReport> response = restTemplate.exchange(
                 maintainabilityUrl,
                 HttpMethod.GET,
                 entity,
-                MetricReport.class);
+                QualityMetricReport.class);
 
-        MetricReport metricReportDetails = response.getBody();
+        QualityMetricReport qualityMetricReportDetails = response.getBody();
 
-        return metricReportDetails.getMeasures().get(0).getValue();
+        return qualityMetricReportDetails.getMeasures().get(0).getValue();
     }
 
     private List<Double> fetchComplexity(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
@@ -344,16 +354,16 @@ public class SonarService {
                 + "projectKeys=%s"
                 + "&metricKeys=%s", projectKey, "cognitive_complexity,complexity");
 
-        ResponseEntity<MetricReport> response = restTemplate.exchange(
+        ResponseEntity<QualityMetricReport> response = restTemplate.exchange(
                 complexityUrl,
                 HttpMethod.GET,
                 entity,
-                MetricReport.class);
+                QualityMetricReport.class);
 
-        MetricReport metricReportDetails = response.getBody();
+        QualityMetricReport qualityMetricReportDetails = response.getBody();
 
-        double cognitiveComplexityValue = metricReportDetails.getMeasures().get(0).getValue();
-        double cyclomaticComplexityValue = metricReportDetails.getMeasures().get(1).getValue();
+        double cognitiveComplexityValue = qualityMetricReportDetails.getMeasures().get(0).getValue();
+        double cyclomaticComplexityValue = qualityMetricReportDetails.getMeasures().get(1).getValue();
 
         return List.of(cognitiveComplexityValue, cyclomaticComplexityValue);
     }
@@ -366,15 +376,15 @@ public class SonarService {
                 + "projectKeys=%s"
                 + "&metricKeys=%s", projectKey, "sqale_index");
 
-        ResponseEntity<MetricReport> response = restTemplate.exchange(
+        ResponseEntity<QualityMetricReport> response = restTemplate.exchange(
                 technicalDeptUrl,
                 HttpMethod.GET,
                 entity,
-                MetricReport.class);
+                QualityMetricReport.class);
 
-        MetricReport metricReportDetails = response.getBody();
+        QualityMetricReport qualityMetricReportDetails = response.getBody();
 
-        return metricReportDetails.getMeasures().get(0).getValue();
+        return qualityMetricReportDetails.getMeasures().get(0).getValue();
     }
 }
 

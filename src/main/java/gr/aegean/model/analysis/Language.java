@@ -1,4 +1,4 @@
-package gr.aegean.model.analysis.language;
+package gr.aegean.model.analysis;
 
 public enum Language {
     JAVA,

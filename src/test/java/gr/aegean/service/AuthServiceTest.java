@@ -9,13 +9,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import gr.aegean.model.entity.User;
+import gr.aegean.entity.User;
 import gr.aegean.mapper.UserDTOMapper;
 import gr.aegean.model.user.UserDTO;
 import gr.aegean.model.auth.AuthResponse;
 import gr.aegean.model.auth.AuthRequest;
 import gr.aegean.model.auth.RegisterRequest;
 import gr.aegean.exception.UnauthorizedException;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -35,6 +36,8 @@ class AuthServiceTest {
     private JwtService jwtService;
     @Mock
     private AuthenticationManager authenticationManager;
+    @Mock
+    private JwtDecoder jwtDecoder;
     private final UserDTOMapper userDTOMapper = new UserDTOMapper();
     private AuthService underTest;
 
@@ -45,7 +48,8 @@ class AuthServiceTest {
                 passwordEncoder,
                 jwtService,
                 authenticationManager,
-                userDTOMapper);
+                userDTOMapper,
+                jwtDecoder);
     }
 
     @Test
@@ -84,7 +88,7 @@ class AuthServiceTest {
         AuthResponse authResponse = underTest.registerUser(request);
 
         //Assert
-        assertThat(authResponse.getId()).isEqualTo(generatedID);
+        assertThat(authResponse.getUserId()).isEqualTo(generatedID);
         assertThat(authResponse.getToken()).isEqualTo(jwtToken);
 
         verify(passwordEncoder, times(1)).encode(user.getPassword());

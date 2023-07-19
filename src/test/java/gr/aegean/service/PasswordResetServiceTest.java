@@ -15,10 +15,10 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import gr.aegean.model.entity.User;
+import gr.aegean.entity.User;
 import gr.aegean.model.passwordreset.PasswordResetRequest;
 import gr.aegean.model.passwordreset.PasswordResetResponse;
-import gr.aegean.model.entity.PasswordResetToken;
+import gr.aegean.entity.PasswordResetToken;
 import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.repository.PasswordResetRepository;
@@ -121,7 +121,7 @@ class PasswordResetServiceTest extends AbstractTestContainers {
                 hashedToken,
                 expiryDate);
 
-        passwordResetRepository.createToken(passwordResetToken);
+        passwordResetRepository.saveToken(passwordResetToken);
 
         //Assert
         assertThatThrownBy(() -> underTest.validatePasswordResetToken("expiredToken"))
@@ -147,7 +147,7 @@ class PasswordResetServiceTest extends AbstractTestContainers {
                 hashedToken,
                 expiryDate);
 
-        passwordResetRepository.createToken(passwordResetToken);
+        passwordResetRepository.saveToken(passwordResetToken);
 
         PasswordResetConfirmationRequest passwordResetConfirmationRequest = new PasswordResetConfirmationRequest(
                 "token",

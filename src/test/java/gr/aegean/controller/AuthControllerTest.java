@@ -80,7 +80,7 @@ class AuthControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", Matchers.containsString(
-                        "api/v1/users/" + authResponse.getId())))
+                        "api/v1/users/" + authResponse.getUserId())))
                 .andExpect(jsonPath("$.token", is(authResponse.getToken())));
     }
 

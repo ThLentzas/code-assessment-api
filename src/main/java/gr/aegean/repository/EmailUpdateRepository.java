@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 import gr.aegean.mapper.EmailUpdateTokenRowMapper;
-import gr.aegean.model.entity.EmailUpdateToken;
+import gr.aegean.entity.EmailUpdateToken;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +21,7 @@ public class EmailUpdateRepository {
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 
-    public void createToken(EmailUpdateToken token) {
+    public void saveToken(EmailUpdateToken token) {
         final String sql = "INSERT INTO email_update_token (" +
                 "user_id, " +
                 "token, " +
@@ -29,14 +29,13 @@ public class EmailUpdateRepository {
                 "expiry_date) " +
                 "VALUES (?, ?, ?, ?)";
 
-        int update = jdbcTemplate.update(
+        int insert = jdbcTemplate.update(
                 sql,
                 token.userId(),
                 token.token(),
                 token.email(),
                 token.expiryDate());
-
-        if (update != 1) {
+        if (insert != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }

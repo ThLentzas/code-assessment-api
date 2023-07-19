@@ -1,4 +1,4 @@
-package gr.aegean.model.entity;
+package gr.aegean.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

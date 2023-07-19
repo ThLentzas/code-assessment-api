@@ -45,7 +45,7 @@ public class AuthController {
 
         URI location = uriBuilder
                 .path("/api/v1/users/{userID}")
-                .buildAndExpand(authResponse.getId())
+                .buildAndExpand(authResponse.getUserId())
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
@@ -67,7 +67,8 @@ public class AuthController {
     @PostMapping("/password_reset")
     public ResponseEntity<PasswordResetResponse> resetPassword(
             @Valid @RequestBody PasswordResetRequest passwordResetRequest) {
-        PasswordResetResponse passwordResetResponse = passwordResetService.createPasswordResetToken(passwordResetRequest);
+        PasswordResetResponse passwordResetResponse = passwordResetService.createPasswordResetToken(
+                passwordResetRequest);
 
         return new ResponseEntity<>(passwordResetResponse, HttpStatus.ACCEPTED);
     }

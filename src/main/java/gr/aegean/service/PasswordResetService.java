@@ -1,6 +1,6 @@
 package gr.aegean.service;
 
-import gr.aegean.model.entity.PasswordResetToken;
+import gr.aegean.entity.PasswordResetToken;
 import gr.aegean.repository.PasswordResetRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;
@@ -36,7 +36,7 @@ public class PasswordResetService {
                             hashedToken,
                             expiryDate
                     );
-                    passwordResetRepository.createToken(passwordResetToken);
+                    passwordResetRepository.saveToken(passwordResetToken);
 
                     emailService.sendPasswordResetRequestEmail(resetRequest.email(), token);
                 });

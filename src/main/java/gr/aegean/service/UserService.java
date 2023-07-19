@@ -2,10 +2,10 @@ package gr.aegean.service;
 
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
-import gr.aegean.model.entity.EmailUpdateToken;
-import gr.aegean.model.entity.User;
-import gr.aegean.model.user.UserEmailUpdateRequest;
-import gr.aegean.model.user.UserPasswordUpdateRequest;
+import gr.aegean.entity.EmailUpdateToken;
+import gr.aegean.entity.User;
+import gr.aegean.model.user.UserUpdateEmailRequest;
+import gr.aegean.model.user.UserUpdatePasswordRequest;
 import gr.aegean.model.user.UserProfile;
 import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.EmailUpdateRepository;
@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,11 @@ public class UserService {
 
         return userRepository.registerUser(user);
     }
+
+    public Optional<User> findUserByEmail(String email) {
+        return userRepository.findUserByEmail(email);
+    }
+
 
     public UserProfile getProfile(Integer userId) {
         return userRepository.findUserByUserId(userId)
@@ -101,7 +107,7 @@ public class UserService {
                 value -> userRepository.updateCompany(user.getId(), value));
     }
 
-    public void createEmailUpdateToken(Integer userId, UserEmailUpdateRequest emailUpdateRequest) {
+    public void createEmailUpdateToken(Integer userId, UserUpdateEmailRequest emailUpdateRequest) {
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
                     if (!passwordEncoder.matches(emailUpdateRequest.password(), user.getPassword())) {
@@ -122,7 +128,7 @@ public class UserService {
                             emailUpdateRequest.email(),
                             expiryDate
                     );
-                    emailUpdateRepository.createToken(emailUpdateToken);
+                    emailUpdateRepository.saveToken(emailUpdateToken);
 
                     emailService.sendEmailVerification(emailUpdateRequest.email(), user.getUsername(), token);
                 }, () -> {
@@ -151,7 +157,7 @@ public class UserService {
                 });
     }
 
-    public void updatePassword(Integer userId, UserPasswordUpdateRequest passwordUpdateRequest) {
+    public void updatePassword(Integer userId, UserUpdatePasswordRequest passwordUpdateRequest) {
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
                     if (!passwordEncoder.matches(passwordUpdateRequest.oldPassword(), user.getPassword())) {

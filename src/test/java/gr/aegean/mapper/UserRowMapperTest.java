@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import gr.aegean.model.entity.User;
+import gr.aegean.entity.User;
 
 
 class UserRowMapperTest {

@@ -18,7 +18,7 @@ import gr.aegean.config.AuthConfig;
 import gr.aegean.config.JwtConfig;
 import gr.aegean.config.SecurityConfig;
 import gr.aegean.exception.DuplicateResourceException;
-import gr.aegean.model.user.UserEmailUpdateRequest;
+import gr.aegean.model.user.UserUpdateEmailRequest;
 import gr.aegean.model.user.UserProfile;
 import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.UserRepository;
@@ -276,7 +276,7 @@ class UserControllerTest {
                 """;
 
         doThrow(new BadCredentialsException("Wrong password"))
-                .when(userService).createEmailUpdateToken(any(Integer.class), any(UserEmailUpdateRequest.class));
+                .when(userService).createEmailUpdateToken(any(Integer.class), any(UserUpdateEmailRequest.class));
 
 
         mockMvc.perform(post(USER_PATH + "/{userId}/settings/email", 1)
@@ -297,7 +297,7 @@ class UserControllerTest {
                 """;
 
         doThrow(new DuplicateResourceException("Email already is use"))
-                .when(userService).createEmailUpdateToken(any(Integer.class), any(UserEmailUpdateRequest.class));
+                .when(userService).createEmailUpdateToken(any(Integer.class), any(UserUpdateEmailRequest.class));
 
 
         mockMvc.perform(post(USER_PATH + "/{userId}/settings/email", 1)
