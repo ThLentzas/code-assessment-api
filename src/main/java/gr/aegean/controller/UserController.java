@@ -1,5 +1,6 @@
 package gr.aegean.controller;
 
+import gr.aegean.model.analysis.AnalysisResult;
 import gr.aegean.model.user.UserUpdatePasswordRequest;
 import gr.aegean.model.user.UserProfile;
 import jakarta.websocket.server.PathParam;
@@ -14,6 +15,8 @@ import gr.aegean.service.UserService;
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 
 @RestController
@@ -45,6 +48,8 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
+    // TODO: 7/20/2023 We need to review this endpoint. It's the email link that the user clicks, so we cant add the
+    //  token via postman.
     @GetMapping("/settings/email")
     public ResponseEntity<Void> updateEmail(@PathParam("token") String token) {
         userService.updateEmail(token);
@@ -60,5 +65,8 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-
+    @GetMapping("/{userId}/history")
+    public ResponseEntity<List<AnalysisResult>> getHistory(@PathVariable Integer userId) {
+        return null;
+    }
 }

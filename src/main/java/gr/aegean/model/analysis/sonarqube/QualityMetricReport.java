@@ -8,12 +8,12 @@ import java.util.List;
 
 @Getter
 public class QualityMetricReport {
-    private List<QualityMetricDetails> measures;
+    private List<QualityMetricReportDetails> measures;
 
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class QualityMetricDetails {
+    public static class QualityMetricReportDetails {
         private String metric;
         private double value;
     }

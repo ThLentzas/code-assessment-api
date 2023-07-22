@@ -1,6 +1,5 @@
 package gr.aegean.service;
 
-import gr.aegean.model.analysis.QualityMetric;
 import org.apache.commons.math3.util.Precision;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
@@ -19,10 +18,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.Duration;
-import java.util.*;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.entity.AnalysisReport;
+import gr.aegean.model.analysis.QualityMetric;
 import gr.aegean.model.analysis.sonarqube.HotspotsReport;
 import gr.aegean.model.analysis.sonarqube.IssuesReport;
 import gr.aegean.model.analysis.sonarqube.QualityMetricReport;
@@ -46,7 +49,7 @@ public class SonarService {
                 "-Dsonar.projectKey=" + projectKey,
                 "-Dsonar.sources=.",
                 "-Dsonar.host.url=http://localhost:9000",
-                "-Dsonar.login=" + authToken
+                "-Dsonar.token=" + authToken
         );
 
 
@@ -67,9 +70,7 @@ public class SonarService {
             /*
                 Waiting for the analysis to end not to upload the analysis to the server.
              */
-            int exitCode = process.waitFor();
-
-
+            process.waitFor();
         } catch (IOException | InterruptedException ioe) {
             ioe.printStackTrace();
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
@@ -77,33 +78,35 @@ public class SonarService {
         }
     }
 
-    public AnalysisReport createAnalysisReport(String projectKey, Map<String, Double> languages) throws
+    public AnalysisReport fetchAnalysisReport(String projectKey, Map<String, Double> languages) throws
             InterruptedException, IOException {
         /*
-            Wait 4 seconds for the report to be uploaded on the server.
+            Wait for the report to be uploaded on the server.
          */
-        await().pollDelay(Duration.ofSeconds(5)).until(() -> true);
+        await().pollDelay(Duration.ofSeconds(6)).until(() -> true);
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + authToken);
         HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
 
-        if (!projectExists(restTemplate, entity, projectKey)) {
-            throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
-                    "request. Please try again later.");
+        while (!projectExists(restTemplate, entity, projectKey)) {
+            await().pollDelay(Duration.ofSeconds(6)).until(() -> true);
         }
+
+        await().pollDelay(Duration.ofSeconds(6)).until(() -> true);
 
         IssuesReport issuesReport = fetchIssues(restTemplate, entity, projectKey);
         HotspotsReport hotspotsReport = fetchHotspots(restTemplate, entity, projectKey);
         Map<String, Rule> ruleDetails = mapRuleToRuleDetails(restTemplate, entity, issuesReport, hotspotsReport);
-        EnumMap<QualityMetric, Double> qualityMetricDetails = getQualityMetrics(
+        EnumMap<QualityMetric, Double> qualityMetricReport = getQualityMetrics(
                 issuesReport.getIssues(),
                 restTemplate,
                 entity,
                 projectKey);
 
-        return new AnalysisReport(languages, issuesReport, hotspotsReport, ruleDetails, qualityMetricDetails);
+
+        return new AnalysisReport(languages, issuesReport, hotspotsReport, ruleDetails, qualityMetricReport);
     }
 
     private boolean projectExists(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
@@ -278,6 +281,9 @@ public class SonarService {
         double technicalDeptValue = fetchTechnicalDept(restTemplate, entity, projectKey);
         metricDetails.put(QualityMetric.TECHNICAL_DEPT, technicalDeptValue);
 
+        double duplicationValue = fetchDuplication(restTemplate, entity, projectKey);
+        metricDetails.put(QualityMetric.DUPLICATION, duplicationValue);
+
         return metricDetails;
     }
 
@@ -292,7 +298,7 @@ public class SonarService {
                 .toList();
 
         /*
-            If no Bugs were found the attributeValue has the max value.
+            If no Bugs/Vulnerabilities were found the attributeValue is max.
         */
         if (sortedIssues.isEmpty()) {
             attributeValue = 1.0;
@@ -344,9 +350,9 @@ public class SonarService {
                 entity,
                 QualityMetricReport.class);
 
-        QualityMetricReport qualityMetricReportDetails = response.getBody();
+        QualityMetricReport qualityMetricReport = response.getBody();
 
-        return qualityMetricReportDetails.getMeasures().get(0).getValue();
+        return qualityMetricReport.getMeasures().get(0).getValue();
     }
 
     private List<Double> fetchComplexity(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
@@ -360,10 +366,10 @@ public class SonarService {
                 entity,
                 QualityMetricReport.class);
 
-        QualityMetricReport qualityMetricReportDetails = response.getBody();
+        QualityMetricReport qualityMetricReport= response.getBody();
 
-        double cognitiveComplexityValue = qualityMetricReportDetails.getMeasures().get(0).getValue();
-        double cyclomaticComplexityValue = qualityMetricReportDetails.getMeasures().get(1).getValue();
+        double cognitiveComplexityValue = qualityMetricReport.getMeasures().get(0).getValue();
+        double cyclomaticComplexityValue = qualityMetricReport.getMeasures().get(1).getValue();
 
         return List.of(cognitiveComplexityValue, cyclomaticComplexityValue);
     }
@@ -382,9 +388,25 @@ public class SonarService {
                 entity,
                 QualityMetricReport.class);
 
-        QualityMetricReport qualityMetricReportDetails = response.getBody();
+        QualityMetricReport qualityMetricReport = response.getBody();
 
-        return qualityMetricReportDetails.getMeasures().get(0).getValue();
+        return qualityMetricReport.getMeasures().get(0).getValue();
+    }
+
+    private double fetchDuplication(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
+        String technicalDeptUrl = String.format("http://localhost:9000/api/measures/search?"
+                + "projectKeys=%s"
+                + "&metricKeys=%s", projectKey, "duplicated_lines_density");
+
+        ResponseEntity<QualityMetricReport> response = restTemplate.exchange(
+                technicalDeptUrl,
+                HttpMethod.GET,
+                entity,
+                QualityMetricReport.class);
+
+        QualityMetricReport qualityMetricReport = response.getBody();
+
+        return qualityMetricReport.getMeasures().get(0).getValue();
     }
 }
 

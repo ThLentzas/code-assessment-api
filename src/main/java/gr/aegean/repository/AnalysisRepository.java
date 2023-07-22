@@ -100,14 +100,14 @@ public class AnalysisRepository {
     }
 
     public Optional<List<AnalysisReport>> findAnalysisReportByAnalysisId(Integer analysisId) {
-        final String sql = "SELECT id, analysis_id, report FROM analysis_report WHERE analysis_id = ?";
+        final String sql = "SELECT id, report FROM analysis_report WHERE analysis_id = ?";
         List<AnalysisReport> reports = jdbcTemplate.query(sql, rowMapper, analysisId);
 
         return Optional.of(reports);
     }
 
     public Optional<AnalysisReport> findAnalysisReportById(Integer reportId) {
-        final String sql = "SELECT id, analysis_id, report FROM analysis_report WHERE id = ?";
+        final String sql = "SELECT id, report FROM analysis_report WHERE id = ?";
         List<AnalysisReport> reports = jdbcTemplate.query(sql, rowMapper, reportId);
 
         return reports.stream().findFirst();

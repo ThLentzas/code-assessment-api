@@ -2,6 +2,7 @@ package gr.aegean.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,6 +17,7 @@ class GitHubServiceTest {
     }
 
     @ParameterizedTest
+    @NullAndEmptySource
     @ValueSource(strings = {
             "https://gitlab.com/user/repo", // different host
             "https://github.com@user/repo",

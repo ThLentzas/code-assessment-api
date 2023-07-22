@@ -4,6 +4,7 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -85,8 +86,7 @@ class AuthControllerTest {
     }
 
     @ParameterizedTest
-    @NullSource
-    @EmptySource
+    @NullAndEmptySource
     void shouldReturnHTTP400WhenRegisterFirstnameIsNullOrEmpty(String firstname)
             throws Exception {
         //Arrange
@@ -115,8 +115,7 @@ class AuthControllerTest {
     }
 
     @ParameterizedTest
-    @NullSource
-    @EmptySource
+    @NullAndEmptySource
     void shouldReturnHTTP400WhenRegisterLastnameIsNullOrEmpty(String lastname) throws Exception {
         //Arrange
         String lastnameValue = lastname == null ? "null" : "\"" + lastname + "\"";
@@ -144,8 +143,7 @@ class AuthControllerTest {
     }
 
     @ParameterizedTest
-    @NullSource
-    @EmptySource
+    @NullAndEmptySource
     void shouldReturnHTTP400WhenRegisterUsernameIsNullOrEmpty(String username) throws Exception {
         //Arrange
         String usernameValue = username == null ? "null" : "\"" + username + "\"";
@@ -173,8 +171,7 @@ class AuthControllerTest {
     }
 
     @ParameterizedTest
-    @NullSource
-    @EmptySource
+    @NullAndEmptySource
     void shouldReturnHTTP400WhenRegisterEmailIsNullOrEmpty(String email)
             throws Exception {
         //Arrange
@@ -203,8 +200,7 @@ class AuthControllerTest {
     }
 
     @ParameterizedTest
-    @NullSource
-    @EmptySource
+    @NullAndEmptySource
     void shouldReturnHTTP400WhenRegisterPasswordIsNullOrEmpty(String password) throws Exception {
         //Arrange
         String passwordValue = password == null ? "null" : "\"" + password + "\"";
@@ -255,8 +251,7 @@ class AuthControllerTest {
     }
 
     @ParameterizedTest
-    @NullSource
-    @EmptySource
+    @NullAndEmptySource
     void shouldReturnHTTP400WhenAuthEmailIsNullOrEmpty(String email) throws Exception {
         //Arrange
         String emailValue = email == null ? "null" : "\"" + email + "\"";
@@ -279,8 +274,7 @@ class AuthControllerTest {
     }
 
     @ParameterizedTest
-    @NullSource
-    @EmptySource
+    @NullAndEmptySource
     void shouldReturnHTTP400WhenAuthPasswordIsNullOrEmpty(String password) throws Exception {
         //Arrange
         String passwordValue = password == null ? "null" : "\"" + password + "\"";
@@ -303,8 +297,7 @@ class AuthControllerTest {
     }
 
     @ParameterizedTest
-    @NullSource
-    @EmptySource
+    @NullAndEmptySource
     void shouldReturnHTTP400WhenPasswordResetRequestEmailIsNullOrEmpty(String email)
             throws Exception {
         String emailValue = email == null ? "null" : "\"" + email + "\"";
@@ -365,8 +358,7 @@ class AuthControllerTest {
     We test @Valid annotation here
     */
     @ParameterizedTest
-    @NullSource
-    @EmptySource
+    @NullAndEmptySource
     void shouldReturnHTTP400WhenNewPasswordIsNullOrEmpty(String newPassword)
             throws Exception {
         //Arrange

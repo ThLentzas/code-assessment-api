@@ -1,6 +1,6 @@
 package gr.aegean.controller;
 
-import gr.aegean.entity.AnalysisReport;
+import gr.aegean.model.analysis.AnalysisReportDTO;
 import gr.aegean.model.analysis.AnalysisRequest;
 import gr.aegean.service.AnalysisService;
 import gr.aegean.service.ProjectService;
@@ -10,7 +10,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -30,10 +35,10 @@ public class AnalysisController {
          supported.
      */
     @PostMapping
-    public ResponseEntity<Void> analyze(@Valid @RequestBody AnalysisRequest request,
+    public ResponseEntity<Void> analyze(@Valid @RequestBody AnalysisRequest analysisRequest,
                                                HttpServletRequest httpServletRequest,
                                                UriComponentsBuilder uriBuilder) {
-        Integer analysisId = projectService.processProject(request, httpServletRequest).join();
+        Integer analysisId = projectService.processProject(analysisRequest, httpServletRequest).join();
         URI location = uriBuilder
                 .path("/api/v1/analysis/{analysisId}")
                 .buildAndExpand(analysisId)
@@ -49,8 +54,8 @@ public class AnalysisController {
         Returns a list of analysis reports for all the repositories submitted.
      */
     @GetMapping("/{analysisId}")
-    public ResponseEntity<List<AnalysisReport>> getAnalysisResult(@PathVariable Integer analysisId) {
-        List<AnalysisReport> reports = analysisService.findAnalysisReportByAnalysisId(analysisId);
+    public ResponseEntity<List<AnalysisReportDTO>> getAnalysisResult(@PathVariable Integer analysisId) {
+        List<AnalysisReportDTO> reports = analysisService.findAnalysisReportByAnalysisId(analysisId);
 
         return new ResponseEntity<>(reports, HttpStatus.OK);
     }
@@ -58,12 +63,10 @@ public class AnalysisController {
     /*
         Returns the analysis report for a specific repository.
      */
-    @GetMapping("/report/{reportId}")
-    public ResponseEntity<AnalysisReport> getAnalysisReport(@PathVariable Integer reportId) {
-        // TODO: 7/20/2023 Add projectUrl property in analysis report.
-//        List<AnalysisReport> reports = analysisService.findAnalysisReportById(reportId);
-//
-//        return new ResponseEntity<>(reports, HttpStatus.OK);
-        return null;
+    @GetMapping("/reports/{reportId}")
+    public ResponseEntity<AnalysisReportDTO> getAnalysisReport(@PathVariable Integer reportId) {
+        AnalysisReportDTO report = analysisService.findAnalysisReportById(reportId);
+
+        return new ResponseEntity<>(report, HttpStatus.OK);
     }
 }

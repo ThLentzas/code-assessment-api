@@ -1,5 +1,6 @@
 package gr.aegean.model.analysis;
 
+
 public enum Language {
     JAVA,
     JAVASCRIPT,

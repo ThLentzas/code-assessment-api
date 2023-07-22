@@ -34,7 +34,7 @@ projects:
   base-directory: F:\\Projects
 
 sonar:
-  token: squ_60f35502b8270842c5c3e620e0f440038a3a6b09
+  token: squ_324a95e7ed95d8d17572c6d011b676ab2315b027
 
 #spring:
 #  config:

@@ -10,6 +10,6 @@ public record AnalysisRequest(
        List<String> projectUrls,
        //@NotBlank
        List<QualityMetricDetails> qualityMetricDetails
-)
-{}
+) {
+}
 //private qualityAttribues

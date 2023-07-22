@@ -11,6 +11,7 @@ import java.util.Map;
 public record AnalysisReportDTO(
         Integer reportId,
         Integer analysisId,
+        Link projectUrl,
         Map<String, Double> languages,
         IssuesReport issuesReport,
         HotspotsReport hotspotsReport,

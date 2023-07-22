@@ -20,6 +20,10 @@ public class GitHubService {
     }
 
     public boolean isValidGitHubUrl(String url) {
+        if(url == null || url.isBlank()) {
+            return false;
+        }
+
         try {
             URI uri = new URI(url);
             String host = uri.getHost();

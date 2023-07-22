@@ -4,29 +4,24 @@ import gr.aegean.entity.Analysis;
 import gr.aegean.entity.QualityMetricDetails;
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.entity.AnalysisReport;
+import gr.aegean.mapper.AnalysisReportDTOMapper;
+import gr.aegean.model.analysis.AnalysisReportDTO;
 import gr.aegean.repository.AnalysisRepository;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import lombok.RequiredArgsConstructor;
 
 
 @Service
@@ -35,47 +30,43 @@ public class AnalysisService {
     private final LanguageService languageService;
     private final SonarService sonarService;
     private final AnalysisRepository analysisRepository;
+    private final AnalysisReportDTOMapper mapper;
+    @Value("${sonar.token}")
+    private String authToken;
 
-    public Optional<AnalysisReport> analyzeProjects(Path project) {
-        AnalysisReport analysisReport = null;
+    public Optional<AnalysisReport> analyzeProject(Path projectPath, String projectUrl) {
+        AnalysisReport analysisReport;
 
         /*
             For each project we downloaded and stored locally we detect the languages used.
          */
-        Map<String, Double> detectedLanguages = languageService.detectLanguage(project.toString());
+        Map<String, Double> detectedLanguages = languageService.detectLanguage(projectPath.toString());
         if (!languageService.verifySupportedLanguages(detectedLanguages)) {
             return Optional.empty();
         }
 
-        if (detectedLanguages.containsKey("Java")) {
+        String projectKey = projectPath.toString().split("\\\\")[3];
 
-            /*
-                Find the path of pom.xml and src.
-            */
-            if (isMavenProject(project)) {
-                analyzeMavenProject(project.toString());
-
-            } else if (isGradleProject(project)) {
-
+        try {
+            if (detectedLanguages.containsKey("Java")) {
+                if (isMavenProject(projectPath)) {
+                    /*
+                        Returns the docker image in order to be deleted.
+                     */
+                    analyzeMavenProject(projectKey, projectPath.toString());
+                }
+            } else {
+                sonarService.analyzeProject(projectKey, projectPath.toString());
             }
-        } else {
-            String projectKey = project.toString().split("\\\\")[3];
-            sonarService.analyzeProject(projectKey, project.toString());
 
-            /*
-                We need the userId to store the analysis alongside with the related user.
-             */
-
-            try {
-                analysisReport = sonarService.createAnalysisReport(projectKey, detectedLanguages);
-
-            } catch (IOException | InterruptedException ioe) {
-                throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
-                        "request. Please try again later.");
-            }
+            analysisReport = sonarService.fetchAnalysisReport(projectKey, detectedLanguages);
+            analysisReport.setProjectUrl(Link.of(projectUrl));
+        } catch (IOException | InterruptedException ioe) {
+            throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
+                    "request. Please try again later.");
         }
 
-        return Optional.ofNullable(analysisReport);
+        return Optional.of(analysisReport);
     }
 
     public boolean isMavenProject(Path project) {
@@ -84,6 +75,7 @@ public class AnalysisService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return false;
     }
 
@@ -93,113 +85,85 @@ public class AnalysisService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return false;
     }
 
-    private Optional<String> findFilePath(String projectDirectory, String requestedFile) {
-        Path path = Paths.get(projectDirectory);
-
-         /*
-            Recursively checking for the directory of a pom.xml file or the src. Only try with resources can be used
-            without catch or finally. Lambda expressions in Java cannot propagate checked exceptions without extra
-            handling. That's why we need to use try/catch here despite being called inside a try catch block.
-         */
-        try (Stream<Path> paths = Files.walk(path)) {
-            return paths
-                    .filter(p -> p.getFileName().toString().equals(requestedFile))
-                    .findFirst()
-                    .map(Path::toString);
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
-                    "request. Please try again later.");
-        }
-    }
-
-    private void analyzeMavenProject(String projectPath) {
+    private void analyzeMavenProject(String projectKey, String projectPath) {
         ProcessBuilder processBuilder = new ProcessBuilder();
-        Path dockerfilePath = Paths.get(projectPath, "Dockerfile");
-        Map<String, String> versions = fetchVersionsFromPom(projectPath);
-        String mavenVersion = versions.get("Maven");
-        String javaVersion = versions.get("Java");
-
-        String dockerfileContent = String.format("""              
-                {
-                    FROM maven:%s-openjdk-%s
-                    WORKDIR /app
-                    COPY . .
-                    CMD ["mvn", "clean"]
-                }
-                """, mavenVersion, javaVersion);
+        String dockerImage;
 
         try {
-            /*
-                1st argument: the path to write the docker file. The root directory of the project
-                2nd argument: the content to write in the file.
-                If there is a dockerfile named "Dockerfile" it will be overwritten by ours.
-             */
-            Files.write(dockerfilePath, dockerfileContent.getBytes());
-
-            /*
-                Splitting with the escape character which is also the file seperator in Windows
-             */
-            String dockerImage = projectPath.split("\\\\")[3];
-            processBuilder.command(
-                    "docker",
-                    "build",
-                    "-t",
-                    dockerImage,
-                    "."
-            );
-
-            /*
-                Setting the directory of the command execution to be the projects directory, so we can use .
-             */
-            processBuilder.directory(new File(projectPath));
-            processBuilder.start();
-            processBuilder.wait();
+            createDockerFile(projectKey, projectPath);
+            dockerImage = buildDockerImage(projectPath, processBuilder);
+            runDockerContainer(dockerImage, projectPath, processBuilder);
         } catch (IOException | InterruptedException ie) {
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
                     "request. Please try again later.");
         }
     }
 
-    public Map<String, String> fetchVersionsFromPom(String projectPath) {
-        Map<String, String> versions = new HashMap<>();
+    private void createDockerFile(String projectKey, String projectPath) throws IOException {
+        Path dockerfilePath = Paths.get(projectPath, "Dockerfile");
+        String dockerfileContent = String.format("""
+                    FROM maven:3.8.7-openjdk-18-slim
+                    WORKDIR /app
+                    COPY . .
+                    CMD sh -c 'mvn clean verify sonar:sonar \
+                    -Dmaven.test.skip=true \
+                    -Dsonar.host.url=http://sonarqube:9000 \
+                    -Dsonar.projectKey=%s \
+                    -Dsonar.login=%s;'
+                """, projectKey, authToken);
 
-        try {
-            // Append "pom.xml" to the project path
-            String pomPath = Paths.get(projectPath, "pom.xml").toString();
+            /*
+                1st argument: the path to write the docker file. The root directory of the project
+                2nd argument: the content to write in the file.
+                If there is a dockerfile named "Dockerfile" it will be overwritten by ours.
+             */
+        Files.write(dockerfilePath, dockerfileContent.getBytes());
+    }
 
-            // Open the pom.xml file
-            File inputFile = new File(pomPath);
-            if (!inputFile.exists() || inputFile.isDirectory()) {
-                System.err.println("pom.xml not found at the provided project path.");
-                return versions;
-            }
+    private String buildDockerImage(String projectPath, ProcessBuilder processBuilder) throws
+            IOException, InterruptedException {
+        /*
+            Splitting with the escape character which is also the file separator in Windows
+         */
+        String dockerImage = projectPath.split("\\\\")[3];
 
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(inputFile);
-            doc.getDocumentElement().normalize();
+        processBuilder.command(
+                "docker",
+                "build",
+                "-t",
+                dockerImage,
+                "."
+        );
 
-            // Create XPath object
-            XPath xPath = XPathFactory.newInstance().newXPath();
+         /*
+            Setting the directory of the command execution to be the projects directory, so we can use .
+         */
+        processBuilder.directory(new File(projectPath));
+        Process process = processBuilder.start();
+        process.waitFor();
 
-            // Get Java version
-            Node javaVersionNode = (Node) xPath.compile("/project/properties/java.version")
-                    .evaluate(doc, XPathConstants.NODE);
-            if (javaVersionNode != null) {
-                versions.put("Java", javaVersionNode.getTextContent());
-            }
+        return dockerImage;
+    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private void runDockerContainer(String dockerImage, String projectPath, ProcessBuilder processBuilder) throws
+            InterruptedException, IOException {
+        String containerName = projectPath.split("\\\\")[3];
 
-        System.out.println(versions);
-
-        return versions;
+        processBuilder.command(
+                "docker",
+                "run",
+                "--rm",
+                "--name",
+                containerName,
+                "--network",
+                "code-assessment-net",
+                dockerImage
+        );
+        processBuilder.start();
     }
 
     public Analysis saveAnalysis(Analysis analysis) {
@@ -214,10 +178,22 @@ public class AnalysisService {
         metricDetails.forEach(details -> analysisRepository.saveQualityMetricDetails(analysisId, details));
     }
 
-    public List<AnalysisReport> findAnalysisReportByAnalysisId(Integer analysisId) {
-        return analysisRepository.findAnalysisReportByAnalysisId(analysisId).orElseThrow(() -> new ServerErrorException(
-                "The server encountered an internal error and was unable " + "to complete your request. " +
-                        "Please try again later."));
+    public List<AnalysisReportDTO> findAnalysisReportByAnalysisId(Integer analysisId) {
+        List<AnalysisReport> reports = analysisRepository.findAnalysisReportByAnalysisId(analysisId).orElseThrow(() ->
+                new ServerErrorException("The server encountered an internal error and was unable to complete your " +
+                        "request. Please try again later."));
+
+        return reports.stream()
+                .map(mapper)
+                .toList();
+    }
+
+    public AnalysisReportDTO findAnalysisReportById(Integer analysisId) {
+        AnalysisReport report = analysisRepository.findAnalysisReportById(analysisId).orElseThrow(() ->
+                new ServerErrorException("The server encountered an internal error and was unable " + "to complete " +
+                        "your request. Please try again later."));
+
+        return mapper.apply(report);
     }
 }
 

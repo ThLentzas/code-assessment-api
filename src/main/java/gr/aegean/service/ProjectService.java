@@ -11,7 +11,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import gr.aegean.entity.Analysis;
-import gr.aegean.mapper.AnalysisReportDTOMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.eclipse.jgit.api.Git;
@@ -30,25 +29,22 @@ public class ProjectService {
     private final GitHubService gitHubService;
     private final AnalysisService analysisService;
     private final AuthService authService;
-    private final AnalysisReportDTOMapper mapper;
     private final File baseDirectory;
     private final Executor taskExecutor;
 
     public ProjectService(
-            @Value("${projects.base-directory}") String baseDirectoryPath,
             GitHubService gitHubService,
             AnalysisService analysisService,
             AuthService authService,
-            AnalysisReportDTOMapper mapper,
             /*
                 The default one and the one we configured, so we have to use @Qualifier
              */
-            @Qualifier("taskExecutor") Executor taskExecutor) {
+            @Qualifier("taskExecutor") Executor taskExecutor,
+            @Value("${projects.base-directory}") String baseDirectoryPath) {
         this.gitHubService = gitHubService;
         this.analysisService = analysisService;
-        this.taskExecutor = taskExecutor;
         this.authService = authService;
-        this.mapper = mapper;
+        this.taskExecutor = taskExecutor;
         baseDirectory = new File(baseDirectoryPath);
     }
 
@@ -62,7 +58,7 @@ public class ProjectService {
         }
 
         List<CompletableFuture<Optional<AnalysisReport>>> futures = analysisRequest.projectUrls().stream()
-                .map(url -> cloneAndAnalyzeProjectAsync(requestFolder, url))
+                .map(projectUrl -> cloneAndAnalyzeProjectAsync(requestFolder, projectUrl))
                 .toList();
 
 
@@ -96,12 +92,6 @@ public class ProjectService {
         });
     }
 
-    private CompletableFuture<Optional<AnalysisReport>> cloneAndAnalyzeProjectAsync(File requestFolder,
-                                                                                    String projectUrl) {
-        return CompletableFuture.supplyAsync(() -> cloneProject(requestFolder, projectUrl)
-                .flatMap(analysisService::analyzeProjects), taskExecutor);
-    }
-
     private Optional<Path> cloneProject(File requestFolder, String projectUrl) {
         if (!gitHubService.isValidGitHubUrl(projectUrl)) {
             return Optional.empty();
@@ -114,14 +104,20 @@ public class ProjectService {
         */
         File projectFile = new File(requestFolder, UUID.randomUUID().toString());
         try (Git git = gitHubService.cloneRepository(projectUrl, projectFile)) {
-        } catch (GitAPIException e) {
+        } catch (GitAPIException gae) {
             return Optional.empty();
         }
 
         return Optional.of(projectFile.toPath());
     }
 
-    public void deleteProjectDirectory(File requestFolder) throws IOException {
+    private CompletableFuture<Optional<AnalysisReport>> cloneAndAnalyzeProjectAsync(File requestFolder,
+                                                                                    String projectUrl) {
+        return CompletableFuture.supplyAsync(() -> cloneProject(requestFolder, projectUrl)
+                .flatMap(projectPath -> analysisService.analyzeProject(projectPath, projectUrl)), taskExecutor);
+    }
+
+    private void deleteProjectDirectory(File requestFolder) throws IOException {
         FileUtils.deleteDirectory(requestFolder);
     }
 

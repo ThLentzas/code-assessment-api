@@ -15,12 +15,13 @@ public class AnalysisReportDTOMapper implements Function<AnalysisReport, Analysi
         return new AnalysisReportDTO(
                 report.getId(),
                 report.getAnalysisId(),
+                report.getProjectUrl(),
                 report.getLanguages(),
                 report.getIssuesReport(),
                 report.getHotspotsReport(),
                 report.getRuleDetails(),
-                report.getQualityMetricDetails(),
-                Link.of(getBaseUrl() + "/analysis" + "/report" + "/" + report.getId())
+                report.getQualityMetricReport(),
+                Link.of(getBaseUrl() + "/analysis/reports" + "/" + report.getId())
         );
     }
 

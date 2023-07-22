@@ -23,7 +23,6 @@ public class AnalysisReportRowMapper implements RowMapper<AnalysisReport> {
         try {
             report = objectMapper.readValue(jsonReport, AnalysisReport.class);
             report.setId(resultSet.getInt("id"));
-            report.setAnalysisId(resultSet.getInt("analysis_id"));
         } catch (JsonProcessingException jpe) {
             throw new ServerErrorException("The server encountered an internal error and was unable " + "to complete " +
                     "your request. Please try again later.");
