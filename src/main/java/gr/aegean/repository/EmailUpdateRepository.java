@@ -35,6 +35,7 @@ public class EmailUpdateRepository {
                 token.token(),
                 token.email(),
                 token.expiryDate());
+
         if (insert != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }

@@ -1,4 +1,4 @@
-package gr.aegean.model.passwordreset;
+package gr.aegean.model.auth;
 
 import jakarta.validation.constraints.NotBlank;
 

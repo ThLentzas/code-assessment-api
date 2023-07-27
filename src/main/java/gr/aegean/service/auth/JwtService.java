@@ -1,4 +1,4 @@
-package gr.aegean.service;
+package gr.aegean.service.auth;
 
 import gr.aegean.model.user.UserDTO;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;

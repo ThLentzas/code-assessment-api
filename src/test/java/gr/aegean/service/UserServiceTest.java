@@ -13,6 +13,8 @@ import gr.aegean.model.user.UserProfile;
 import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
+import gr.aegean.service.auth.EmailService;
+import gr.aegean.service.user.UserService;
 import gr.aegean.utility.StringUtils;
 
 import org.junit.jupiter.api.BeforeEach;

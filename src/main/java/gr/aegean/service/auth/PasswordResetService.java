@@ -1,11 +1,11 @@
-package gr.aegean.service;
+package gr.aegean.service.auth;
 
 import gr.aegean.entity.PasswordResetToken;
 import gr.aegean.repository.PasswordResetRepository;
 import gr.aegean.repository.UserRepository;
-import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;
-import gr.aegean.model.passwordreset.PasswordResetRequest;
-import gr.aegean.model.passwordreset.PasswordResetResponse;
+import gr.aegean.model.auth.PasswordResetConfirmationRequest;
+import gr.aegean.model.auth.PasswordResetRequest;
+import gr.aegean.model.auth.PasswordResetResponse;
 import gr.aegean.utility.StringUtils;
 
 import org.springframework.security.authentication.BadCredentialsException;

@@ -1,6 +1,6 @@
 package gr.aegean.entity;
 
-import gr.aegean.model.analysis.QualityMetric;
+import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.sonarqube.HotspotsReport;
 import gr.aegean.model.analysis.sonarqube.IssuesReport;
 import gr.aegean.model.analysis.sonarqube.Rule;
@@ -28,11 +28,12 @@ public class AnalysisReport {
     private Map<String, Rule> ruleDetails;
     private EnumMap<QualityMetric, Double> qualityMetricReport;
 
-    public AnalysisReport(Map<String, Double> languages,
-                          IssuesReport issuesReport,
-                          HotspotsReport hotspotsReport,
-                          Map<String, Rule> ruleDetails,
-                          EnumMap<QualityMetric, Double> qualityMetricReport) {
+    public AnalysisReport(
+            Map<String, Double> languages,
+            IssuesReport issuesReport,
+            HotspotsReport hotspotsReport,
+            Map<String, Rule> ruleDetails,
+            EnumMap<QualityMetric, Double> qualityMetricReport) {
         this.languages = languages;
         this.issuesReport = issuesReport;
         this.hotspotsReport = hotspotsReport;

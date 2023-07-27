@@ -1,4 +1,4 @@
-package gr.aegean.service;
+package gr.aegean.service.auth;
 
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.entity.User;
@@ -9,6 +9,7 @@ import gr.aegean.model.auth.RegisterRequest;
 import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.model.auth.AuthRequest;
 
+import gr.aegean.service.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

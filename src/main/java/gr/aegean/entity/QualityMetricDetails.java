@@ -1,15 +1,15 @@
 package gr.aegean.entity;
 
-import gr.aegean.model.analysis.QualityMetric;
-import gr.aegean.model.analysis.QualityMetricOperator;
-import lombok.AllArgsConstructor;
+import gr.aegean.model.analysis.quality.QualityMetric;
+import gr.aegean.model.analysis.quality.QualityMetricOperator;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@Setter
 public class QualityMetricDetails {
+    private Integer analysisId;
     private QualityMetric qualityMetric;
     private QualityMetricOperator operator;
     private Double threshold;

@@ -2,6 +2,8 @@ package gr.aegean.service;
 
 import gr.aegean.mapper.PasswordResetTokenRowMapper;
 import gr.aegean.mapper.UserRowMapper;
+import gr.aegean.service.auth.EmailService;
+import gr.aegean.service.auth.PasswordResetService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,10 +18,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import gr.aegean.entity.User;
-import gr.aegean.model.passwordreset.PasswordResetRequest;
-import gr.aegean.model.passwordreset.PasswordResetResponse;
+import gr.aegean.model.auth.PasswordResetRequest;
+import gr.aegean.model.auth.PasswordResetResponse;
 import gr.aegean.entity.PasswordResetToken;
-import gr.aegean.model.passwordreset.PasswordResetConfirmationRequest;
+import gr.aegean.model.auth.PasswordResetConfirmationRequest;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.repository.PasswordResetRepository;
 import gr.aegean.utility.StringUtils;

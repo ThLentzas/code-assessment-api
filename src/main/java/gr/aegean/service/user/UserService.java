@@ -1,4 +1,4 @@
-package gr.aegean.service;
+package gr.aegean.service.user;
 
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
@@ -10,6 +10,7 @@ import gr.aegean.model.user.UserProfile;
 import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
+import gr.aegean.service.auth.EmailService;
 import gr.aegean.utility.StringUtils;
 
 import org.springframework.security.authentication.BadCredentialsException;

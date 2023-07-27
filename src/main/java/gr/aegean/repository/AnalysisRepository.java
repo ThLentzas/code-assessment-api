@@ -28,7 +28,7 @@ public class AnalysisRepository {
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 
-    public Analysis saveAnalysis(Analysis analysis) {
+    public Integer saveAnalysis(Analysis analysis) {
         final String sql = "INSERT INTO analysis(user_id, created_date) VALUES(?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -47,7 +47,7 @@ public class AnalysisRepository {
             }
         }
 
-        return analysis;
+        return analysis.getId();
     }
 
     public void saveAnalysisReport(AnalysisReport report) {
@@ -78,7 +78,7 @@ public class AnalysisRepository {
         }
     }
 
-    public void saveQualityMetricDetails(Integer analysisId, QualityMetricDetails metricDetails) {
+    public void saveQualityMetricDetails(QualityMetricDetails metricDetails) {
         final String sql = "INSERT INTO quality_metric_details(" +
                 "analysis_id, " +
                 "quality_metric, " +
@@ -88,7 +88,7 @@ public class AnalysisRepository {
 
         int insert = jdbcTemplate.update(
                 sql,
-                analysisId,
+                metricDetails.getAnalysisId(),
                 metricDetails.getQualityMetric().name(),
                 metricDetails.getOperator().getSymbol(),
                 metricDetails.getThreshold(),

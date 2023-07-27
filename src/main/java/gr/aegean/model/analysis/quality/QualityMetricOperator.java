@@ -1,4 +1,4 @@
-package gr.aegean.model.analysis;
+package gr.aegean.model.analysis.quality;
 
 import lombok.Getter;
 

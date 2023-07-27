@@ -2,8 +2,8 @@ package gr.aegean.controller;
 
 import gr.aegean.model.analysis.AnalysisReportDTO;
 import gr.aegean.model.analysis.AnalysisRequest;
-import gr.aegean.service.AnalysisService;
-import gr.aegean.service.ProjectService;
+import gr.aegean.service.analysis.AnalysisService;
+import gr.aegean.service.analysis.ProjectService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +36,8 @@ public class AnalysisController {
      */
     @PostMapping
     public ResponseEntity<Void> analyze(@Valid @RequestBody AnalysisRequest analysisRequest,
-                                               HttpServletRequest httpServletRequest,
-                                               UriComponentsBuilder uriBuilder) {
+                                        HttpServletRequest httpServletRequest,
+                                        UriComponentsBuilder uriBuilder) {
         Integer analysisId = projectService.processProject(analysisRequest, httpServletRequest).join();
         URI location = uriBuilder
                 .path("/api/v1/analysis/{analysisId}")

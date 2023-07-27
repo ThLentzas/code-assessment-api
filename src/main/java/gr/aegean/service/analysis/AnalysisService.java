@@ -1,4 +1,4 @@
-package gr.aegean.service;
+package gr.aegean.service.analysis;
 
 import gr.aegean.entity.Analysis;
 import gr.aegean.entity.QualityMetricDetails;
@@ -6,6 +6,7 @@ import gr.aegean.exception.ServerErrorException;
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.mapper.AnalysisReportDTOMapper;
 import gr.aegean.model.analysis.AnalysisReportDTO;
+import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.repository.AnalysisRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.hateoas.Link;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class AnalysisService {
     private final LanguageService languageService;
     private final SonarService sonarService;
+    private final MetricCalculationService metricCalculationService;
     private final AnalysisRepository analysisRepository;
     private final AnalysisReportDTOMapper mapper;
     @Value("${sonar.token}")
@@ -50,9 +53,6 @@ public class AnalysisService {
         try {
             if (detectedLanguages.containsKey("Java")) {
                 if (isMavenProject(projectPath)) {
-                    /*
-                        Returns the docker image in order to be deleted.
-                     */
                     analyzeMavenProject(projectKey, projectPath.toString());
                 }
             } else {
@@ -60,6 +60,11 @@ public class AnalysisService {
             }
 
             analysisReport = sonarService.fetchAnalysisReport(projectKey, detectedLanguages);
+            EnumMap<QualityMetric, Double> updatedQualityMetricReport = metricCalculationService.applyUtf(
+                    analysisReport.getQualityMetricReport(),
+                    analysisReport.getIssuesReport().getIssues());
+
+            analysisReport.setQualityMetricReport(updatedQualityMetricReport);
             analysisReport.setProjectUrl(Link.of(projectUrl));
         } catch (IOException | InterruptedException ioe) {
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
@@ -116,11 +121,11 @@ public class AnalysisService {
                     -Dsonar.login=%s;'
                 """, projectKey, authToken);
 
-            /*
-                1st argument: the path to write the docker file. The root directory of the project
-                2nd argument: the content to write in the file.
-                If there is a dockerfile named "Dockerfile" it will be overwritten by ours.
-             */
+        /*
+            1st argument: the path to write the docker file. The root directory of the project.
+            2nd argument: the content to write in the file.
+            If there is a dockerfile named "Dockerfile" it will be overwritten by ours.
+         */
         Files.write(dockerfilePath, dockerfileContent.getBytes());
     }
 
@@ -166,8 +171,8 @@ public class AnalysisService {
         processBuilder.start();
     }
 
-    public Analysis saveAnalysis(Analysis analysis) {
-        return analysisRepository.saveAnalysis(analysis);
+    public int saveAnalysis(Analysis analysis) {
+       return  analysisRepository.saveAnalysis(analysis);
     }
 
     public void saveAnalysisReport(AnalysisReport analysisReport) {
@@ -175,7 +180,10 @@ public class AnalysisService {
     }
 
     public void saveQualityMetricDetails(Integer analysisId, List<QualityMetricDetails> metricDetails) {
-        metricDetails.forEach(details -> analysisRepository.saveQualityMetricDetails(analysisId, details));
+        metricDetails.forEach(details -> {
+                details.setAnalysisId(analysisId);
+                analysisRepository.saveQualityMetricDetails(details);
+        });
     }
 
     public List<AnalysisReportDTO> findAnalysisReportByAnalysisId(Integer analysisId) {

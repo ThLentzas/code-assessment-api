@@ -1,5 +1,9 @@
 package gr.aegean.service;
 
+import gr.aegean.service.analysis.AnalysisService;
+import gr.aegean.service.analysis.GitHubService;
+import gr.aegean.service.analysis.ProjectService;
+import gr.aegean.service.auth.AuthService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;

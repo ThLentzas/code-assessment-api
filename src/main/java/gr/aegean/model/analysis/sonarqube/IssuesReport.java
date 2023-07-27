@@ -10,7 +10,6 @@ import java.util.List;
     the server to our SonarResponse POJO. This class will map BUGS,CODE SMELLS AND VULNERABILITIES. HOTSPOTS is a
     separate request.
  */
-
 @Getter
 public class IssuesReport {
     private List<IssueDetails> issues;

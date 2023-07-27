@@ -3,7 +3,7 @@ package gr.aegean.deserializer;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import gr.aegean.model.analysis.QualityMetric;
+import gr.aegean.model.analysis.quality.QualityMetric;
 
 import java.io.IOException;
 
@@ -16,7 +16,7 @@ public class QualityMetricDeserializer extends JsonDeserializer<QualityMetric> {
         try {
             return QualityMetric.valueOf(metric);
         } catch (IllegalArgumentException iae) {
-            throw new IllegalArgumentException("Invalid quality metric:" + metric);
+            throw new IllegalArgumentException("Invalid quality metric: " + metric);
         }
     }
 }

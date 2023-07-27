@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import gr.aegean.model.user.UserUpdateEmailRequest;
 import gr.aegean.model.user.UserProfileUpdateRequest;
-import gr.aegean.service.UserService;
+import gr.aegean.service.user.UserService;
 
 import jakarta.validation.Valid;
 
@@ -33,16 +33,18 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/settings/profile")
-    public ResponseEntity<Void> updateProfile(@PathVariable("userId") Integer userId,
-                                              @RequestBody UserProfileUpdateRequest profileUpdateRequest) {
+    public ResponseEntity<Void> updateProfile(
+            @PathVariable("userId") Integer userId,
+            @RequestBody UserProfileUpdateRequest profileUpdateRequest) {
         userService.updateProfile(userId, profileUpdateRequest);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("/{userId}/settings/email")
-    public ResponseEntity<Void> updateEmail(@PathVariable("userId") Integer userId,
-                                            @Valid @RequestBody UserUpdateEmailRequest emailUpdateRequest) {
+    public ResponseEntity<Void> updateEmail(
+            @PathVariable("userId") Integer userId,
+            @Valid @RequestBody UserUpdateEmailRequest emailUpdateRequest) {
         userService.createEmailUpdateToken(userId, emailUpdateRequest);
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -58,8 +60,9 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/settings/password")
-    public ResponseEntity<Void> updatePassword(@PathVariable("userId") Integer userId,
-                                               @Valid @RequestBody UserUpdatePasswordRequest passwordUpdateRequest) {
+    public ResponseEntity<Void> updatePassword(
+            @PathVariable("userId") Integer userId,
+            @Valid @RequestBody UserUpdatePasswordRequest passwordUpdateRequest) {
         userService.updatePassword(userId, passwordUpdateRequest);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

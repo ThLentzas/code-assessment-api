@@ -22,7 +22,7 @@ import gr.aegean.model.user.UserUpdateEmailRequest;
 import gr.aegean.model.user.UserProfile;
 import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.UserRepository;
-import gr.aegean.service.UserService;
+import gr.aegean.service.user.UserService;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;

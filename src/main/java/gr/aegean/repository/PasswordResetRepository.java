@@ -33,6 +33,7 @@ public class PasswordResetRepository {
                 passwordResetToken.userId(),
                 passwordResetToken.token(),
                 passwordResetToken.expiryDate());
+
         if (insert != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }

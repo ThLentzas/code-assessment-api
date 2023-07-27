@@ -1,4 +1,4 @@
-package gr.aegean.service;
+package gr.aegean.service.analysis;
 
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.model.analysis.Language;

@@ -1,4 +1,4 @@
-package gr.aegean.service;
+package gr.aegean.service.analysis;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;

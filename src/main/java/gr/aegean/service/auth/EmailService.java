@@ -1,4 +1,4 @@
-package gr.aegean.service;
+package gr.aegean.service.auth;
 
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
