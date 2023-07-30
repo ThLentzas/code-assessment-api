@@ -70,6 +70,8 @@ public class UserController {
 
     @GetMapping("/{userId}/history")
     public ResponseEntity<List<AnalysisResult>> getHistory(@PathVariable Integer userId) {
-        return null;
+        List<AnalysisResult> history = userService.getHistory(userId);
+
+        return new ResponseEntity<>(history, HttpStatus.OK);
     }
 }

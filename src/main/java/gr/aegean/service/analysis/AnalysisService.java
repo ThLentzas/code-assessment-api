@@ -3,12 +3,17 @@ package gr.aegean.service.analysis;
 import gr.aegean.entity.Analysis;
 import gr.aegean.entity.Constraint;
 import gr.aegean.entity.Preference;
+import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.mapper.dto.AnalysisReportDTOMapper;
 import gr.aegean.model.analysis.AnalysisReportDTO;
+import gr.aegean.model.analysis.AnalysisRequest;
+import gr.aegean.model.analysis.AnalysisResult;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.repository.AnalysisRepository;
+import gr.aegean.service.assessment.AssessmentService;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Service;
@@ -18,10 +23,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
@@ -35,8 +38,12 @@ public class AnalysisService {
     private final MetricCalculationService metricCalculationService;
     private final AnalysisRepository analysisRepository;
     private final AnalysisReportDTOMapper mapper;
+    private final AssessmentService assessmentService;
     @Value("${sonar.token}")
     private String authToken;
+    private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
+            "complete your request. Please try again later.";
+
 
     public Optional<AnalysisReport> analyzeProject(Path projectPath, String projectUrl) {
         AnalysisReport analysisReport;
@@ -69,8 +76,7 @@ public class AnalysisService {
             analysisReport.setQualityMetricsReport(updatedQualityMetricsReport);
             analysisReport.setProjectUrl(Link.of(projectUrl));
         } catch (IOException | InterruptedException ioe) {
-            throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
-                    "request. Please try again later.");
+            throw new ServerErrorException(SERVER_ERROR_MSG);
         }
 
         return Optional.of(analysisReport);
@@ -105,8 +111,7 @@ public class AnalysisService {
             dockerImage = buildDockerImage(projectPath, processBuilder);
             runDockerContainer(dockerImage, projectPath, processBuilder);
         } catch (IOException | InterruptedException ie) {
-            throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
-                    "request. Please try again later.");
+            throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }
 
@@ -173,48 +178,80 @@ public class AnalysisService {
         processBuilder.start();
     }
 
-    public int saveAnalysis(Analysis analysis) {
-       return  analysisRepository.saveAnalysis(analysis);
+    public Integer saveAnalysisProcess(Integer userId, List<AnalysisReport> reports, AnalysisRequest analysisRequest) {
+        Integer analysisId = saveAnalysis(userId);
+        saveAllAnalysisReports(analysisId, reports);
+        saveConstraint(analysisId, analysisRequest.constraints());
+        savePreference(analysisId, analysisRequest.preferences());
+
+        return analysisId;
     }
 
-    public void saveAnalysisReport(AnalysisReport analysisReport) {
-        analysisRepository.saveAnalysisReport(analysisReport);
+    public AnalysisResult findAnalysisResultByAnalysisId(Integer analysisId) {
+        Analysis analysis = analysisRepository.findAnalysisByAnalysisId(analysisId).orElseThrow(() ->
+                new ResourceNotFoundException("No analysis was found for analysis id: "+ analysisId));
+        List<AnalysisReport> reports = analysisRepository.findAnalysisReportsByAnalysisId(analysisId).orElseThrow(() ->
+                new ResourceNotFoundException("Analysis reports were not found for analysis with id: " + analysisId));
+
+        /*
+            If no constraints or/and no preferences were found meaning no constraints or/and no preferences were
+             provided for the specific analysis, we have an empty list.
+         */
+        List<Constraint> constraints = analysisRepository.findAnalysisConstraintsByAnalysisId(analysisId).orElse(
+                Collections.emptyList());
+        List<Preference> preferences = analysisRepository.findAnalysisPreferencesByAnalysisId(analysisId).orElse(
+                Collections.emptyList());
+
+        List<List<AnalysisReport>> rankedReports = assessmentService.assessAnalysisResult(
+                reports, constraints, preferences);
+
+        List<List<AnalysisReportDTO>> rankedReportsDTO = rankedReports.stream()
+                .map(list -> list.stream()
+                        .map(mapper)
+                        .toList())
+                .toList();
+
+        return new AnalysisResult(rankedReportsDTO, analysis.getCreatedDate());
     }
 
-    public void saveConstraint(Integer analysisId, List<Constraint> constraints) {
-        constraints.forEach(constraint -> {
-                constraint.setAnalysisId(analysisId);
-                analysisRepository.saveAnalysisConstraint(constraint);
-        });
-    }
-
-    public void savePreference(Integer analysisId, List<Preference> preferences) {
-        preferences.forEach(preference -> {
-            preference.setAnalysisId(analysisId);
-            analysisRepository.saveAnalysisPreference(preference);
-        });
-    }
-
-    public List<AnalysisReport> findAnalysisReportsByAnalysisId(Integer analysisId) {
-        return analysisRepository.findAnalysisReportsByAnalysisId(analysisId).orElseThrow(() ->
-                new ServerErrorException("The server encountered an internal error and was unable to complete your " +
-                        "request. Please try again later."));
-    }
-
-    public List<Preference> findAnalysisPreferenceByAnalysisId(Integer analysisId) {
-        return analysisRepository.findAnalysisPreferencesByAnalysisId(analysisId);
-    }
-
-    public List<Constraint> findAnalysisConstraintsByAnalysisId(Integer analysisId) {
-        return analysisRepository.findAnalysisConstraintsByAnalysisId(analysisId);
-    }
-
-    public AnalysisReportDTO findAnalysisReportById(Integer analysisId) {
-        AnalysisReport report = analysisRepository.findAnalysisReportById(analysisId).orElseThrow(() ->
-                new ServerErrorException("The server encountered an internal error and was unable " + "to complete " +
-                        "your request. Please try again later."));
+    public AnalysisReportDTO findAnalysisReportById(Integer reportId) {
+        AnalysisReport report = analysisRepository.findAnalysisReportByReportId(reportId).orElseThrow(() ->
+                new ResourceNotFoundException("Analysis report was not found for analysis with id" + reportId));
 
         return mapper.apply(report);
+    }
+
+    public List<Analysis> findAnalysesByUserId(Integer userId) {
+        return analysisRepository.findAnalysesByUserId(userId).orElse(Collections.emptyList());
+    }
+
+    private int saveAnalysis(Integer userId) {
+        return analysisRepository.saveAnalysis(new Analysis(userId, LocalDateTime.now()));
+    }
+
+    private void saveAllAnalysisReports(Integer analysisId, List<AnalysisReport> reports) {
+        reports.forEach(report -> {
+            report.setAnalysisId(analysisId);
+            analysisRepository.saveAnalysisReport(report);
+        });
+    }
+
+    private void saveConstraint(Integer analysisId, List<Constraint> constraints) {
+        if (constraints != null && !constraints.isEmpty()) {
+            constraints.forEach(constraint -> {
+                constraint.setAnalysisId(analysisId);
+                analysisRepository.saveAnalysisConstraint(constraint);
+            });
+        }
+    }
+
+    private void savePreference(Integer analysisId, List<Preference> preferences) {
+        if (preferences != null && !preferences.isEmpty()) {
+            preferences.forEach(preference -> {
+                preference.setAnalysisId(analysisId);
+                analysisRepository.saveAnalysisPreference(preference);
+            });
+        }
     }
 }
 

@@ -8,6 +8,7 @@ import gr.aegean.entity.Constraint;
 import gr.aegean.entity.Preference;
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.mapper.row.AnalysisReportRowMapper;
+import gr.aegean.mapper.row.AnalysisRowMapper;
 import gr.aegean.mapper.row.ConstraintRowMapper;
 import gr.aegean.mapper.row.PreferenceRowMapper;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AnalysisRepository {
     private final JdbcTemplate jdbcTemplate;
+    private final AnalysisRowMapper analysisRowMapper;
     private final AnalysisReportRowMapper reportRowMapper;
     private final PreferenceRowMapper preferenceRowMapper;
     private final ConstraintRowMapper constraintRowMapper;
@@ -126,7 +128,7 @@ public class AnalysisRepository {
         return Optional.of(reports);
     }
 
-    public Optional<AnalysisReport> findAnalysisReportById(Integer reportId) {
+    public Optional<AnalysisReport> findAnalysisReportByReportId(Integer reportId) {
         final String sql = "SELECT id, report FROM analysis_report WHERE id = ?";
         List<AnalysisReport> reports = jdbcTemplate.query(sql, reportRowMapper, reportId);
 
@@ -134,20 +136,45 @@ public class AnalysisRepository {
     }
 
     /*
-        Returns an empty list if non found.
+        Returns an empty list if not found. We don't have to return an optional here. An empty list means no preferences
+         were provided.
      */
-    public List<Preference> findAnalysisPreferencesByAnalysisId(Integer analysisId) {
-        final String sql = "SELECT quality_attribute, weight FROM analysis_preference WHERE analysis_id = ?";
+    public Optional<List<Preference>> findAnalysisPreferencesByAnalysisId(Integer analysisId) {
+        final String sql = "SELECT " +
+                "analysis_id, " +
+                "quality_attribute, " +
+                "weight FROM analysis_preference WHERE analysis_id = ?";
+        List<Preference> preferences = jdbcTemplate.query(sql, preferenceRowMapper, analysisId);
 
-        return jdbcTemplate.query(sql, preferenceRowMapper, analysisId);
+        return Optional.of(preferences);
     }
 
     /*
-    Returns an empty list if non found.
- */
-    public List<Constraint> findAnalysisConstraintsByAnalysisId(Integer analysisId) {
-        final String sql = "SELECT quality_metric, operator, threshold FROM analysis_constraint WHERE analysis_id = ?";
+        Returns an empty list if not found. We don't have to return an optional here. An empty list means no constraints
+         were provided.
+     */
+    public Optional<List<Constraint>> findAnalysisConstraintsByAnalysisId(Integer analysisId) {
+        final String sql = "SELECT " +
+                "analysis_id, " +
+                "quality_metric, " +
+                "operator, " +
+                "threshold FROM analysis_constraint WHERE analysis_id = ?";
+        List<Constraint> constraints = jdbcTemplate.query(sql, constraintRowMapper, analysisId);
 
-        return jdbcTemplate.query(sql, constraintRowMapper, analysisId);
+        return Optional.of(constraints);
+    }
+
+    public Optional<List<Analysis>> findAnalysesByUserId(Integer userId) {
+        final String sql = "SELECT id, user_id, created_date FROM analysis WHERE user_id = ? ORDER BY created_date DESC";
+        List<Analysis> analyses = jdbcTemplate.query(sql, analysisRowMapper, userId);
+
+        return Optional.of(analyses);
+    }
+
+    public Optional<Analysis> findAnalysisByAnalysisId(Integer analysisId) {
+        final String sql = "SELECT id, user_id, created_date FROM analysis WHERE id = ?";
+        List<Analysis> analyses = jdbcTemplate.query(sql, analysisRowMapper, analysisId);
+
+        return analyses.stream().findFirst();
     }
 }

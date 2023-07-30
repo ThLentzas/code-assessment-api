@@ -1,4 +1,4 @@
-package gr.aegean.service.analysis;
+package gr.aegean.service.assessment;
 
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.entity.Constraint;
@@ -12,7 +12,7 @@ import java.util.List;
 public class FilteringService {
     public List<List<AnalysisReport>> filter(List<AnalysisReport> reports, List<Constraint> constraints) {
         /*
-            If all reports are compliant or all reports are non-compliant, in each case an empty list will be returned.
+            An empty list will be returned for compliant if all reports belong to non-compliant and vice versa.
          */
         List<AnalysisReport> compliant = new ArrayList<>();
         List<AnalysisReport> nonCompliant = new ArrayList<>();

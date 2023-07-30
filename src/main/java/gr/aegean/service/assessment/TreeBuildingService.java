@@ -1,4 +1,4 @@
-package gr.aegean.service.analysis;
+package gr.aegean.service.assessment;
 
 import gr.aegean.model.analysis.quality.TreeNode;
 import org.springframework.stereotype.Service;

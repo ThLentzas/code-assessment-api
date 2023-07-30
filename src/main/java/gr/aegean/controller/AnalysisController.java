@@ -15,7 +15,7 @@ import gr.aegean.model.analysis.AnalysisReportDTO;
 import gr.aegean.model.analysis.AnalysisRequest;
 import gr.aegean.model.analysis.AnalysisResult;
 import gr.aegean.service.analysis.AnalysisService;
-import gr.aegean.service.analysis.AssessmentService;
+import gr.aegean.service.analysis.AsyncService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -29,7 +29,7 @@ import java.net.URI;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/analysis")
 public class AnalysisController {
-    private final AssessmentService assessmentService;
+    private final AsyncService asyncService;
     private final AnalysisService analysisService;
 
     /*
@@ -41,7 +41,7 @@ public class AnalysisController {
     public ResponseEntity<Void> analyze(@Valid @RequestBody AnalysisRequest analysisRequest,
                                         HttpServletRequest httpServletRequest,
                                         UriComponentsBuilder uriBuilder) {
-        Integer analysisId = assessmentService.processProject(analysisRequest, httpServletRequest).join();
+        Integer analysisId = asyncService.processProject(analysisRequest, httpServletRequest).join();
         URI location = uriBuilder
                 .path("/api/v1/analysis/{analysisId}")
                 .buildAndExpand(analysisId)
@@ -55,7 +55,7 @@ public class AnalysisController {
 
     @GetMapping("/{analysisId}")
     public ResponseEntity<AnalysisResult> getAnalysisResult(@PathVariable Integer analysisId) {
-        AnalysisResult result = assessmentService.findAnalysisResultByAnalysisId(analysisId);
+        AnalysisResult result = analysisService.findAnalysisResultByAnalysisId(analysisId);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

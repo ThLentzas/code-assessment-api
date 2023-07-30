@@ -1,15 +1,19 @@
 package gr.aegean.service.user;
 
+import gr.aegean.entity.Analysis;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.entity.EmailUpdateToken;
 import gr.aegean.entity.User;
+import gr.aegean.model.analysis.AnalysisRequest;
+import gr.aegean.model.analysis.AnalysisResult;
 import gr.aegean.model.user.UserUpdateEmailRequest;
 import gr.aegean.model.user.UserUpdatePasswordRequest;
 import gr.aegean.model.user.UserProfile;
 import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
+import gr.aegean.service.analysis.AnalysisService;
 import gr.aegean.service.auth.EmailService;
 import gr.aegean.utility.StringUtils;
 
@@ -18,6 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -30,7 +37,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final EmailUpdateRepository emailUpdateRepository;
     private final EmailService emailService;
+    private final AnalysisService analysisService;
     private final PasswordEncoder passwordEncoder;
+
 
     /**
      * @return the ID of the newly registered user for the URI
@@ -172,6 +181,26 @@ public class UserService {
                 }, () -> {
                     throw new ResourceNotFoundException("User with id: " + userId + " not found");
                 });
+    }
+
+    public List<AnalysisResult> getHistory(Integer userId) {
+        List<AnalysisResult> history = new ArrayList<>();
+        List<Analysis> analyses = analysisService.findAnalysesByUserId(userId);
+        AnalysisResult analysisResult;
+
+        /*
+            If the user has no previous history, we won't return 404, but 200 with an empty list.
+         */
+        if(analyses.isEmpty()) {
+            return history;
+        }
+
+        for(Analysis analysis : analyses) {
+            analysisResult = analysisService.findAnalysisResultByAnalysisId(analysis.getId());
+            history.add(analysisResult);
+        }
+
+        return history;
     }
 
     public void validateUser(User user) {

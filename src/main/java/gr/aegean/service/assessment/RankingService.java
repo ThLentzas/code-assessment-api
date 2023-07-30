@@ -1,4 +1,4 @@
-package gr.aegean.service.analysis;
+package gr.aegean.service.assessment;
 
 import gr.aegean.entity.Preference;
 import gr.aegean.model.analysis.quality.QualityMetric;
