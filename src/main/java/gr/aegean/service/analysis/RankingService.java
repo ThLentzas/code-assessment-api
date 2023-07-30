@@ -65,21 +65,20 @@ public class RankingService {
         }
 
         // TODO: 7/29/2023 This validation needs to be performed by the frontend before the analysis actually runs.
-        if(sum > 1.0) {
+        if(sum < 0.0) {
             throw new IllegalArgumentException("The sum of the weight of all children should not be greater than 1");
         }
 
         double weightToDistribute = sum / nodesWithoutWeight.size();
         nodesWithoutWeight.forEach(nodeWithoutWeight -> nodeWithoutWeight.setWeight(weightToDistribute));
-
-        // Recursive call for each child node
+        
         for (TreeNode child : node.getChildren()) {
             assignWeight(child, preferences);
         }
     }
 
     /*
-        Assigning the values to the leaf nodes(metrics), to later calculate the value of the parent node.
+        Assigning the values to the leaf nodes(metrics), to calculate the value of the parent node.
      */
     private void assignLeafNodeValue(TreeNode node, EnumMap<QualityMetric, Double> qualityMetricsReport) {
         if(isLeafNode(node)) {

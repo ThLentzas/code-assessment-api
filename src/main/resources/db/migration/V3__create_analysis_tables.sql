@@ -47,12 +47,12 @@ CREATE TABLE IF NOT EXISTS analysis_report (
 );
 
 CREATE TYPE operator AS ENUM (
-    '>',
-    '>=',
-    '<',
-    '<=',
-    '==',
-    '<>'
+    'GT',
+    'GTE',
+    'LT',
+    'LTE',
+    'EQ',
+    'NEQ'
 );
 
 /*

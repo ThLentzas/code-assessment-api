@@ -4,15 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 
 import gr.aegean.entity.Analysis;
+import gr.aegean.entity.Constraint;
 import gr.aegean.entity.Preference;
 import gr.aegean.mapper.dto.AnalysisReportDTOMapper;
 import gr.aegean.model.analysis.AnalysisReportDTO;
@@ -32,10 +33,11 @@ import gr.aegean.entity.AnalysisReport;
 
 
 @Service
-public class ProjectService {
+public class AssessmentService {
     private final GitHubService gitHubService;
     private final AnalysisService analysisService;
     private final AuthService authService;
+    private final FilteringService filteringService;
     private final RankingService rankingService;
     private final AnalysisReportDTOMapper mapper;
     private final Executor taskExecutor;
@@ -43,19 +45,21 @@ public class ProjectService {
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 
-    public ProjectService(GitHubService gitHubService,
-                          AnalysisService analysisService,
-                          AuthService authService,
-                          RankingService rankingService,
-                          AnalysisReportDTOMapper mapper,
+    public AssessmentService(GitHubService gitHubService,
+                             AnalysisService analysisService,
+                             AuthService authService,
+                             FilteringService filteringService,
+                             RankingService rankingService,
+                             AnalysisReportDTOMapper mapper,
                           /*
                                 The default one and the one we configured, so we have to use @Qualifier
                            */
                           @Qualifier("taskExecutor") Executor taskExecutor,
-                          @Value("${projects.base-directory}") String baseDirectoryPath) {
+                             @Value("${projects.base-directory}") String baseDirectoryPath) {
         this.gitHubService = gitHubService;
         this.analysisService = analysisService;
         this.authService = authService;
+        this.filteringService = filteringService;
         this.rankingService = rankingService;
         this.taskExecutor = taskExecutor;
         this.mapper = mapper;
@@ -110,46 +114,51 @@ public class ProjectService {
     public AnalysisResult findAnalysisResultByAnalysisId(Integer analysisId) {
         List<AnalysisReport> reports = analysisService.findAnalysisReportsByAnalysisId(analysisId);
         List<Preference> preferences = analysisService.findAnalysisPreferenceByAnalysisId(analysisId);
-
-        reports = reports.stream()
-                //Map is an alternative.
-                .peek(report -> report.setRank(rankingService.rankTree(report.getQualityMetricsReport(), preferences)))
-                //Descending order based on the rank.
-                .sorted(Comparator.comparing(AnalysisReport::getRank).reversed())
-                .toList();
-
-        List<AnalysisReportDTO> reportDTOS = reports.stream()
-                .map(mapper)
-                .toList();
-
-        return new AnalysisResult(List.of(reportDTOS));
-    }
-
-    private Optional<Path> cloneProject(File requestFolder, String projectUrl) {
-        if (!gitHubService.isValidGitHubUrl(projectUrl)) {
-            return Optional.empty();
-        }
+        List<Constraint> constraints = analysisService.findAnalysisConstraintsByAnalysisId(analysisId);
 
         /*
-            We need two unique ids, 1 for the folder inside Projects and 1 for each repository we download.
-            F:\Projects\UUID1\UUID2, F:\Projects\UUID1\UUID3. Each request will have a unique subfolder in the
-            Projects folder that will contain all the repositories for that request.
-        */
-        File projectFile = new File(requestFolder, UUID.randomUUID().toString());
-        try (Git git = gitHubService.cloneRepository(projectUrl, projectFile)) {
-            /*
-                Exception will be thrown when repository is private.
-             */
-        } catch (GitAPIException gae) {
-            return Optional.empty();
+            No constraints -> no filtering
+         */
+        if (constraints.isEmpty()) {
+            reports = reports.stream()
+                    //Map is an alternative.
+                    .peek(report ->
+                            report.setRank(rankingService.rankTree(report.getQualityMetricsReport(), preferences)))
+                    //Descending order based on the rank.
+                    .sorted(Comparator.comparing(AnalysisReport::getRank).reversed())
+                    .toList();
+
+            List<AnalysisReportDTO> reportDTOS = reports.stream()
+                    .map(mapper)
+                    .toList();
+
+            return new AnalysisResult(List.of(reportDTOS));
         }
 
-        return Optional.of(projectFile.toPath());
+        List<List<AnalysisReport>> filteredReportsList = filteringService.filter(reports, constraints);
+        List<List<AnalysisReportDTO>> rankedFilteredReports = new ArrayList<>();
+
+        for(List<AnalysisReport> filteredReports : filteredReportsList) {
+            filteredReports = filteredReports.stream()
+                    .peek(filteredReport ->
+                            filteredReport.setRank(rankingService.rankTree(
+                                    filteredReport.getQualityMetricsReport(), preferences)))
+                    .sorted(Comparator.comparing(AnalysisReport::getRank).reversed())
+                    .toList();
+
+            List<AnalysisReportDTO> filteredReportsDTOS = filteredReports.stream()
+                    .map(mapper)
+                    .toList();
+
+            rankedFilteredReports.add(filteredReportsDTOS);
+        }
+
+        return new AnalysisResult(rankedFilteredReports);
     }
 
     private CompletableFuture<Optional<AnalysisReport>> cloneAndAnalyzeProjectAsync(File requestFolder,
                                                                                     String projectUrl) {
-        return CompletableFuture.supplyAsync(() -> cloneProject(requestFolder, projectUrl)
+        return CompletableFuture.supplyAsync(() -> gitHubService.cloneProject(requestFolder, projectUrl)
                 .flatMap(projectPath -> analysisService.analyzeProject(projectPath, projectUrl)), taskExecutor);
     }
 

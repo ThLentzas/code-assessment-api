@@ -8,6 +8,7 @@ import gr.aegean.entity.Constraint;
 import gr.aegean.entity.Preference;
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.mapper.row.AnalysisReportRowMapper;
+import gr.aegean.mapper.row.ConstraintRowMapper;
 import gr.aegean.mapper.row.PreferenceRowMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,6 +29,7 @@ public class AnalysisRepository {
     private final JdbcTemplate jdbcTemplate;
     private final AnalysisReportRowMapper reportRowMapper;
     private final PreferenceRowMapper preferenceRowMapper;
+    private final ConstraintRowMapper constraintRowMapper;
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 
@@ -92,7 +94,7 @@ public class AnalysisRepository {
                 sql,
                 constraint.getAnalysisId(),
                 constraint.getQualityMetric().name(),
-                constraint.getOperator().getSymbol(),
+                constraint.getOperator().name(),
                 constraint.getThreshold());
 
         if (insert != 1) {
@@ -138,5 +140,14 @@ public class AnalysisRepository {
         final String sql = "SELECT quality_attribute, weight FROM analysis_preference WHERE analysis_id = ?";
 
         return jdbcTemplate.query(sql, preferenceRowMapper, analysisId);
+    }
+
+    /*
+    Returns an empty list if non found.
+ */
+    public List<Constraint> findAnalysisConstraintsByAnalysisId(Integer analysisId) {
+        final String sql = "SELECT quality_metric, operator, threshold FROM analysis_constraint WHERE analysis_id = ?";
+
+        return jdbcTemplate.query(sql, constraintRowMapper, analysisId);
     }
 }

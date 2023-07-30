@@ -205,6 +205,10 @@ public class AnalysisService {
         return analysisRepository.findAnalysisPreferencesByAnalysisId(analysisId);
     }
 
+    public List<Constraint> findAnalysisConstraintsByAnalysisId(Integer analysisId) {
+        return analysisRepository.findAnalysisConstraintsByAnalysisId(analysisId);
+    }
+
     public AnalysisReportDTO findAnalysisReportById(Integer analysisId) {
         AnalysisReport report = analysisRepository.findAnalysisReportById(analysisId).orElseThrow(() ->
                 new ServerErrorException("The server encountered an internal error and was unable " + "to complete " +

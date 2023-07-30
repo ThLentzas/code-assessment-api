@@ -14,6 +14,7 @@ public class PreferenceRowMapper implements RowMapper<Preference> {
     @Override
     public Preference mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         return new Preference(
+                resultSet.getInt("analysis_id"),
                 QualityAttribute.valueOf(resultSet.getString("quality_attribute")),
                 resultSet.getDouble("weight"));
     }

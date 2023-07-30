@@ -1,10 +1,7 @@
 package gr.aegean.service;
 
 import gr.aegean.mapper.dto.AnalysisReportDTOMapper;
-import gr.aegean.service.analysis.AnalysisService;
-import gr.aegean.service.analysis.GitHubService;
-import gr.aegean.service.analysis.ProjectService;
-import gr.aegean.service.analysis.RankingService;
+import gr.aegean.service.analysis.*;
 import gr.aegean.service.auth.AuthService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +24,7 @@ import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(MockitoExtension.class)
-class ProjectServiceTest {
+class AssessmentServiceTest {
     /*
         Based on documentation, it will create a single directory path for the entire class.Recommended
      */
@@ -44,11 +41,13 @@ class ProjectServiceTest {
     @Mock
     private AuthService authService;
     @Mock
+    private FilteringService filteringService;
+    @Mock
     private RankingService rankingService;
     private final AnalysisReportDTOMapper mapper = new AnalysisReportDTOMapper();
     @Mock
     private Executor taskExecutor;
-    private ProjectService underTest;
+    private AssessmentService underTest;
 
     @BeforeAll
     static void beforeAll() {
@@ -57,10 +56,11 @@ class ProjectServiceTest {
 
     @BeforeEach
     void setup() throws Exception {
-        underTest = new ProjectService(
+        underTest = new AssessmentService(
                 gitHubService,
                 analysisService,
                 authService,
+                filteringService,
                 rankingService,
                 mapper,
                 taskExecutor,
