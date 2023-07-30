@@ -1,6 +1,7 @@
 package gr.aegean.mapper;
 
 import gr.aegean.entity.User;
+import gr.aegean.mapper.dto.UserDTOMapper;
 import gr.aegean.model.user.UserDTO;
 
 import static org.assertj.core.api.Assertions.assertThat;

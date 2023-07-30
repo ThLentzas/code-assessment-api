@@ -1,10 +1,11 @@
 package gr.aegean.service.analysis;
 
 import gr.aegean.entity.Analysis;
-import gr.aegean.entity.QualityMetricDetails;
+import gr.aegean.entity.Constraint;
+import gr.aegean.entity.Preference;
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.entity.AnalysisReport;
-import gr.aegean.mapper.AnalysisReportDTOMapper;
+import gr.aegean.mapper.dto.AnalysisReportDTOMapper;
 import gr.aegean.model.analysis.AnalysisReportDTO;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.repository.AnalysisRepository;
@@ -60,11 +61,12 @@ public class AnalysisService {
             }
 
             analysisReport = sonarService.fetchAnalysisReport(projectKey, detectedLanguages);
-            EnumMap<QualityMetric, Double> updatedQualityMetricReport = metricCalculationService.applyUtf(
-                    analysisReport.getQualityMetricReport(),
-                    analysisReport.getIssuesReport().getIssues());
+            EnumMap<QualityMetric, Double> updatedQualityMetricsReport = metricCalculationService.applyUtf(
+                    analysisReport.getQualityMetricsReport(),
+                    analysisReport.getIssuesReport().getIssues(),
+                    analysisReport.getHotspotsReport().getHotspots());
 
-            analysisReport.setQualityMetricReport(updatedQualityMetricReport);
+            analysisReport.setQualityMetricsReport(updatedQualityMetricsReport);
             analysisReport.setProjectUrl(Link.of(projectUrl));
         } catch (IOException | InterruptedException ioe) {
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
@@ -179,21 +181,28 @@ public class AnalysisService {
         analysisRepository.saveAnalysisReport(analysisReport);
     }
 
-    public void saveQualityMetricDetails(Integer analysisId, List<QualityMetricDetails> metricDetails) {
-        metricDetails.forEach(details -> {
-                details.setAnalysisId(analysisId);
-                analysisRepository.saveQualityMetricDetails(details);
+    public void saveConstraint(Integer analysisId, List<Constraint> constraints) {
+        constraints.forEach(constraint -> {
+                constraint.setAnalysisId(analysisId);
+                analysisRepository.saveAnalysisConstraint(constraint);
         });
     }
 
-    public List<AnalysisReportDTO> findAnalysisReportByAnalysisId(Integer analysisId) {
-        List<AnalysisReport> reports = analysisRepository.findAnalysisReportByAnalysisId(analysisId).orElseThrow(() ->
+    public void savePreference(Integer analysisId, List<Preference> preferences) {
+        preferences.forEach(preference -> {
+            preference.setAnalysisId(analysisId);
+            analysisRepository.saveAnalysisPreference(preference);
+        });
+    }
+
+    public List<AnalysisReport> findAnalysisReportsByAnalysisId(Integer analysisId) {
+        return analysisRepository.findAnalysisReportsByAnalysisId(analysisId).orElseThrow(() ->
                 new ServerErrorException("The server encountered an internal error and was unable to complete your " +
                         "request. Please try again later."));
+    }
 
-        return reports.stream()
-                .map(mapper)
-                .toList();
+    public List<Preference> findAnalysisPreferenceByAnalysisId(Integer analysisId) {
+        return analysisRepository.findAnalysisPreferencesByAnalysisId(analysisId);
     }
 
     public AnalysisReportDTO findAnalysisReportById(Integer analysisId) {

@@ -1,4 +1,4 @@
-package gr.aegean.mapper;
+package gr.aegean.mapper.dto;
 
 import gr.aegean.entity.User;
 import gr.aegean.model.user.UserDTO;

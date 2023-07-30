@@ -93,13 +93,13 @@ public class SonarService {
 
         IssuesReport issuesReport = fetchIssues(restTemplate, entity, projectKey);
         HotspotsReport hotspotsReport = fetchHotspots(restTemplate, entity, projectKey);
-        Map<String, Rule> ruleDetails = mapRuleToRuleDetails(restTemplate, entity, issuesReport, hotspotsReport);
+        Map<String, Rule> rulesDetails = mapRuleToRuleDetails(restTemplate, entity, issuesReport, hotspotsReport);
         EnumMap<QualityMetric, Double> qualityMetricReport = getQualityMetrics(
                 restTemplate,
                 entity,
                 projectKey);
 
-        return new AnalysisReport(languages, issuesReport, hotspotsReport, ruleDetails, qualityMetricReport);
+        return new AnalysisReport(languages, issuesReport, hotspotsReport, rulesDetails, qualityMetricReport);
     }
 
     private boolean projectExists(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
@@ -211,7 +211,7 @@ public class SonarService {
                                                    HttpEntity<String> entity,
                                                    IssuesReport issuesReport,
                                                    HotspotsReport hotspotsReport) {
-        Map<String, Rule> ruleDetails = new HashMap<>();
+        Map<String, Rule> rulesDetails = new HashMap<>();
 
         /*
             For each HOTSPOT rule we are getting the rule details.
@@ -227,7 +227,7 @@ public class SonarService {
                             Rule.class
                     );
 
-                    ruleDetails.put(ruleKey, response.getBody());
+                    rulesDetails.put(ruleKey, response.getBody());
                 });
 
         /*
@@ -244,52 +244,52 @@ public class SonarService {
                             Rule.class
                     );
 
-                    ruleDetails.put(rule, response.getBody());
+                    rulesDetails.put(rule, response.getBody());
                 });
 
-        return ruleDetails;
+        return rulesDetails;
     }
 
-    private EnumMap<QualityMetric, Double> getQualityMetrics(
-            RestTemplate restTemplate,
-            HttpEntity<String> entity,
-            String projectKey) {
-        EnumMap<QualityMetric, Double> metricReport = new EnumMap<>(QualityMetric.class);
+    private EnumMap<QualityMetric, Double> getQualityMetrics(RestTemplate restTemplate,
+                                                             HttpEntity<String> entity,
+                                                             String projectKey) {
+        EnumMap<QualityMetric, Double> metricsReport = new EnumMap<>(QualityMetric.class);
 
         double linesOfCodeValue = fetchLinesOfCode(restTemplate, entity, projectKey);
-        metricReport.put(QualityMetric.LINES_OF_CODE, linesOfCodeValue);
+        metricsReport.put(QualityMetric.LINES_OF_CODE, linesOfCodeValue);
+
 
         //Comprehension
         double commentRateValue = fetchCommentRate(restTemplate, entity, projectKey);
-        metricReport.put(QualityMetric.COMMENT_RATE, commentRateValue);
+        metricsReport.put(QualityMetric.COMMENT_RATE, commentRateValue);
 
         //Simplicity
         double methodSizeValue = fetchMethodSize(restTemplate, entity, projectKey);
-        metricReport.put(QualityMetric.METHOD_SIZE, methodSizeValue);
+        metricsReport.put(QualityMetric.METHOD_SIZE, methodSizeValue);
 
         //Maintainability
         double duplicationValue = fetchDuplication(restTemplate, entity, projectKey);
-        metricReport.put(QualityMetric.DUPLICATION, duplicationValue);
+        metricsReport.put(QualityMetric.DUPLICATION, duplicationValue);
 
-        double technicalDeptRatioValue = fetchTechnicalDeptRatio(restTemplate, entity, projectKey);
-        metricReport.put(QualityMetric.TECHNICAL_DEBT_RATIO, technicalDeptRatioValue);
+        double technicalDebtRatioValue = fetchTechnicalDebtRatio(restTemplate, entity, projectKey);
+        metricsReport.put(QualityMetric.TECHNICAL_DEBT_RATIO, technicalDebtRatioValue);
 
         //Reliability
         double reliabilityRemediationEffortValue = fetchReliabilityRemediationEffort(restTemplate, entity, projectKey);
-        metricReport.put(QualityMetric.RELIABILITY_REMEDIATION_EFFORT, reliabilityRemediationEffortValue);
+        metricsReport.put(QualityMetric.RELIABILITY_REMEDIATION_EFFORT, reliabilityRemediationEffortValue);
 
         //Complexity
         double cognitiveComplexityValue = fetchCognitiveComplexity(restTemplate, entity, projectKey);
-        metricReport.put(QualityMetric.COGNITIVE_COMPLEXITY, cognitiveComplexityValue);
+        metricsReport.put(QualityMetric.COGNITIVE_COMPLEXITY, cognitiveComplexityValue);
 
         double cyclomaticComplexityValue = fetchCyclomaticComplexity(restTemplate, entity, projectKey);
-        metricReport.put(QualityMetric.CYCLOMATIC_COMPLEXITY, cyclomaticComplexityValue);
+        metricsReport.put(QualityMetric.CYCLOMATIC_COMPLEXITY, cyclomaticComplexityValue);
 
         //Security
         double securityRemediationEffortValue = fetchSecurityRemediationEffort(restTemplate, entity, projectKey);
-        metricReport.put(QualityMetric.SECURITY_REMEDIATION_EFFORT, securityRemediationEffortValue);
+        metricsReport.put(QualityMetric.SECURITY_REMEDIATION_EFFORT, securityRemediationEffortValue);
 
-        return metricReport;
+        return metricsReport;
     }
 
     private double fetchCommentRate(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
@@ -348,13 +348,13 @@ public class SonarService {
         return qualityMetricReport.getMeasures().get(0).getValue() / 100;
     }
 
-    private double fetchTechnicalDeptRatio(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
-        String technicalDeptRatioUrl = String.format("http://localhost:9000/api/measures/search?"
+    private double fetchTechnicalDebtRatio(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
+        String technicalDebtRatioUrl = String.format("http://localhost:9000/api/measures/search?"
                 + "projectKeys=%s"
                 + "&metricKeys=sqale_debt_ratio", projectKey);
 
         ResponseEntity<QualityMetricReport> response = restTemplate.exchange(
-                technicalDeptRatioUrl,
+                technicalDebtRatioUrl,
                 HttpMethod.GET,
                 entity,
                 QualityMetricReport.class);

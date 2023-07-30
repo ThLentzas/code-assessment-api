@@ -13,7 +13,7 @@ public class HotspotsReport {
     public static class HotspotDetails {
         private String component;
         private String securityCategory;
-        private String vulnerabilityProbability;
+        private VulnerabilityProbability vulnerabilityProbability;
         private Integer line;
         private String message;
         private String ruleKey;

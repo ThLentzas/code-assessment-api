@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gr.aegean.entity.Analysis;
 import gr.aegean.entity.AnalysisReport;
-import gr.aegean.entity.QualityMetricDetails;
+import gr.aegean.entity.Constraint;
+import gr.aegean.entity.Preference;
 import gr.aegean.exception.ServerErrorException;
-import gr.aegean.mapper.AnalysisReportRowMapper;
+import gr.aegean.mapper.row.AnalysisReportRowMapper;
+import gr.aegean.mapper.row.PreferenceRowMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -24,7 +26,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AnalysisRepository {
     private final JdbcTemplate jdbcTemplate;
-    private final AnalysisReportRowMapper rowMapper;
+    private final AnalysisReportRowMapper reportRowMapper;
+    private final PreferenceRowMapper preferenceRowMapper;
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 
@@ -78,38 +81,62 @@ public class AnalysisRepository {
         }
     }
 
-    public void saveQualityMetricDetails(QualityMetricDetails metricDetails) {
-        final String sql = "INSERT INTO quality_metric_details(" +
+    public void saveAnalysisConstraint(Constraint constraint) {
+        final String sql = "INSERT INTO analysis_constraint(" +
                 "analysis_id, " +
                 "quality_metric, " +
                 "operator, " +
-                "threshold, " +
-                "weight) VALUES(?, CAST(? AS quality_metric), CAST(? AS operator), ?, ?)";
+                "threshold) VALUES(?, CAST(? AS quality_metric), CAST(? AS operator), ?)";
 
         int insert = jdbcTemplate.update(
                 sql,
-                metricDetails.getAnalysisId(),
-                metricDetails.getQualityMetric().name(),
-                metricDetails.getOperator().getSymbol(),
-                metricDetails.getThreshold(),
-                metricDetails.getWeight());
+                constraint.getAnalysisId(),
+                constraint.getQualityMetric().name(),
+                constraint.getOperator().getSymbol(),
+                constraint.getThreshold());
 
         if (insert != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }
 
-    public Optional<List<AnalysisReport>> findAnalysisReportByAnalysisId(Integer analysisId) {
+    public void saveAnalysisPreference(Preference preference) {
+        final String sql = "INSERT INTO analysis_preference(" +
+                "analysis_id, " +
+                "quality_attribute, " +
+                "weight) VALUES(?, CAST(? AS quality_attribute), ?)";
+
+        int insert = jdbcTemplate.update(
+                sql,
+                preference.getAnalysisId(),
+                preference.getQualityAttribute().name(),
+                preference.getWeight());
+
+        if (insert != 1) {
+            throw new ServerErrorException(SERVER_ERROR_MSG);
+        }
+    }
+
+    public Optional<List<AnalysisReport>> findAnalysisReportsByAnalysisId(Integer analysisId) {
         final String sql = "SELECT id, report FROM analysis_report WHERE analysis_id = ?";
-        List<AnalysisReport> reports = jdbcTemplate.query(sql, rowMapper, analysisId);
+        List<AnalysisReport> reports = jdbcTemplate.query(sql, reportRowMapper, analysisId);
 
         return Optional.of(reports);
     }
 
     public Optional<AnalysisReport> findAnalysisReportById(Integer reportId) {
         final String sql = "SELECT id, report FROM analysis_report WHERE id = ?";
-        List<AnalysisReport> reports = jdbcTemplate.query(sql, rowMapper, reportId);
+        List<AnalysisReport> reports = jdbcTemplate.query(sql, reportRowMapper, reportId);
 
         return reports.stream().findFirst();
+    }
+
+    /*
+        Returns an empty list if non found.
+     */
+    public List<Preference> findAnalysisPreferencesByAnalysisId(Integer analysisId) {
+        final String sql = "SELECT quality_attribute, weight FROM analysis_preference WHERE analysis_id = ?";
+
+        return jdbcTemplate.query(sql, preferenceRowMapper, analysisId);
     }
 }

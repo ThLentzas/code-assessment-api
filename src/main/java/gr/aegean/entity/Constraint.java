@@ -8,12 +8,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class QualityMetricDetails {
+public class Constraint {
     private Integer analysisId;
     private QualityMetric qualityMetric;
     private QualityMetricOperator operator;
     private Double threshold;
-    private Double weight;
 
     public boolean matchOperatorToCondition(Double metricValue) {
         return switch (operator) {

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import gr.aegean.mapper.PasswordResetTokenRowMapper;
+import gr.aegean.mapper.row.PasswordResetTokenRowMapper;
 import gr.aegean.entity.PasswordResetToken;
 
 import lombok.RequiredArgsConstructor;

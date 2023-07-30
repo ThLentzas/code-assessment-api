@@ -1,4 +1,4 @@
-package gr.aegean.mapper;
+package gr.aegean.mapper.row;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

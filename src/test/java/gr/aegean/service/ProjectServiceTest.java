@@ -1,8 +1,10 @@
 package gr.aegean.service;
 
+import gr.aegean.mapper.dto.AnalysisReportDTOMapper;
 import gr.aegean.service.analysis.AnalysisService;
 import gr.aegean.service.analysis.GitHubService;
 import gr.aegean.service.analysis.ProjectService;
+import gr.aegean.service.analysis.RankingService;
 import gr.aegean.service.auth.AuthService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +44,9 @@ class ProjectServiceTest {
     @Mock
     private AuthService authService;
     @Mock
+    private RankingService rankingService;
+    private final AnalysisReportDTOMapper mapper = new AnalysisReportDTOMapper();
+    @Mock
     private Executor taskExecutor;
     private ProjectService underTest;
 
@@ -52,7 +57,14 @@ class ProjectServiceTest {
 
     @BeforeEach
     void setup() throws Exception {
-        underTest = new ProjectService(gitHubService, analysisService, authService, taskExecutor, baseDirectoryPath);
+        underTest = new ProjectService(
+                gitHubService,
+                analysisService,
+                authService,
+                rankingService,
+                mapper,
+                taskExecutor,
+                baseDirectoryPath);
 
         /*
             Delete all files. Exclude the base temp directory itself

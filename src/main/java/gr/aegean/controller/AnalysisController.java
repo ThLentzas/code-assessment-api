@@ -2,6 +2,7 @@ package gr.aegean.controller;
 
 import gr.aegean.model.analysis.AnalysisReportDTO;
 import gr.aegean.model.analysis.AnalysisRequest;
+import gr.aegean.model.analysis.AnalysisResult;
 import gr.aegean.service.analysis.AnalysisService;
 import gr.aegean.service.analysis.ProjectService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,10 +55,10 @@ public class AnalysisController {
         Returns a list of analysis reports for all the repositories submitted.
      */
     @GetMapping("/{analysisId}")
-    public ResponseEntity<List<AnalysisReportDTO>> getAnalysisResult(@PathVariable Integer analysisId) {
-        List<AnalysisReportDTO> reports = analysisService.findAnalysisReportByAnalysisId(analysisId);
+    public ResponseEntity<AnalysisResult> getAnalysisResult(@PathVariable Integer analysisId) {
+        AnalysisResult result = projectService.findAnalysisResultByAnalysisId(analysisId);
 
-        return new ResponseEntity<>(reports, HttpStatus.OK);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     /*

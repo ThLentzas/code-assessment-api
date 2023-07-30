@@ -1,7 +1,7 @@
 package gr.aegean.service;
 
-import gr.aegean.mapper.PasswordResetTokenRowMapper;
-import gr.aegean.mapper.UserRowMapper;
+import gr.aegean.mapper.row.PasswordResetTokenRowMapper;
+import gr.aegean.mapper.row.UserRowMapper;
 import gr.aegean.service.auth.EmailService;
 import gr.aegean.service.auth.PasswordResetService;
 import org.junit.jupiter.api.BeforeEach;

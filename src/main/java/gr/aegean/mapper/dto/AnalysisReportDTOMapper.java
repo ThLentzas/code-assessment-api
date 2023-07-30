@@ -1,4 +1,4 @@
-package gr.aegean.mapper;
+package gr.aegean.mapper.dto;
 
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.model.analysis.AnalysisReportDTO;
@@ -20,7 +20,8 @@ public class AnalysisReportDTOMapper implements Function<AnalysisReport, Analysi
                 report.getIssuesReport(),
                 report.getHotspotsReport(),
                 report.getRuleDetails(),
-                report.getQualityMetricReport(),
+                report.getQualityMetricsReport(),
+                report.getRank(),
                 Link.of(getBaseUrl() + "/analysis/reports" + "/" + report.getId())
         );
     }

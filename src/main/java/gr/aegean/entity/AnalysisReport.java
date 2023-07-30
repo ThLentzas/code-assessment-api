@@ -26,19 +26,19 @@ public class AnalysisReport {
     private IssuesReport issuesReport;
     private HotspotsReport hotspotsReport;
     private Map<String, Rule> ruleDetails;
-    private EnumMap<QualityMetric, Double> qualityMetricReport;
+    private EnumMap<QualityMetric, Double> qualityMetricsReport;
+    private Double rank;
 
-    public AnalysisReport(
-            Map<String, Double> languages,
-            IssuesReport issuesReport,
-            HotspotsReport hotspotsReport,
-            Map<String, Rule> ruleDetails,
-            EnumMap<QualityMetric, Double> qualityMetricReport) {
+    public AnalysisReport(Map<String, Double> languages,
+                          IssuesReport issuesReport,
+                          HotspotsReport hotspotsReport,
+                          Map<String, Rule> ruleDetails,
+                          EnumMap<QualityMetric, Double> qualityMetricsReport) {
         this.languages = languages;
         this.issuesReport = issuesReport;
         this.hotspotsReport = hotspotsReport;
         this.ruleDetails = ruleDetails;
-        this.qualityMetricReport = qualityMetricReport;
+        this.qualityMetricsReport = qualityMetricsReport;
     }
 }
 

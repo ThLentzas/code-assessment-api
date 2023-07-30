@@ -1,4 +1,4 @@
-package gr.aegean.mapper;
+package gr.aegean.mapper.row;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -16,8 +16,9 @@ public record AnalysisReportDTO(
         Map<String, Double> languages,
         IssuesReport issuesReport,
         HotspotsReport hotspotsReport,
-        Map<String, Rule> ruleDetails,
-        EnumMap<QualityMetric, Double> qualityMetricDetails,
+        Map<String, Rule> rulesDetails,
+        EnumMap<QualityMetric, Double> qualityMetricsReport,
+        Double rank,
         Link self
 ) {
 }
