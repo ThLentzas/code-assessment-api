@@ -1,19 +1,24 @@
-package gr.aegean.mapper;
+package gr.aegean.mapper.dto;
 
 import gr.aegean.entity.User;
-import gr.aegean.mapper.dto.UserDTOMapper;
 import gr.aegean.model.user.UserDTO;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
 class UserDTOMapperTest {
+    private UserDTOMapper underTest;
+
+    @BeforeEach
+    void setup() {
+        underTest = new UserDTOMapper();
+    }
 
     @Test
     void shouldConvertUserToUserDTO() {
-        UserDTOMapper mapper = new UserDTOMapper();
 
         User user = User.builder()
                 .id(1)
@@ -26,7 +31,7 @@ class UserDTOMapperTest {
                 .company("Code Monkey, LLC")
                 .build();
 
-        UserDTO userDTO = mapper.apply(user);
+        UserDTO userDTO = underTest.apply(user);
 
         assertThat(user.getId()).isEqualTo(userDTO.id());
         assertThat(user.getFirstname()).isEqualTo(userDTO.firstname());

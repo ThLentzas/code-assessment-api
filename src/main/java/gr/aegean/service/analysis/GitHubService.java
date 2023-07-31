@@ -1,14 +1,14 @@
 package gr.aegean.service.analysis;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.springframework.stereotype.Service;
-
 import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.springframework.stereotype.Service;
 
 import gr.aegean.exception.ServerErrorException;
 

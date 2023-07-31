@@ -13,6 +13,7 @@ import gr.aegean.model.user.UserProfile;
 import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
+import gr.aegean.service.analysis.AnalysisService;
 import gr.aegean.service.auth.EmailService;
 import gr.aegean.service.user.UserService;
 import gr.aegean.utility.StringUtils;
@@ -47,6 +48,8 @@ import java.util.Random;
 class UserServiceTest extends AbstractTestContainers {
     @Mock
     private EmailService emailService;
+    @Mock
+    private AnalysisService analysisService;
     private UserRepository userRepository;
     private EmailUpdateRepository emailUpdateRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -58,7 +61,12 @@ class UserServiceTest extends AbstractTestContainers {
     void setup() {
         userRepository = new UserRepository(getJdbcTemplate(), userMapper);
         emailUpdateRepository = new EmailUpdateRepository(getJdbcTemplate(), tokenRowMapper);
-        underTest = new UserService(userRepository, emailUpdateRepository, emailService, passwordEncoder);
+        underTest = new UserService(
+                userRepository,
+                emailUpdateRepository,
+                emailService,
+                analysisService,
+                passwordEncoder);
 
         emailUpdateRepository.deleteAllTokens();
         userRepository.deleteAllUsers();

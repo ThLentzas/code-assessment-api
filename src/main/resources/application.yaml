@@ -35,6 +35,7 @@ projects:
 
 sonar:
   token: squ_324a95e7ed95d8d17572c6d011b676ab2315b027
+  baseUrl: http://localhost:9000/api
 
 #spring:
 #  config:

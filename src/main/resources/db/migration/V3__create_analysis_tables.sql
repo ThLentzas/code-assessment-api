@@ -58,7 +58,7 @@ CREATE TYPE operator AS ENUM (
 /*
     constraint is a reserved key word similar to user.
  */
-CREATE TABLE IF NOT EXISTS analysis_constraint(
+CREATE TABLE IF NOT EXISTS analysis_constraint (
     analysis_id    INTEGER          NOT NULL,
     quality_metric quality_metric   NOT NULL,
     operator       operator         NOT NULL,

@@ -100,6 +100,7 @@ public class RankingService {
         double parentValue = 0.0;
         for (TreeNode child : node.getChildren()) {
             assignParentNodeValue(child);
+            System.out.println(child.getName() + " "  + child.getValue());
             parentValue += child.getWeight() * child.getValue();
         }
 

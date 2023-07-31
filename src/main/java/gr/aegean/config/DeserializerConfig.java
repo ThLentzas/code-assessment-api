@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.quality.QualityMetricOperator;
 import gr.aegean.deserializer.OperatorDeserializer;
-import gr.aegean.deserializer.QualityMetricDeserializer;
+import gr.aegean.deserializer.MetricDeserializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,7 +19,7 @@ public class DeserializerConfig {
         SimpleModule module = new SimpleModule();
 
         module.addDeserializer(QualityMetricOperator.class, new OperatorDeserializer());
-        module.addDeserializer(QualityMetric.class, new QualityMetricDeserializer());
+        module.addDeserializer(QualityMetric.class, new MetricDeserializer());
         objectMapper.registerModule(module);
 
         return objectMapper;

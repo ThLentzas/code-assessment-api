@@ -212,6 +212,7 @@ class UserIT extends AbstractIntegrationTest {
 
         webTestClient.get()
                 .uri(USER_PATH + "/settings/email?token={token}", token)
+                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
                 .exchange()
                 .expectStatus().isOk();
     }

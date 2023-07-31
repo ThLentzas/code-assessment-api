@@ -11,7 +11,7 @@ import gr.aegean.mapper.row.AnalysisReportRowMapper;
 import gr.aegean.mapper.row.AnalysisRowMapper;
 import gr.aegean.mapper.row.ConstraintRowMapper;
 import gr.aegean.mapper.row.PreferenceRowMapper;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -23,6 +23,9 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import lombok.RequiredArgsConstructor;
+
 
 @Repository
 @RequiredArgsConstructor

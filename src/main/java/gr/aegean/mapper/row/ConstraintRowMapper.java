@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+
 @Service
 public class ConstraintRowMapper implements RowMapper<Constraint> {
     @Override

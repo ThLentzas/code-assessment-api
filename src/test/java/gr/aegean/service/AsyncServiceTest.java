@@ -53,13 +53,13 @@ class AsyncServiceTest {
 
     @BeforeEach
     void setup() throws Exception {
-        underTest = new AsyncService(
-                gitHubService,
-                analysisService,
-                authService,
-                assessmentService,
-                taskExecutor,
-                baseDirectoryPath);
+//        underTest = new AsyncService(
+//                gitHubService,
+//                analysisService,
+//                authService,
+//                assessmentService,
+//                taskExecutor,
+//                baseDirectoryPath);
 
         /*
             Delete all files. Exclude the base temp directory itself

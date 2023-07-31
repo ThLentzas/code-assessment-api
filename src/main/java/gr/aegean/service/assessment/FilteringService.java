@@ -11,6 +11,7 @@ import java.util.List;
 @Service
 public class FilteringService {
     public List<List<AnalysisReport>> filter(List<AnalysisReport> reports, List<Constraint> constraints) {
+
         /*
             An empty list will be returned for compliant if all reports belong to non-compliant and vice versa.
          */

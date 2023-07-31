@@ -1,21 +1,44 @@
 package gr.aegean.service;
 
+import gr.aegean.service.analysis.DockerService;
 import gr.aegean.service.analysis.LanguageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
+
+@ExtendWith(MockitoExtension.class)
 class LanguageServiceTest {
+    @Mock
+    private DockerService dockerService;
     private LanguageService underTest;
+
 
     @BeforeEach
     void setup() {
-        underTest = new LanguageService();
+        underTest = new LanguageService(dockerService);
     }
+
+    @Test
+    void shouldDetectLanguagesCorrectly() {
+        when(dockerService.createLinguistContainer(any(String.class))).thenReturn("100.00% 31261      Python");
+
+        Map<String, Double> actual = underTest.detectLanguage("path");
+
+        assertThat(actual.size()).isEqualTo(1);
+        assertThat(actual.containsKey("Python")).isTrue();
+        assertThat(actual.get("Python")).isEqualTo(100.0);
+    }
+
 
     @Test
     void shouldReturnTrueWhenAtLeastOneDetectedLanguageIsSupported() {

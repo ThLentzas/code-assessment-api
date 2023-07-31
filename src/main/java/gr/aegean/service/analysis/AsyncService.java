@@ -2,19 +2,12 @@ package gr.aegean.service.analysis;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import gr.aegean.entity.Constraint;
-import gr.aegean.entity.Preference;
-import gr.aegean.mapper.dto.AnalysisReportDTOMapper;
-import gr.aegean.model.analysis.AnalysisReportDTO;
-import gr.aegean.model.analysis.AnalysisResult;
 import gr.aegean.service.auth.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.tomcat.util.http.fileupload.FileUtils;

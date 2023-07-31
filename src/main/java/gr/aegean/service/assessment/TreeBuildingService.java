@@ -16,16 +16,16 @@ public class TreeBuildingService {
         TreeNode quality = new TreeNode("QUALITY");
         TreeNode security = new TreeNode("SECURITY");
         TreeNode comprehension = new TreeNode("COMPREHENSION");
-        //TreeNode simplicity = new TreeNode("SIMPLICITY");
+        TreeNode simplicity = new TreeNode("SIMPLICITY");
         TreeNode maintainability = new TreeNode("MAINTAINABILITY");
         TreeNode reliability = new TreeNode("RELIABILITY");
         TreeNode complexity = new TreeNode("COMPLEXITY");
         TreeNode commentRate = new TreeNode("COMMENT_RATE");
-        //TreeNode methodSize = new TreeNode("METHOD_SIZE");
+        TreeNode methodSize = new TreeNode("METHOD_SIZE");
         TreeNode duplication = new TreeNode("DUPLICATION");
         TreeNode bugSeverity = new TreeNode("BUG_SEVERITY");
         TreeNode technicalDebtRatio = new TreeNode("TECHNICAL_DEBT_RATIO");
-        //TreeNode reliabilityRemediationEffort = new TreeNode("RELIABILITY_REMEDIATION_EFFORT");
+        TreeNode reliabilityRemediationEffort = new TreeNode("RELIABILITY_REMEDIATION_EFFORT");
         TreeNode cyclomaticComplexity = new TreeNode("CYCLOMATIC_COMPLEXITY");
         TreeNode cognitiveComplexity = new TreeNode("COGNITIVE_COMPLEXITY");
         TreeNode vulnerabilitySeverity = new TreeNode("VULNERABILITY_SEVERITY");
@@ -36,9 +36,9 @@ public class TreeBuildingService {
         addChildren(quality, List.of(comprehension, maintainability, reliability, complexity));
         addChildren(security, List.of(vulnerabilitySeverity, hotSpotPriority, securityRemediationEffort));
         addChildren(comprehension, List.of(commentRate));
-        //addChildren(simplicity, List.of(methodSize));
+        addChildren(simplicity, List.of(methodSize));
         addChildren(maintainability, List.of(duplication, technicalDebtRatio));
-        addChildren(reliability, List.of(bugSeverity));
+        addChildren(reliability, List.of(bugSeverity, reliabilityRemediationEffort));
         addChildren(complexity, List.of(cyclomaticComplexity, cognitiveComplexity));
 
         return root;

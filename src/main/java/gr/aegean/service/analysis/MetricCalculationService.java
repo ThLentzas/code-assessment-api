@@ -29,29 +29,25 @@ public class MetricCalculationService {
 
         metricsReport.forEach((metric, value) -> {
             switch (metric) {
-                //case METHOD_SIZE -> updatedMetricsReport.put(metric, applyMethodSizeUtf(value));
+                case METHOD_SIZE -> updatedMetricsReport.put(metric, applyMethodSizeUtf(value));
                 case DUPLICATION -> updatedMetricsReport.put(metric, applyDuplicationUtf(value));
+                case BUG_SEVERITY -> updatedMetricsReport.put(metric, applyMetricsUtf(issuesDetails, "BUG"));
                 case TECHNICAL_DEBT_RATIO -> updatedMetricsReport.put(metric, applyTechnicalDebtRatioUtf(value));
-//                case RELIABILITY_REMEDIATION_EFFORT -> updatedMetricsReport.put(
-//                        metric,
-//                        applyReliabilityRemediationEffortUtf(value, linesOfCode));
+                case RELIABILITY_REMEDIATION_EFFORT -> updatedMetricsReport.put(
+                        metric,
+                        applyReliabilityRemediationEffortUtf(value, linesOfCode));
                 case CYCLOMATIC_COMPLEXITY, COGNITIVE_COMPLEXITY -> updatedMetricsReport.put(
                         metric,
                         applyComplexityUtf(value, linesOfCode));
+                case VULNERABILITY_SEVERITY -> updatedMetricsReport.put(
+                        metric,
+                        applyMetricsUtf(issuesDetails, "VULNERABILITY"));
+                case HOTSPOT_PRIORITY -> updatedMetricsReport.put(metric, applyHotSpotPriorityUtf(hotspotsDetails));
                 case SECURITY_REMEDIATION_EFFORT -> updatedMetricsReport.put(
                         metric,
                         applySecurityRemediationEffortUtf(value, linesOfCode));
             }
         });
-
-        double value = applyMetricsUtf(issuesDetails, "BUG");
-        updatedMetricsReport.put(QualityMetric.BUG_SEVERITY, value);
-
-        value = applyMetricsUtf(issuesDetails, "VULNERABILITY");
-        updatedMetricsReport.put(QualityMetric.VULNERABILITY_SEVERITY, value);
-
-        value = applyHotSpotPriorityUtf(hotspotsDetails);
-        updatedMetricsReport.put(QualityMetric.HOTSPOT_PRIORITY, value);
 
         return updatedMetricsReport;
     }
@@ -61,6 +57,14 @@ public class MetricCalculationService {
     }
 
     private double applyMethodSizeUtf(double methodSize) {
+        if(methodSize <= 37) {
+            return 1.0;
+        }
+
+        if(methodSize >= 162) {
+            return 0.0;
+        }
+
         return Math.pow(2, (70 - methodSize) / 21.0) / 3.0;
     }
 
@@ -69,7 +73,7 @@ public class MetricCalculationService {
     }
 
     private double applyReliabilityRemediationEffortUtf(double reliabilityRemediationEffort, double linesOfCode) {
-        return 1 - (reliabilityRemediationEffort / (linesOfCode * LINE_COST));
+        return 1 - (reliabilityRemediationEffort / (60 * 8 * linesOfCode * LINE_COST));
     }
 
     private double applyComplexityUtf(double complexity, double linesOfCode) {
@@ -124,7 +128,7 @@ public class MetricCalculationService {
         }
 
         if(infoCount > 0) {
-            return 0.2 * 1 / infoCount + 0.8;
+            return 0.19 * 1 / infoCount + 0.8;
         }
 
         /*

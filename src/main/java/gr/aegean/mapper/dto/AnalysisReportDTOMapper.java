@@ -8,6 +8,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.function.Function;
 
+
+/*
+    Will be tested with an IT test.
+ */
 @Service
 public class AnalysisReportDTOMapper implements Function<AnalysisReport, AnalysisReportDTO> {
     @Override

@@ -8,7 +8,8 @@ import gr.aegean.model.analysis.quality.QualityMetricOperator;
 import java.io.IOException;
 
 
-public class OperatorDeserializer extends JsonDeserializer<QualityMetricOperator>{
+public class OperatorDeserializer extends JsonDeserializer<QualityMetricOperator> {
+
     @Override
     public QualityMetricOperator deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         String symbol = parser.getValueAsString();
