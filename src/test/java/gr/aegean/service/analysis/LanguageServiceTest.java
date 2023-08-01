@@ -1,7 +1,5 @@
 package gr.aegean.service.analysis;
 
-import gr.aegean.service.analysis.DockerService;
-import gr.aegean.service.analysis.LanguageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,7 +36,6 @@ class LanguageServiceTest {
         assertThat(actual.containsKey("Python")).isTrue();
         assertThat(actual.get("Python")).isEqualTo(100.0);
     }
-
 
     @Test
     void shouldReturnTrueWhenAtLeastOneDetectedLanguageIsSupported() {

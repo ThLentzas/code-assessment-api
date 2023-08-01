@@ -162,7 +162,7 @@ public class SonarService {
                 issuesReport = tmp;
             }
 
-            totalNumberOfPages = (issuesReport.getPaging().total() / pageSize) + 1;
+            totalNumberOfPages = (issuesReport.getIssues().size() / pageSize) + 1;
             page++;
         }
 
@@ -201,7 +201,7 @@ public class SonarService {
                 hotspotsReport = tmp;
             }
 
-            totalNumberOfPages = (hotspotsReport.getPaging().total() / pageSize) + 1;
+            totalNumberOfPages = (hotspotsReport.getHotspots().size() / pageSize) + 1;
             page++;
         }
 

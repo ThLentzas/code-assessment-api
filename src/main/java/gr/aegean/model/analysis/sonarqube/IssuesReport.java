@@ -13,7 +13,6 @@ import java.util.List;
 @Getter
 public class IssuesReport {
     private List<IssueDetails> issues;
-    private Paging paging;
 
     @Getter
     public static class IssueDetails {
