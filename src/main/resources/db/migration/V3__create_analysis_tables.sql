@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS analysis_report (
     id          SERIAL PRIMARY KEY,
     analysis_id INTEGER NOT NULL,
     report      jsonb   NOT NULL,
-    FOREIGN KEY (analysis_id) REFERENCES analysis (id)
+    FOREIGN KEY (analysis_id) REFERENCES analysis (id) ON DELETE CASCADE
 );
 
 CREATE TYPE operator AS ENUM (
@@ -63,16 +63,7 @@ CREATE TABLE IF NOT EXISTS analysis_constraint (
     quality_metric quality_metric   NOT NULL,
     operator       operator         NOT NULL,
     threshold      double precision NOT NULL,
-    FOREIGN KEY (analysis_id) REFERENCES analysis (id),
-    PRIMARY KEY (quality_metric, analysis_id)
-);
-
-CREATE TABLE IF NOT EXISTS analysis_constraint (
-    analysis_id    INTEGER          NOT NULL,
-    quality_metric quality_metric   NOT NULL,
-    operator       operator         NOT NULL,
-    threshold      double precision NOT NULL,
-    FOREIGN KEY (analysis_id) REFERENCES analysis (id),
+    FOREIGN KEY (analysis_id) REFERENCES analysis (id) ON DELETE CASCADE,
     PRIMARY KEY (quality_metric, analysis_id)
 );
 
@@ -80,6 +71,6 @@ CREATE TABLE IF NOT EXISTS analysis_preference (
     analysis_id       INTEGER           NOT NULL,
     quality_attribute quality_attribute NOT NULL,
     weight            double precision  NOT NULL,
-    FOREIGN KEY (analysis_id) REFERENCES analysis (id),
+    FOREIGN KEY (analysis_id) REFERENCES analysis (id) ON DELETE CASCADE,
     PRIMARY KEY (quality_attribute, analysis_id)
 );

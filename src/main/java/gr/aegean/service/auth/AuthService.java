@@ -51,7 +51,7 @@ public class AuthService {
         Integer userId = userService.registerUser(user);
         String jwtToken = jwtService.assignToken(userDTO);
 
-        return new AuthResponse(jwtToken, userId);
+        return new AuthResponse(userId, jwtToken);
     }
 
     public AuthResponse authenticateUser(AuthRequest request) {
@@ -68,7 +68,7 @@ public class AuthService {
         UserDTO userDTO = userDTOMapper.apply(principal);
         String jwtToken = jwtService.assignToken(userDTO);
 
-        return new AuthResponse(jwtToken, principal.getId());
+        return new AuthResponse(principal.getId(), jwtToken);
     }
 
     /*

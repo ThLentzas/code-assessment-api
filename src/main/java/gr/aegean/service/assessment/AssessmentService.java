@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+
 @Service
 @RequiredArgsConstructor
 public class AssessmentService {
@@ -44,7 +45,6 @@ public class AssessmentService {
                                     filteredReport.getQualityMetricsReport(), preferences)))
                     .sorted(Comparator.comparing(AnalysisReport::getRank).reversed())
                     .toList();
-
 
             rankedFilteredReports.add(filteredReports);
         }

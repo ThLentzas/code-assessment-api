@@ -1,0 +1,1234 @@
+[
+  {
+    "rule": "python:S116",
+    "severity": "MINOR",
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:graph.py",
+    "project": "7caa07bf-df88-4455-84bb-2760cd421635",
+    "line": 23,
+    "message": "Rename this field \"nodesList\" to match the regular expression ^[_a-z][_a-z0-9]*$.",
+    "type": "CODE_SMELL",
+    "flows": [],
+    "textRange": {
+      "startLine": 23,
+      "endLine": 23,
+      "startOffset": 13,
+      "endOffset": 22
+    }
+  },
+  {
+    "rule": "python:S1192",
+    "severity": "CRITICAL",
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:node.py",
+    "project": "7caa07bf-df88-4455-84bb-2760cd421635",
+    "line": 201,
+    "message": "Define a constant instead of duplicating this literal \"Node \" 8 times.",
+    "type": "CODE_SMELL",
+    "flows": [
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 217,
+              "endLine": 217,
+              "startOffset": 22,
+              "endOffset": 29
+            },
+            "msg": "Duplication"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 250,
+              "endLine": 250,
+              "startOffset": 22,
+              "endOffset": 29
+            },
+            "msg": "Duplication"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 260,
+              "endLine": 260,
+              "startOffset": 22,
+              "endOffset": 29
+            },
+            "msg": "Duplication"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 287,
+              "endLine": 287,
+              "startOffset": 22,
+              "endOffset": 29
+            },
+            "msg": "Duplication"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 297,
+              "endLine": 297,
+              "startOffset": 22,
+              "endOffset": 29
+            },
+            "msg": "Duplication"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 325,
+              "endLine": 325,
+              "startOffset": 22,
+              "endOffset": 29
+            },
+            "msg": "Duplication"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 335,
+              "endLine": 335,
+              "startOffset": 22,
+              "endOffset": 29
+            },
+            "msg": "Duplication"
+          }
+        ]
+      }
+    ],
+    "textRange": {
+      "startLine": 201,
+      "endLine": 201,
+      "startOffset": 22,
+      "endOffset": 29
+    }
+  },
+  {
+    "rule": "python:S1192",
+    "severity": "CRITICAL",
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:node.py",
+    "project": "7caa07bf-df88-4455-84bb-2760cd421635",
+    "line": 217,
+    "message": "Define a constant instead of duplicating this literal \" is a normal case\" 4 times.",
+    "type": "CODE_SMELL",
+    "flows": [
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 260,
+              "endLine": 260,
+              "startOffset": 47,
+              "endOffset": 66
+            },
+            "msg": "Duplication"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 297,
+              "endLine": 297,
+              "startOffset": 47,
+              "endOffset": 66
+            },
+            "msg": "Duplication"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 335,
+              "endLine": 335,
+              "startOffset": 48,
+              "endOffset": 67
+            },
+            "msg": "Duplication"
+          }
+        ]
+      }
+    ],
+    "textRange": {
+      "startLine": 217,
+      "endLine": 217,
+      "startOffset": 45,
+      "endOffset": 64
+    }
+  },
+  {
+    "rule": "python:S1192",
+    "severity": "CRITICAL",
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:node.py",
+    "project": "7caa07bf-df88-4455-84bb-2760cd421635",
+    "line": 54,
+    "message": "Define a constant instead of duplicating this literal \" - Weight: \" 4 times.",
+    "type": "CODE_SMELL",
+    "flows": [
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 59,
+              "endLine": 59,
+              "startOffset": 46,
+              "endOffset": 59
+            },
+            "msg": "Duplication"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 64,
+              "endLine": 64,
+              "startOffset": 46,
+              "endOffset": 59
+            },
+            "msg": "Duplication"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 69,
+              "endLine": 69,
+              "startOffset": 48,
+              "endOffset": 61
+            },
+            "msg": "Duplication"
+          }
+        ]
+      }
+    ],
+    "textRange": {
+      "startLine": 54,
+      "endLine": 54,
+      "startOffset": 42,
+      "endOffset": 55
+    }
+  },
+  {
+    "rule": "python:S3776",
+    "severity": "CRITICAL",
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:node.py",
+    "project": "7caa07bf-df88-4455-84bb-2760cd421635",
+    "line": 165,
+    "message": "Refactor this function to reduce its Cognitive Complexity from 77 to the 15 allowed.",
+    "type": "CODE_SMELL",
+    "flows": [
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 172,
+              "endLine": 172,
+              "startOffset": 8,
+              "endOffset": 10
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 178,
+              "endLine": 178,
+              "startOffset": 12,
+              "endOffset": 15
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 180,
+              "endLine": 180,
+              "startOffset": 16,
+              "endOffset": 18
+            },
+            "msg": "+3 (incl 2 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 187,
+              "endLine": 187,
+              "startOffset": 12,
+              "endOffset": 15
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 189,
+              "endLine": 189,
+              "startOffset": 16,
+              "endOffset": 18
+            },
+            "msg": "+3 (incl 2 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 193,
+              "endLine": 193,
+              "startOffset": 12,
+              "endOffset": 14
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 199,
+              "endLine": 199,
+              "startOffset": 12,
+              "endOffset": 14
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 199,
+              "endLine": 199,
+              "startOffset": 24,
+              "endOffset": 27
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 216,
+              "endLine": 216,
+              "startOffset": 12,
+              "endOffset": 14
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 216,
+              "endLine": 216,
+              "startOffset": 28,
+              "endOffset": 31
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 228,
+              "endLine": 228,
+              "startOffset": 8,
+              "endOffset": 10
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 233,
+              "endLine": 233,
+              "startOffset": 12,
+              "endOffset": 15
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 235,
+              "endLine": 235,
+              "startOffset": 16,
+              "endOffset": 18
+            },
+            "msg": "+3 (incl 2 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 239,
+              "endLine": 239,
+              "startOffset": 12,
+              "endOffset": 15
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 241,
+              "endLine": 241,
+              "startOffset": 16,
+              "endOffset": 18
+            },
+            "msg": "+3 (incl 2 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 244,
+              "endLine": 244,
+              "startOffset": 12,
+              "endOffset": 14
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 248,
+              "endLine": 248,
+              "startOffset": 12,
+              "endOffset": 14
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 248,
+              "endLine": 248,
+              "startOffset": 24,
+              "endOffset": 27
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 259,
+              "endLine": 259,
+              "startOffset": 12,
+              "endOffset": 14
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 259,
+              "endLine": 259,
+              "startOffset": 28,
+              "endOffset": 31
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 266,
+              "endLine": 266,
+              "startOffset": 8,
+              "endOffset": 10
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 271,
+              "endLine": 271,
+              "startOffset": 12,
+              "endOffset": 15
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 273,
+              "endLine": 273,
+              "startOffset": 16,
+              "endOffset": 18
+            },
+            "msg": "+3 (incl 2 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 277,
+              "endLine": 277,
+              "startOffset": 12,
+              "endOffset": 15
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 279,
+              "endLine": 279,
+              "startOffset": 16,
+              "endOffset": 18
+            },
+            "msg": "+3 (incl 2 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 282,
+              "endLine": 282,
+              "startOffset": 12,
+              "endOffset": 14
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 286,
+              "endLine": 286,
+              "startOffset": 12,
+              "endOffset": 14
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 286,
+              "endLine": 286,
+              "startOffset": 24,
+              "endOffset": 27
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 296,
+              "endLine": 296,
+              "startOffset": 12,
+              "endOffset": 14
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 296,
+              "endLine": 296,
+              "startOffset": 28,
+              "endOffset": 31
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 303,
+              "endLine": 303,
+              "startOffset": 8,
+              "endOffset": 10
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 308,
+              "endLine": 308,
+              "startOffset": 12,
+              "endOffset": 15
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 310,
+              "endLine": 310,
+              "startOffset": 16,
+              "endOffset": 18
+            },
+            "msg": "+3 (incl 2 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 314,
+              "endLine": 314,
+              "startOffset": 12,
+              "endOffset": 15
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 316,
+              "endLine": 316,
+              "startOffset": 16,
+              "endOffset": 18
+            },
+            "msg": "+3 (incl 2 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 319,
+              "endLine": 319,
+              "startOffset": 12,
+              "endOffset": 14
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 323,
+              "endLine": 323,
+              "startOffset": 12,
+              "endOffset": 14
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 323,
+              "endLine": 323,
+              "startOffset": 24,
+              "endOffset": 27
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 334,
+              "endLine": 334,
+              "startOffset": 12,
+              "endOffset": 14
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 334,
+              "endLine": 334,
+              "startOffset": 28,
+              "endOffset": 31
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 343,
+              "endLine": 343,
+              "startOffset": 8,
+              "endOffset": 11
+            },
+            "msg": "+1"
+          }
+        ]
+      }
+    ],
+    "textRange": {
+      "startLine": 165,
+      "endLine": 165,
+      "startOffset": 8,
+      "endOffset": 14
+    }
+  },
+  {
+    "rule": "python:S2772",
+    "severity": "MINOR",
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:node.py",
+    "project": "7caa07bf-df88-4455-84bb-2760cd421635",
+    "line": 195,
+    "message": "Remove this unneeded \"pass\".",
+    "type": "CODE_SMELL",
+    "flows": [],
+    "textRange": {
+      "startLine": 195,
+      "endLine": 195,
+      "startOffset": 16,
+      "endOffset": 20
+    }
+  },
+  {
+    "rule": "python:S2772",
+    "severity": "MINOR",
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:node.py",
+    "project": "7caa07bf-df88-4455-84bb-2760cd421635",
+    "line": 246,
+    "message": "Remove this unneeded \"pass\".",
+    "type": "CODE_SMELL",
+    "flows": [],
+    "textRange": {
+      "startLine": 246,
+      "endLine": 246,
+      "startOffset": 16,
+      "endOffset": 20
+    }
+  },
+  {
+    "rule": "python:S2772",
+    "severity": "MINOR",
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:node.py",
+    "project": "7caa07bf-df88-4455-84bb-2760cd421635",
+    "line": 284,
+    "message": "Remove this unneeded \"pass\".",
+    "type": "CODE_SMELL",
+    "flows": [],
+    "textRange": {
+      "startLine": 284,
+      "endLine": 284,
+      "startOffset": 16,
+      "endOffset": 20
+    }
+  },
+  {
+    "rule": "python:S2772",
+    "severity": "MINOR",
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:node.py",
+    "project": "7caa07bf-df88-4455-84bb-2760cd421635",
+    "line": 321,
+    "message": "Remove this unneeded \"pass\".",
+    "type": "CODE_SMELL",
+    "flows": [],
+    "textRange": {
+      "startLine": 321,
+      "endLine": 321,
+      "startOffset": 16,
+      "endOffset": 20
+    }
+  },
+  {
+    "rule": "python:S3776",
+    "severity": "CRITICAL",
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:graph.py",
+    "project": "7caa07bf-df88-4455-84bb-2760cd421635",
+    "line": 47,
+    "message": "Refactor this function to reduce its Cognitive Complexity from 29 to the 15 allowed.",
+    "type": "CODE_SMELL",
+    "flows": [
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 54,
+              "endLine": 54,
+              "startOffset": 8,
+              "endOffset": 11
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 56,
+              "endLine": 56,
+              "startOffset": 12,
+              "endOffset": 15
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 65,
+              "endLine": 65,
+              "startOffset": 8,
+              "endOffset": 11
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 67,
+              "endLine": 67,
+              "startOffset": 12,
+              "endOffset": 15
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 73,
+              "endLine": 73,
+              "startOffset": 16,
+              "endOffset": 18
+            },
+            "msg": "+3 (incl 2 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 79,
+              "endLine": 79,
+              "startOffset": 20,
+              "endOffset": 22
+            },
+            "msg": "+4 (incl 3 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 86,
+              "endLine": 86,
+              "startOffset": 20,
+              "endOffset": 24
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 93,
+              "endLine": 93,
+              "startOffset": 20,
+              "endOffset": 24
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 104,
+              "endLine": 104,
+              "startOffset": 16,
+              "endOffset": 20
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 108,
+              "endLine": 108,
+              "startOffset": 20,
+              "endOffset": 22
+            },
+            "msg": "+4 (incl 3 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 113,
+              "endLine": 113,
+              "startOffset": 20,
+              "endOffset": 24
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 118,
+              "endLine": 118,
+              "startOffset": 20,
+              "endOffset": 24
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 128,
+              "endLine": 128,
+              "startOffset": 16,
+              "endOffset": 20
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 129,
+              "endLine": 129,
+              "startOffset": 20,
+              "endOffset": 22
+            },
+            "msg": "+4 (incl 3 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 136,
+              "endLine": 136,
+              "startOffset": 20,
+              "endOffset": 24
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 143,
+              "endLine": 143,
+              "startOffset": 20,
+              "endOffset": 24
+            },
+            "msg": "+1"
+          }
+        ]
+      }
+    ],
+    "textRange": {
+      "startLine": 47,
+      "endLine": 47,
+      "startOffset": 8,
+      "endOffset": 20
+    }
+  },
+  {
+    "rule": "python:S3776",
+    "severity": "CRITICAL",
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:graph.py",
+    "project": "7caa07bf-df88-4455-84bb-2760cd421635",
+    "line": 161,
+    "message": "Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed.",
+    "type": "CODE_SMELL",
+    "flows": [
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 172,
+              "endLine": 172,
+              "startOffset": 8,
+              "endOffset": 13
+            },
+            "msg": "+1"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 182,
+              "endLine": 182,
+              "startOffset": 12,
+              "endOffset": 15
+            },
+            "msg": "+2 (incl 1 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 183,
+              "endLine": 183,
+              "startOffset": 16,
+              "endOffset": 19
+            },
+            "msg": "+3 (incl 2 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 187,
+              "endLine": 187,
+              "startOffset": 20,
+              "endOffset": 22
+            },
+            "msg": "+4 (incl 3 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 189,
+              "endLine": 189,
+              "startOffset": 24,
+              "endOffset": 26
+            },
+            "msg": "+5 (incl 4 for nesting)"
+          }
+        ]
+      },
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 193,
+              "endLine": 193,
+              "startOffset": 16,
+              "endOffset": 18
+            },
+            "msg": "+3 (incl 2 for nesting)"
+          }
+        ]
+      }
+    ],
+    "textRange": {
+      "startLine": 161,
+      "endLine": 161,
+      "startOffset": 8,
+      "endOffset": 20
+    }
+  },
+  {
+    "rule": "python:S1066",
+    "severity": "MAJOR",
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:graph.py",
+    "project": "7caa07bf-df88-4455-84bb-2760cd421635",
+    "line": 208,
+    "message": "Merge this if statement with the enclosing one.",
+    "type": "CODE_SMELL",
+    "flows": [
+      {
+        "locations": [
+          {
+            "textRange": {
+              "startLine": 207,
+              "endLine": 207,
+              "startOffset": 12,
+              "endOffset": 14
+            },
+            "msg": "enclosing"
+          }
+        ]
+      }
+    ],
+    "textRange": {
+      "startLine": 208,
+      "endLine": 208,
+      "startOffset": 16,
+      "endOffset": 18
+    }
+  },
+  {
+    "rule": "python:S125",
+    "severity": "MAJOR",
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:bfs.py",
+    "project": "7caa07bf-df88-4455-84bb-2760cd421635",
+    "line": 157,
+    "message": "Remove this commented out code.",
+    "type": "CODE_SMELL",
+    "flows": [],
+    "textRange": {
+      "startLine": 157,
+      "endLine": 157,
+      "startOffset": 8,
+      "endOffset": 32
+    }
+  },
+  {
+    "rule": "python:S2772",
+    "severity": "MINOR",
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:bfs.py",
+    "project": "7caa07bf-df88-4455-84bb-2760cd421635",
+    "line": 109,
+    "message": "Remove this unneeded \"pass\".",
+    "type": "CODE_SMELL",
+    "flows": [],
+    "textRange": {
+      "startLine": 109,
+      "endLine": 109,
+      "startOffset": 12,
+      "endOffset": 16
+    }
+  }
+]

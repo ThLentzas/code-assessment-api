@@ -1,14 +1,11 @@
 package gr.aegean.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import gr.aegean.model.analysis.RefreshRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import gr.aegean.model.analysis.AnalysisReportDTO;
@@ -56,6 +53,14 @@ public class AnalysisController {
     @GetMapping("/{analysisId}")
     public ResponseEntity<AnalysisResult> getAnalysisResult(@PathVariable Integer analysisId) {
         AnalysisResult result = analysisService.findAnalysisResultByAnalysisId(analysisId);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PutMapping("/{analysisId}")
+    public ResponseEntity<AnalysisResult> refreshAnalysisResult(@RequestBody RefreshRequest refreshRequest,
+                                                                @PathVariable Integer analysisId) throws JsonProcessingException {
+        AnalysisResult result = analysisService.refreshAnalysisResult(analysisId, refreshRequest);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

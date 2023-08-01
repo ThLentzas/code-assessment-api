@@ -45,7 +45,7 @@ public class AuthController {
 
         URI location = uriBuilder
                 .path("/api/v1/users/{userID}")
-                .buildAndExpand(authResponse.getUserId())
+                .buildAndExpand(authResponse.userId())
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();

@@ -109,6 +109,10 @@ public class AsyncService {
         We are saving the entire process once it's done and not a report at a time.
      */
     private Integer saveAnalysisProcess(Integer userId, List<AnalysisReport> reports, AnalysisRequest analysisRequest) {
-        return analysisService.saveAnalysisProcess(userId, reports, analysisRequest);
+        return analysisService.saveAnalysisProcess(
+                userId,
+                reports,
+                analysisRequest.constraints(),
+                analysisRequest.preferences());
     }
 }

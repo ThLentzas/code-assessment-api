@@ -63,7 +63,7 @@ class UserIT extends AbstractIntegrationTest {
                 .expectBody(AuthResponse.class)
                 .returnResult();
 
-        String jwtToken = result.getResponseBody().getToken();
+        String jwtToken = result.getResponseBody().token();
         String locationHeader = result.getResponseHeaders().getFirst(HttpHeaders.LOCATION);
         Integer userId = Integer.parseInt(locationHeader.substring(locationHeader.lastIndexOf('/') + 1));
 
@@ -114,7 +114,7 @@ class UserIT extends AbstractIntegrationTest {
                 .expectBody(AuthResponse.class)
                 .returnResult();
 
-        String jwtToken = result.getResponseBody().getToken();
+        String jwtToken = result.getResponseBody().token();
         String locationHeader = result.getResponseHeaders().getFirst(HttpHeaders.LOCATION);
         Integer userId = Integer.parseInt(locationHeader.substring(locationHeader.lastIndexOf('/') + 1));
 
@@ -164,7 +164,7 @@ class UserIT extends AbstractIntegrationTest {
                 .expectBody(AuthResponse.class)
                 .returnResult();
 
-        String jwtToken = result.getResponseBody().getToken();
+        String jwtToken = result.getResponseBody().token();
         String locationHeader = result.getResponseHeaders().getFirst(HttpHeaders.LOCATION);
         Integer userId = Integer.parseInt(locationHeader.substring(locationHeader.lastIndexOf('/') + 1));
 

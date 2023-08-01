@@ -10,6 +10,7 @@ import java.util.List;
 
 @Service
 public class FilteringService {
+
     public List<List<AnalysisReport>> filter(List<AnalysisReport> reports, List<Constraint> constraints) {
 
         /*

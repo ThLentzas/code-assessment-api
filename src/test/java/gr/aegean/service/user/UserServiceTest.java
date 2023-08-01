@@ -1,4 +1,4 @@
-package gr.aegean.service;
+package gr.aegean.service.user;
 
 import gr.aegean.AbstractTestContainers;
 import gr.aegean.exception.DuplicateResourceException;

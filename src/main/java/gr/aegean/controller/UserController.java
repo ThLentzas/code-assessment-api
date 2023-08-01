@@ -71,4 +71,11 @@ public class UserController {
 
         return new ResponseEntity<>(history, HttpStatus.OK);
     }
+
+    @GetMapping("/{userId}/history/{analysisId}")
+    public ResponseEntity<Void> deleteAnalysis(@PathVariable Integer analysisId, @PathVariable Integer userId) {
+        userService.deleteAnalysis(analysisId, userId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

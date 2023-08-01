@@ -45,8 +45,7 @@ public class GitHubService {
                 .call();
     }
 
-    // TODO: 7/30/2023 make this private, once you figure out how to test it in an IT. 
-    public boolean isValidGitHubUrl(String url) {
+    private boolean isValidGitHubUrl(String url) {
         if(url == null || url.isBlank()) {
             return false;
         }

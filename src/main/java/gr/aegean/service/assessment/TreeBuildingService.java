@@ -9,8 +9,6 @@ import java.util.List;
 @Service
 public class TreeBuildingService {
 
-    // TODO: 7/30/2023 We had to comment those values out because the relative metric were problematic once fixed,
-    //  we will add them again
     public TreeNode buildTree() {
         TreeNode root = new TreeNode("Rank");
         TreeNode quality = new TreeNode("QUALITY");

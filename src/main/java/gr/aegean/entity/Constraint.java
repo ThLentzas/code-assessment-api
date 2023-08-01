@@ -18,6 +18,12 @@ public class Constraint {
     private QualityMetricOperator operator;
     private Double threshold;
 
+    public Constraint(QualityMetric qualityMetric, QualityMetricOperator operator, Double threshold) {
+        this.qualityMetric = qualityMetric;
+        this.operator = operator;
+        this.threshold = threshold;
+    }
+
     public boolean matchOperatorToCondition(Double metricValue) {
         return switch (operator) {
             case GT -> metricValue > threshold;

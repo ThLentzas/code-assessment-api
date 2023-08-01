@@ -5,7 +5,6 @@ import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.entity.EmailUpdateToken;
 import gr.aegean.entity.User;
-import gr.aegean.model.analysis.AnalysisRequest;
 import gr.aegean.model.analysis.AnalysisResult;
 import gr.aegean.model.user.UserUpdateEmailRequest;
 import gr.aegean.model.user.UserUpdatePasswordRequest;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -202,6 +200,11 @@ public class UserService {
 
         return history;
     }
+
+    public void deleteAnalysis(Integer analysisId, Integer userId) {
+        analysisService.deleteAnalysis(analysisId, userId);
+    }
+
 
     public void validateUser(User user) {
         validateFirstname(user.getFirstname());

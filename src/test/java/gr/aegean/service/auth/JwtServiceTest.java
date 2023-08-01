@@ -1,6 +1,5 @@
-package gr.aegean.service;
+package gr.aegean.service.auth;
 
-import gr.aegean.service.auth.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

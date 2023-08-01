@@ -1,4 +1,4 @@
-package gr.aegean.service;
+package gr.aegean.service.auth;
 
 import gr.aegean.mapper.row.PasswordResetTokenRowMapper;
 import gr.aegean.mapper.row.UserRowMapper;

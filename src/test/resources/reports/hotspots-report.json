@@ -1,0 +1,50 @@
+[
+  {
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:graph.py",
+    "securityCategory": "weak-cryptography",
+    "vulnerabilityProbability": "MEDIUM",
+    "line": 44,
+    "message": "Make sure that using this pseudorandom number generator is safe here.",
+    "ruleKey": "python:S2245"
+  },
+  {
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:graph.py",
+    "securityCategory": "weak-cryptography",
+    "vulnerabilityProbability": "MEDIUM",
+    "line": 175,
+    "message": "Make sure that using this pseudorandom number generator is safe here.",
+    "ruleKey": "python:S2245"
+  },
+  {
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:graph.py",
+    "securityCategory": "weak-cryptography",
+    "vulnerabilityProbability": "MEDIUM",
+    "line": 201,
+    "message": "Make sure that using this pseudorandom number generator is safe here.",
+    "ruleKey": "python:S2245"
+  },
+  {
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:graph.py",
+    "securityCategory": "weak-cryptography",
+    "vulnerabilityProbability": "MEDIUM",
+    "line": 205,
+    "message": "Make sure that using this pseudorandom number generator is safe here.",
+    "ruleKey": "python:S2245"
+  },
+  {
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:graph.py",
+    "securityCategory": "weak-cryptography",
+    "vulnerabilityProbability": "MEDIUM",
+    "line": 206,
+    "message": "Make sure that using this pseudorandom number generator is safe here.",
+    "ruleKey": "python:S2245"
+  },
+  {
+    "component": "7caa07bf-df88-4455-84bb-2760cd421635:node.py",
+    "securityCategory": "weak-cryptography",
+    "vulnerabilityProbability": "MEDIUM",
+    "line": 100,
+    "message": "Make sure that using this pseudorandom number generator is safe here.",
+    "ruleKey": "python:S2245"
+  }
+]

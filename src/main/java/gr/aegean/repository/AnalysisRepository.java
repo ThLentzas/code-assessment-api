@@ -95,16 +95,12 @@ public class AnalysisRepository {
                 "operator, " +
                 "threshold) VALUES(?, CAST(? AS quality_metric), CAST(? AS operator), ?)";
 
-        int insert = jdbcTemplate.update(
+        jdbcTemplate.update(
                 sql,
                 constraint.getAnalysisId(),
                 constraint.getQualityMetric().name(),
                 constraint.getOperator().name(),
                 constraint.getThreshold());
-
-        if (insert != 1) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        }
     }
 
     public void saveAnalysisPreference(Preference preference) {
@@ -113,15 +109,11 @@ public class AnalysisRepository {
                 "quality_attribute, " +
                 "weight) VALUES(?, CAST(? AS quality_attribute), ?)";
 
-        int insert = jdbcTemplate.update(
+        jdbcTemplate.update(
                 sql,
                 preference.getAnalysisId(),
                 preference.getQualityAttribute().name(),
                 preference.getWeight());
-
-        if (insert != 1) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        }
     }
 
     public Optional<List<AnalysisReport>> findAnalysisReportsByAnalysisId(Integer analysisId) {
@@ -179,5 +171,22 @@ public class AnalysisRepository {
         List<Analysis> analyses = jdbcTemplate.query(sql, analysisRowMapper, analysisId);
 
         return analyses.stream().findFirst();
+    }
+
+    public void deleteAnalysis(Integer analysisId, Integer userId) {
+        final String sql = "DELETE FROM analysis WHERE id = ? AND user_id = ?";
+
+        jdbcTemplate.update(sql, analysisId, userId);
+    }
+
+    public void deleteConstraintByAnalysisId(Integer analysisId) {
+        final String sql = "DELETE FROM analysis_constraint WHERE analysis_id = ?";
+
+        jdbcTemplate.update(sql, analysisId);
+    }
+
+    public void deletePreferenceByAnalysisId(Integer analysisId) {
+        final String sql = "DELETE FROM analysis_preference WHERE analysis_id = ?";
+        jdbcTemplate.update(sql, analysisId);
     }
 }

@@ -1,4 +1,4 @@
-package gr.aegean.service;
+package gr.aegean.service.analysis;
 
 import gr.aegean.service.analysis.DockerService;
 import gr.aegean.service.analysis.LanguageService;

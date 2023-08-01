@@ -26,12 +26,10 @@ public class MetricCalculationService {
         EnumMap<QualityMetric, Double> updatedMetricsReport = new EnumMap<>(QualityMetric.class);
         Double linesOfCode = metricsReport.get(QualityMetric.LINES_OF_CODE);
         updatedMetricsReport.put(QualityMetric.COMMENT_RATE, metricsReport.get(QualityMetric.COMMENT_RATE));
-
         metricsReport.forEach((metric, value) -> {
             switch (metric) {
                 case METHOD_SIZE -> updatedMetricsReport.put(metric, applyMethodSizeUtf(value));
                 case DUPLICATION -> updatedMetricsReport.put(metric, applyDuplicationUtf(value));
-                case BUG_SEVERITY -> updatedMetricsReport.put(metric, applyMetricsUtf(issuesDetails, "BUG"));
                 case TECHNICAL_DEBT_RATIO -> updatedMetricsReport.put(metric, applyTechnicalDebtRatioUtf(value));
                 case RELIABILITY_REMEDIATION_EFFORT -> updatedMetricsReport.put(
                         metric,
@@ -39,14 +37,23 @@ public class MetricCalculationService {
                 case CYCLOMATIC_COMPLEXITY, COGNITIVE_COMPLEXITY -> updatedMetricsReport.put(
                         metric,
                         applyComplexityUtf(value, linesOfCode));
-                case VULNERABILITY_SEVERITY -> updatedMetricsReport.put(
-                        metric,
-                        applyMetricsUtf(issuesDetails, "VULNERABILITY"));
-                case HOTSPOT_PRIORITY -> updatedMetricsReport.put(metric, applyHotSpotPriorityUtf(hotspotsDetails));
                 case SECURITY_REMEDIATION_EFFORT -> updatedMetricsReport.put(
                         metric,
                         applySecurityRemediationEffortUtf(value, linesOfCode));
             }
+
+            /*
+                For those 3 metrics, we didn't fetch any values from Sonarqube, so they are not part of the metrics
+                report map. We calculate the value based on the issues details and hotspot details.
+             */
+            value = applyMetricsUtf(issuesDetails, "BUG");
+            updatedMetricsReport.put(QualityMetric.BUG_SEVERITY, value);
+
+            value = applyMetricsUtf(issuesDetails, "VULNERABILITY");
+            updatedMetricsReport.put(QualityMetric.VULNERABILITY_SEVERITY, value);
+
+            value = applyHotSpotPriorityUtf(hotspotsDetails);
+            updatedMetricsReport.put(QualityMetric.HOTSPOT_PRIORITY, value);
         });
 
         return updatedMetricsReport;

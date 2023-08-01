@@ -10,7 +10,8 @@ import java.util.List;
 /*
     A list containing the 2 ranked lists of analysis reports.
  */
-public record AnalysisResult(List<List<AnalysisReportDTO>> reports,
+public record AnalysisResult(Integer analysisId,
+                             List<List<AnalysisReportDTO>> reports,
                              @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
                              @JsonSerialize(using = LocalDateTimeSerializer.class)
                              LocalDateTime createdDate) {

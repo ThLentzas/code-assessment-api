@@ -16,4 +16,8 @@ public class Preference {
     private QualityAttribute qualityAttribute;
     private Double weight;
 
+    public Preference(QualityAttribute qualityAttribute, Double weight) {
+        this.qualityAttribute = qualityAttribute;
+        this.weight = weight;
+    }
 }

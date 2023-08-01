@@ -60,7 +60,7 @@ class AuthIT extends AbstractIntegrationTest {
                 .expectBody(AuthResponse.class)
                 .returnResult()
                 .getResponseBody()
-                .getToken();
+                .token();
 
         assertThat(jwtToken).isNotNull();
 
@@ -80,7 +80,7 @@ class AuthIT extends AbstractIntegrationTest {
                 .expectBody(AuthResponse.class)
                 .returnResult()
                 .getResponseBody()
-                .getToken();
+                .token();
 
         assertThat(jwtToken).isNotNull();
     }
@@ -110,7 +110,7 @@ class AuthIT extends AbstractIntegrationTest {
                 .expectBody(AuthResponse.class)
                 .returnResult()
                 .getResponseBody()
-                .getToken();
+                .token();
 
         assertThat(jwtToken).isNotNull();
 
@@ -158,7 +158,7 @@ class AuthIT extends AbstractIntegrationTest {
                 .expectBody(AuthResponse.class)
                 .returnResult()
                 .getResponseBody()
-                .getToken();
+                .token();
 
         assertThat(jwtToken).isNotNull();
 
@@ -205,7 +205,7 @@ class AuthIT extends AbstractIntegrationTest {
                 .expectBody(AuthResponse.class)
                 .returnResult()
                 .getResponseBody()
-                .getToken();
+                .token();
 
         assertThat(jwtToken).isNotNull();
 
@@ -314,7 +314,7 @@ class AuthIT extends AbstractIntegrationTest {
                 .expectBody(AuthResponse.class)
                 .returnResult()
                 .getResponseBody()
-                .getToken();
+                .token();
 
         assertThat(jwtToken).isNotNull();
 

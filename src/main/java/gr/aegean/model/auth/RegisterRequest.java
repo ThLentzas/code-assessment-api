@@ -2,7 +2,6 @@ package gr.aegean.model.auth;
 
 import jakarta.validation.constraints.NotBlank;
 
-
 public record RegisterRequest(
         @NotBlank(message = "The First Name field is required.")
         String firstname,

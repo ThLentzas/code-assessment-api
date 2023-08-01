@@ -67,7 +67,7 @@ class AuthControllerTest {
                     "company": "Code Monkey, LLC"
                 }
                 """;
-        AuthResponse authResponse = new AuthResponse("jwtToken", 1);
+        AuthResponse authResponse = new AuthResponse(1, "jwtToken");
 
         when(authService.registerUser(any(RegisterRequest.class))).thenReturn(authResponse);
 
@@ -79,8 +79,8 @@ class AuthControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", Matchers.containsString(
-                        "api/v1/users/" + authResponse.getUserId())))
-                .andExpect(jsonPath("$.token", is(authResponse.getToken())));
+                        "api/v1/users/" + authResponse.userId())))
+                .andExpect(jsonPath("$.token", is(authResponse.token())));
     }
 
     @ParameterizedTest
@@ -234,7 +234,7 @@ class AuthControllerTest {
                     "password": "CyN549^*o2Cr"
                 }
                 """;
-        AuthResponse authResponse = new AuthResponse("jwtToken");
+        AuthResponse authResponse = new AuthResponse(1, "jwtToken");
 
         when(authService.authenticateUser(any(AuthRequest.class))).thenReturn(authResponse);
 
@@ -245,7 +245,7 @@ class AuthControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token", is(authResponse.getToken())));
+                .andExpect(jsonPath("$.token", is(authResponse.token())));
     }
 
     @ParameterizedTest

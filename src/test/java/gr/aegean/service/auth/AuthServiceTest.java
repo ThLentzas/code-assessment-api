@@ -1,4 +1,4 @@
-package gr.aegean.service;
+package gr.aegean.service.auth;
 
 import gr.aegean.service.auth.AuthService;
 import gr.aegean.service.auth.JwtService;
@@ -91,8 +91,8 @@ class AuthServiceTest {
         AuthResponse authResponse = underTest.registerUser(request);
 
         //Assert
-        assertThat(authResponse.getUserId()).isEqualTo(generatedID);
-        assertThat(authResponse.getToken()).isEqualTo(jwtToken);
+        assertThat(authResponse.userId()).isEqualTo(generatedID);
+        assertThat(authResponse.token()).isEqualTo(jwtToken);
 
         verify(passwordEncoder, times(1)).encode(user.getPassword());
         verify(userService, times(1)).registerUser(any(User.class));
@@ -115,7 +115,7 @@ class AuthServiceTest {
         AuthResponse authResponse = underTest.authenticateUser(authRequest);
 
         //Assert
-        assertThat(authResponse.getToken()).isEqualTo(jwtToken);
+        assertThat(authResponse.token()).isEqualTo(jwtToken);
 
         verify(jwtService, times(1)).assignToken(any(UserDTO.class));
         verify(authenticationManager, times(1)).authenticate(

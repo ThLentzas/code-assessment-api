@@ -1,5 +1,8 @@
 package gr.aegean.service.analysis;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import gr.aegean.entity.Analysis;
 import gr.aegean.entity.Constraint;
 import gr.aegean.entity.Preference;
@@ -8,20 +11,15 @@ import gr.aegean.exception.ServerErrorException;
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.mapper.dto.AnalysisReportDTOMapper;
 import gr.aegean.model.analysis.AnalysisReportDTO;
-import gr.aegean.model.analysis.AnalysisRequest;
 import gr.aegean.model.analysis.AnalysisResult;
+import gr.aegean.model.analysis.RefreshRequest;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.repository.AnalysisRepository;
 import gr.aegean.service.assessment.AssessmentService;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.hateoas.Link;
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -29,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import org.springframework.hateoas.Link;
+import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -43,8 +44,6 @@ public class AnalysisService {
     private final DockerService dockerService;
     private final AnalysisRepository analysisRepository;
     private final AnalysisReportDTOMapper mapper;
-    @Value("${sonar.token}")
-    private String authToken;
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 
@@ -98,82 +97,43 @@ public class AnalysisService {
         return false;
     }
 
-    public boolean isGradleProject(Path project) {
-        try (Stream<Path> paths = Files.walk(project)) {
-            return paths.anyMatch(p -> p.getFileName().toString().equals("build.gradle"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
     private void analyzeMavenProject(String projectKey, String projectPath) {
-        ProcessBuilder processBuilder = new ProcessBuilder();
-
         try {
-            createDockerFile(projectKey, projectPath);
-            dockerService.analyzeMavenProject(projectPath, processBuilder);
+            dockerService.analyzeMavenProject(projectKey, projectPath);
         } catch (IOException | InterruptedException ie) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }
 
-    private void createDockerFile(String projectKey, String projectPath) throws IOException {
-        Path dockerfilePath = Paths.get(projectPath, "Dockerfile");
-        String dockerfileContent = String.format("""
-                    FROM maven:3.8.7-openjdk-18-slim
-                    WORKDIR /app
-                    COPY . .
-                    CMD sh -c 'mvn clean verify sonar:sonar \
-                    -Dmaven.test.skip=true \
-                    -Dsonar.host.url=http://sonarqube:9000 \
-                    -Dsonar.projectKey=%s \
-                    -Dsonar.login=%s;'
-                """, projectKey, authToken);
-
-        /*
-            1st argument: the path to write the docker file. The root directory of the project.
-            2nd argument: the content to write in the file.
-            If there is a dockerfile named "Dockerfile" it will be overwritten by ours.
-         */
-        Files.write(dockerfilePath, dockerfileContent.getBytes());
-    }
-
-    public Integer saveAnalysisProcess(Integer userId, List<AnalysisReport> reports, AnalysisRequest analysisRequest) {
+    public Integer saveAnalysisProcess(Integer userId,
+                                       List<AnalysisReport> reports,
+                                       List<Constraint> constraints,
+                                       List<Preference> preferences) {
         Integer analysisId = saveAnalysis(userId);
         saveAllAnalysisReports(analysisId, reports);
-        saveConstraint(analysisId, analysisRequest.constraints());
-        savePreference(analysisId, analysisRequest.preferences());
+        saveConstraints(analysisId, constraints);
+        savePreferences(analysisId, preferences);
 
         return analysisId;
     }
 
     public AnalysisResult findAnalysisResultByAnalysisId(Integer analysisId) {
-        Analysis analysis = analysisRepository.findAnalysisByAnalysisId(analysisId).orElseThrow(() ->
-                new ResourceNotFoundException("No analysis was found for analysis id: "+ analysisId));
-        List<AnalysisReport> reports = analysisRepository.findAnalysisReportsByAnalysisId(analysisId).orElseThrow(() ->
-                new ResourceNotFoundException("Analysis reports were not found for analysis with id: " + analysisId));
+        Analysis analysis = findAnalysisByAnalysisId(analysisId);
+        List<AnalysisReport> reports = findAnalysisReportsByAnalysisId(analysisId);
 
         /*
             If no constraints or/and no preferences were found meaning no constraints or/and no preferences were
              provided for the specific analysis, we have an empty list.
          */
-        List<Constraint> constraints = analysisRepository.findAnalysisConstraintsByAnalysisId(analysisId).orElse(
-                Collections.emptyList());
-        List<Preference> preferences = analysisRepository.findAnalysisPreferencesByAnalysisId(analysisId).orElse(
-                Collections.emptyList());
+        List<Constraint> constraints = findAnalysisConstraintsByAnalysisId(analysisId);
+        List<Preference> preferences = findAnalysisPreferencesByAnalysisId(analysisId);
 
         List<List<AnalysisReport>> rankedReports = assessmentService.assessAnalysisResult(
                 reports, constraints, preferences);
 
-        List<List<AnalysisReportDTO>> rankedReportsDTO = rankedReports.stream()
-                .map(list -> list.stream()
-                        .map(mapper)
-                        .toList())
-                .toList();
+        List<List<AnalysisReportDTO>> rankedReportsDTO = mapToDTO(rankedReports);
 
-        return new AnalysisResult(rankedReportsDTO, analysis.getCreatedDate());
+        return new AnalysisResult(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
     }
 
     public AnalysisReportDTO findAnalysisReportById(Integer reportId) {
@@ -183,8 +143,46 @@ public class AnalysisService {
         return mapper.apply(report);
     }
 
+    public AnalysisResult refreshAnalysisResult(Integer analysisId, RefreshRequest request) throws JsonProcessingException {
+        validateRefreshRequest(request);
+
+        Analysis analysis = findAnalysisByAnalysisId(analysisId);
+        List<AnalysisReport> reports = findAnalysisReportsByAnalysisId(analysisId);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        String json = objectMapper.writeValueAsString(reports);
+        System.out.println(json);
+
+        /*
+            For null values an empty list will be assigned.
+         */
+        List<Constraint> constraints = request.constraints();
+        List<Preference> preferences = request.preferences();
+
+        List<List<AnalysisReport>> rankedReports = assessmentService.assessAnalysisResult(
+                reports, constraints, preferences);
+
+        /*
+            Updating wouldn't work also delete on cascade wouldn't work either because it would actually delete the
+            initial report, so we delete first the old constraints/preferences and then save the new
+            ones.
+         */
+        analysisRepository.deleteConstraintByAnalysisId(analysisId);
+        analysisRepository.deletePreferenceByAnalysisId(analysisId);
+        saveConstraints(analysisId, constraints);
+        savePreferences(analysisId, preferences);
+
+        List<List<AnalysisReportDTO>> rankedReportsDTO = mapToDTO(rankedReports);
+
+        return new AnalysisResult(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
+    }
+
     public List<Analysis> findAnalysesByUserId(Integer userId) {
         return analysisRepository.findAnalysesByUserId(userId).orElse(Collections.emptyList());
+    }
+
+    public void deleteAnalysis(Integer analysisId, Integer userId) {
+        analysisRepository.deleteAnalysis(analysisId, userId);
     }
 
     private int saveAnalysis(Integer userId) {
@@ -198,7 +196,7 @@ public class AnalysisService {
         });
     }
 
-    private void saveConstraint(Integer analysisId, List<Constraint> constraints) {
+    private void saveConstraints(Integer analysisId, List<Constraint> constraints) {
         if (constraints != null && !constraints.isEmpty()) {
             constraints.forEach(constraint -> {
                 constraint.setAnalysisId(analysisId);
@@ -207,12 +205,46 @@ public class AnalysisService {
         }
     }
 
-    private void savePreference(Integer analysisId, List<Preference> preferences) {
+    private void savePreferences(Integer analysisId, List<Preference> preferences) {
         if (preferences != null && !preferences.isEmpty()) {
             preferences.forEach(preference -> {
                 preference.setAnalysisId(analysisId);
                 analysisRepository.saveAnalysisPreference(preference);
             });
+        }
+    }
+
+    private Analysis findAnalysisByAnalysisId(Integer analysisId) {
+        return analysisRepository.findAnalysisByAnalysisId(analysisId).orElseThrow(() ->
+                new ResourceNotFoundException("No analysis was found for analysis id: " + analysisId));
+    }
+
+    private List<AnalysisReport> findAnalysisReportsByAnalysisId(Integer analysisId) {
+        return analysisRepository.findAnalysisReportsByAnalysisId(analysisId).orElseThrow(() ->
+                new ResourceNotFoundException("Analysis reports were not found for analysis with id: " + analysisId));
+    }
+
+    private List<Constraint> findAnalysisConstraintsByAnalysisId(Integer analysisId) {
+        return analysisRepository.findAnalysisConstraintsByAnalysisId(analysisId).orElse(
+                Collections.emptyList());
+    }
+
+    private List<Preference> findAnalysisPreferencesByAnalysisId(Integer analysisId) {
+        return analysisRepository.findAnalysisPreferencesByAnalysisId(analysisId).orElse(
+                Collections.emptyList());
+    }
+
+    private List<List<AnalysisReportDTO>> mapToDTO(List<List<AnalysisReport>> reports) {
+        return reports.stream()
+                .map(list -> list.stream()
+                        .map(mapper)
+                        .toList())
+                .toList();
+    }
+
+    private void validateRefreshRequest(RefreshRequest request) {
+        if(request == null) {
+            throw new IllegalArgumentException("No refresh request was provided.");
         }
     }
 }
