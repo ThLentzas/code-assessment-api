@@ -1,10 +1,11 @@
 package gr.aegean.mapper.dto;
 
-import gr.aegean.entity.AnalysisReport;
-import gr.aegean.model.analysis.AnalysisReportDTO;
 import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import gr.aegean.entity.AnalysisReport;
+import gr.aegean.model.analysis.AnalysisReportDTO;
 
 import java.util.function.Function;
 

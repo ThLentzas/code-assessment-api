@@ -1,5 +1,6 @@
 package gr.aegean.model.user;
 
+
 public record UserDTO(
         Integer id,
         String firstname,

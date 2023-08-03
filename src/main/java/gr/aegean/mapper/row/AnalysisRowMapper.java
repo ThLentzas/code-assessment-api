@@ -1,21 +1,22 @@
 package gr.aegean.mapper.row;
 
-import gr.aegean.entity.Analysis;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import gr.aegean.entity.Analysis;
 
 
 @Service
 public class AnalysisRowMapper implements RowMapper<Analysis> {
     @Override
     public Analysis mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-        Timestamp timestamp = resultSet.getTimestamp("created_date");
-        LocalDateTime createdDate = timestamp != null ? timestamp.toLocalDateTime() : null;
+        Date date = resultSet.getDate("created_date");
+        LocalDate createdDate = date != null ? date.toLocalDate() : null;
 
         return new Analysis(
                 resultSet.getInt("id"),

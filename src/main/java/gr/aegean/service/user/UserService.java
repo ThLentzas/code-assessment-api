@@ -16,15 +16,19 @@ import gr.aegean.service.analysis.AnalysisService;
 import gr.aegean.service.auth.EmailService;
 import gr.aegean.utility.StringUtils;
 
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
+import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -181,19 +185,37 @@ public class UserService {
                 });
     }
 
-    public List<AnalysisResult> getHistory(Integer userId) {
+    public List<AnalysisResult> getHistory(Integer userId, String from, String to) {
         List<AnalysisResult> history = new ArrayList<>();
-        List<Analysis> analyses = analysisService.findAnalysesByUserId(userId);
+        List<Analysis> analyses = null;
         AnalysisResult analysisResult;
+
+        if ((from == null && to != null) || (from != null && to == null)) {
+            throw new IllegalArgumentException("Both from and to dates must be provided");
+        }
+
+        if (from != null && !from.isBlank() && !to.isBlank()) {
+            validateDate(from);
+            validateDate(to);
+
+            Date fromDate = Date.valueOf(from);
+            Date toDate = Date.valueOf(to);
+
+            analyses = analysisService.getHistoryInDateRange(userId, fromDate, toDate);
+        }
+
+        if (analyses == null) {
+            analyses = analysisService.getHistory(userId);
+        }
 
         /*
             If the user has no previous history, we won't return 404, but 200 with an empty list.
          */
-        if(analyses.isEmpty()) {
+        if (analyses.isEmpty()) {
             return history;
         }
 
-        for(Analysis analysis : analyses) {
+        for (Analysis analysis : analyses) {
             analysisResult = analysisService.findAnalysisResultByAnalysisId(analysis.getId());
             history.add(analysisResult);
         }
@@ -277,6 +299,16 @@ public class UserService {
         if (property != null && !property.isBlank()) {
             validator.accept(property);
             updater.accept(property);
+        }
+    }
+
+    private void validateDate(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        try {
+            LocalDate.parse(date, formatter);
+        } catch (DateTimeParseException dte) {
+            throw new IllegalArgumentException("The provided date is invalid");
         }
     }
 }

@@ -5,7 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+
 
 @Getter
 @Setter
@@ -14,9 +15,9 @@ import java.time.LocalDateTime;
 public class Analysis {
     private Integer id;
     private Integer userId;
-    private LocalDateTime createdDate;
+    private LocalDate createdDate;
 
-    public Analysis(Integer userId, LocalDateTime createdDate) {
+    public Analysis(Integer userId, LocalDate createdDate) {
         this.userId = userId;
         this.createdDate = createdDate;
     }

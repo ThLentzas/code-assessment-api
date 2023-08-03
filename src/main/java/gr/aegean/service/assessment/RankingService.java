@@ -1,15 +1,17 @@
 package gr.aegean.service.assessment;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import gr.aegean.entity.Preference;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.quality.TreeNode;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.stereotype.Service;
 
 
 @Service
@@ -17,7 +19,7 @@ import java.util.Optional;
 public class RankingService {
     private final TreeBuildingService treeBuildingService;
 
-    public double rankTree(EnumMap<QualityMetric, Double> qualityMetricsReport, List<Preference> preferences) {
+    public double rankTree(Map<QualityMetric, Double> qualityMetricsReport, List<Preference> preferences) {
         TreeNode root = treeBuildingService.buildTree();
 
         assignWeight(root, preferences);
@@ -38,7 +40,7 @@ public class RankingService {
         /*
             If there is only 1 child node then it has the max weight.
          */
-        if(node.getChildren().size() == 1) {
+        if (node.getChildren().size() == 1) {
             node.getChildren().get(0).setWeight(1.0);
 
             return;
@@ -64,14 +66,13 @@ public class RankingService {
             }
         }
 
-        // TODO: 7/29/2023 This validation needs to be performed by the frontend before the analysis actually runs.
-        if(sum < 0.0) {
+        if (sum < 0.0) {
             throw new IllegalArgumentException("The sum of the weight of all children should not be greater than 1");
         }
 
         double weightToDistribute = sum / nodesWithoutWeight.size();
         nodesWithoutWeight.forEach(nodeWithoutWeight -> nodeWithoutWeight.setWeight(weightToDistribute));
-        
+
         for (TreeNode child : node.getChildren()) {
             assignWeight(child, preferences);
         }
@@ -80,8 +81,8 @@ public class RankingService {
     /*
         Assigning the values to the leaf nodes(metrics), to calculate the value of the parent node.
      */
-    private void assignLeafNodeValue(TreeNode node, EnumMap<QualityMetric, Double> qualityMetricsReport) {
-        if(isLeafNode(node)) {
+    private void assignLeafNodeValue(TreeNode node, Map<QualityMetric, Double> qualityMetricsReport) {
+        if (isLeafNode(node)) {
             node.setValue(qualityMetricsReport.get(QualityMetric.valueOf(node.getName())));
 
             return;

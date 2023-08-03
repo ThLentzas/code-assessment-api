@@ -15,7 +15,6 @@ import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
 import gr.aegean.service.auth.EmailService;
-import gr.aegean.service.user.UserService;
 import gr.aegean.utility.StringUtils;
 
 import org.junit.jupiter.api.BeforeEach;

@@ -4,10 +4,11 @@ import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.sonarqube.HotspotsReport;
 import gr.aegean.model.analysis.sonarqube.IssuesReport;
 import gr.aegean.model.analysis.sonarqube.Rule;
+
+import java.util.Map;
+
 import org.springframework.hateoas.Link;
 
-import java.util.EnumMap;
-import java.util.Map;
 
 public record AnalysisReportDTO(
         Integer reportId,
@@ -17,7 +18,7 @@ public record AnalysisReportDTO(
         IssuesReport issuesReport,
         HotspotsReport hotspotsReport,
         Map<String, Rule> rulesDetails,
-        EnumMap<QualityMetric, Double> qualityMetricsReport,
+        Map<QualityMetric, Double> qualityMetricsReport,
         Double rank,
         Link self
 ) {

@@ -3,7 +3,7 @@ CREATE TABLE password_reset_token (
     user_id INTEGER NOT NULL,
     token TEXT NOT NULL,
     expiry_date TIMESTAMP NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES app_user(id)
+    FOREIGN KEY (user_id) REFERENCES app_user(id) ON DELETE CASCADE
 );
 
 CREATE TABLE email_update_token (
@@ -12,5 +12,5 @@ CREATE TABLE email_update_token (
     token TEXT NOT NULL,
     email VARCHAR(50) NOT NULL,
     expiry_date TIMESTAMP NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES app_user(id)
+    FOREIGN KEY (user_id) REFERENCES app_user(id) ON DELETE CASCADE
 );

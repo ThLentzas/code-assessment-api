@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import gr.aegean.exception.ServerErrorException;
 
+
 @Service
 public class DockerService {
     @Value("${sonar.token}")
@@ -60,7 +61,8 @@ public class DockerService {
     }
 
     private String buildDockerImage(String projectPath, ProcessBuilder processBuilder) throws
-            IOException, InterruptedException {
+            IOException,
+            InterruptedException {
         /*
             Splitting with the escape character which is also the file separator in Windows
          */

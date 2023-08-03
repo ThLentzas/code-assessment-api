@@ -3,13 +3,14 @@ package gr.aegean.service.assessment;
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.entity.Constraint;
 import gr.aegean.entity.Preference;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -24,13 +25,12 @@ public class AssessmentService {
             No constraints -> no filtering
          */
         if (constraints.isEmpty()) {
-            List<AnalysisReport> rankedReports = reports.stream()
-                    //Map is an alternative.
-                    .peek(report ->
-                            report.setRank(rankingService.rankTree(report.getQualityMetricsReport(), preferences)))
-                    //Descending order based on the rank.
-                    .sorted(Comparator.comparing(AnalysisReport::getRank).reversed())
-                    .toList();
+            List<AnalysisReport> rankedReports = new ArrayList<>(reports);
+            for (AnalysisReport report : rankedReports) {
+                report.setRank(rankingService.rankTree(report.getQualityMetricsReport(), preferences));
+            }
+
+            rankedReports.sort(Comparator.comparing(AnalysisReport::getRank).reversed());
 
             return List.of(rankedReports);
         }
@@ -39,13 +39,11 @@ public class AssessmentService {
         List<List<AnalysisReport>> rankedFilteredReports = new ArrayList<>();
 
         for (List<AnalysisReport> filteredReports : filteredReportsList) {
-            filteredReports = filteredReports.stream()
-                    .peek(filteredReport ->
-                            filteredReport.setRank(rankingService.rankTree(
-                                    filteredReport.getQualityMetricsReport(), preferences)))
-                    .sorted(Comparator.comparing(AnalysisReport::getRank).reversed())
-                    .toList();
+            for (AnalysisReport filteredReport : filteredReports) {
+                filteredReport.setRank(rankingService.rankTree(filteredReport.getQualityMetricsReport(), preferences));
+            }
 
+            filteredReports.sort(Comparator.comparing(AnalysisReport::getRank).reversed());
             rankedFilteredReports.add(filteredReports);
         }
 

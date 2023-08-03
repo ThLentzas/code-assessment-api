@@ -16,10 +16,10 @@ public record EmailUpdateToken(Integer userId, String token, String email, Local
             return false;
         }
 
-        if (obj instanceof EmailUpdateToken tokeObj) {
-            return userId.equals(tokeObj.userId)
-                    && token.equals(tokeObj.token)
-                    && email.equals(tokeObj.email);
+        if (obj instanceof EmailUpdateToken tokenObj) {
+            return userId.equals(tokenObj.userId)
+                    && token.equals(tokenObj.token)
+                    && email.equals(tokenObj.email);
         }
 
         return false;

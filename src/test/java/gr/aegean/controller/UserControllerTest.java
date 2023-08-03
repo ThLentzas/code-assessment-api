@@ -2,8 +2,7 @@ package gr.aegean.controller;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EmptySource;
-import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -14,6 +13,17 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.is;
+
 import gr.aegean.config.AuthConfig;
 import gr.aegean.config.JwtConfig;
 import gr.aegean.config.SecurityConfig;
@@ -23,15 +33,6 @@ import gr.aegean.model.user.UserProfile;
 import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.user.UserService;
-
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.hamcrest.Matchers.is;
 
 
 @WebMvcTest(UserController.class)
@@ -151,8 +152,7 @@ class UserControllerTest {
     }
 
     @ParameterizedTest
-    @NullSource
-    @EmptySource
+    @NullAndEmptySource
     @WithMockUser(username = "test")
     void shouldReturnHTTP400WhenOldPasswordIsNullOrEmpty(String password) throws Exception {
         //Arrange
@@ -174,8 +174,7 @@ class UserControllerTest {
     }
 
     @ParameterizedTest
-    @NullSource
-    @EmptySource
+    @NullAndEmptySource
     @WithMockUser(username = "test")
     void shouldReturnHTTP400WhenNewPasswordIsNullOrEmpty(String password) throws Exception {
         //Arrange
@@ -251,7 +250,7 @@ class UserControllerTest {
     void shouldReturnHTTP401WhenUpdateEmailIsCalledByUnauthenticatedUser() throws Exception {
         String requestBody = """
                 {
-                    "email": "letzasegw@gmail.com",
+                    "email": "test@example.com",
                     "password": "CyN549^*o2Cr"
                 }
                 """;
@@ -308,8 +307,7 @@ class UserControllerTest {
     }
 
     @ParameterizedTest
-    @NullSource
-    @EmptySource
+    @NullAndEmptySource
     @WithMockUser(username = "test")
     void shouldReturnHTTP400WhenPasswordProvidedIsNullOrEmptyForEmailUpdate(String password) throws Exception {
         String passwordValue = password == null ? "null" : "\"" + password + "\"";
@@ -330,8 +328,7 @@ class UserControllerTest {
     }
 
     @ParameterizedTest
-    @NullSource
-    @EmptySource
+    @NullAndEmptySource
     @WithMockUser(username = "test")
     void shouldReturnHTTP400WhenEmailProvidedIsNullOrEmptyForEmailUpdate(String email) throws Exception {
         String emailValue = email == null ? "null" : "\"" + email + "\"";
@@ -347,6 +344,14 @@ class UserControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(userService);
+    }
+
+    @Test
+    void shouldReturnHTTP401WhenGetHistoryIsCalledByUnauthenticatedUser() throws Exception {
+        mockMvc.perform(post(USER_PATH + "/{userId}/history", 1))
+                .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(userService);
     }

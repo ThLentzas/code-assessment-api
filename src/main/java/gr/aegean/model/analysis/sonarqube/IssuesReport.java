@@ -1,6 +1,7 @@
 package gr.aegean.model.analysis.sonarqube;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -11,10 +12,12 @@ import java.util.List;
     separate request.
  */
 @Getter
+@Setter
 public class IssuesReport {
     private List<IssueDetails> issues;
 
     @Getter
+    @Setter
     public static class IssueDetails {
         private String rule;
         private Severity severity;
@@ -27,6 +30,7 @@ public class IssuesReport {
         private TextRange textRange;
 
         @Getter
+        @Setter
         public static class TextRange {
             private int startLine;
             private int endLine;
@@ -35,10 +39,12 @@ public class IssuesReport {
         }
 
         @Getter
+        @Setter
         public static class Flow {
             private List<Location> locations;
 
             @Getter
+            @Setter
             public static class Location {
                 private TextRange textRange;
                 private String msg;

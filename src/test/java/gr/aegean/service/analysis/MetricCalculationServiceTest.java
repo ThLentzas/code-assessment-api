@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.sonarqube.HotspotsReport;
@@ -52,7 +53,7 @@ class MetricCalculationServiceTest {
         expected.put(QualityMetric.HOTSPOT_PRIORITY, 0.041353383458646614);
         expected.put(QualityMetric.SECURITY_REMEDIATION_EFFORT, 1.0);
 
-        EnumMap<QualityMetric, Double> actual = underTest.applyUtf(metricsReport, issuesDetails, hotspotsDetails);
+        Map<QualityMetric, Double> actual = underTest.applyUtf(metricsReport, issuesDetails, hotspotsDetails);
 
         /*
             Will fail if the expected and actual maps are not exactly equal, meaning they contain the same keys with

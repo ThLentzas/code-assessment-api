@@ -1,11 +1,11 @@
 package gr.aegean.service.analysis;
 
+import gr.aegean.exception.ServerErrorException;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.sonarqube.HotspotsReport;
 import gr.aegean.model.analysis.sonarqube.IssuesReport;
 import gr.aegean.model.analysis.sonarqube.Severity;
 import gr.aegean.model.analysis.sonarqube.VulnerabilityProbability;
-import org.springframework.stereotype.Service;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -13,17 +13,22 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+
+
 /*
     For a quality metric the relative utility function(utf) is applied.
  */
 @Service
 public class MetricCalculationService {
     private static final double LINE_COST = 0.06;
+    private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
+            "complete your request. Please try again later.";
 
-    public EnumMap<QualityMetric, Double> applyUtf(EnumMap<QualityMetric, Double> metricsReport,
-                                                   List<IssuesReport.IssueDetails> issuesDetails,
-                                                   List<HotspotsReport.HotspotDetails> hotspotsDetails) {
-        EnumMap<QualityMetric, Double> updatedMetricsReport = new EnumMap<>(QualityMetric.class);
+    public Map<QualityMetric, Double> applyUtf(Map<QualityMetric, Double> metricsReport,
+                                               List<IssuesReport.IssueDetails> issuesDetails,
+                                               List<HotspotsReport.HotspotDetails> hotspotsDetails) {
+        Map<QualityMetric, Double> updatedMetricsReport = new EnumMap<>(QualityMetric.class);
         Double linesOfCode = metricsReport.get(QualityMetric.LINES_OF_CODE);
         updatedMetricsReport.put(QualityMetric.COMMENT_RATE, metricsReport.get(QualityMetric.COMMENT_RATE));
         metricsReport.forEach((metric, value) -> {
@@ -41,20 +46,20 @@ public class MetricCalculationService {
                         metric,
                         applySecurityRemediationEffortUtf(value, linesOfCode));
             }
-
-            /*
-                For those 3 metrics, we didn't fetch any values from Sonarqube, so they are not part of the metrics
-                report map. We calculate the value based on the issues details and hotspot details.
-             */
-            value = applyMetricsUtf(issuesDetails, "BUG");
-            updatedMetricsReport.put(QualityMetric.BUG_SEVERITY, value);
-
-            value = applyMetricsUtf(issuesDetails, "VULNERABILITY");
-            updatedMetricsReport.put(QualityMetric.VULNERABILITY_SEVERITY, value);
-
-            value = applyHotSpotPriorityUtf(hotspotsDetails);
-            updatedMetricsReport.put(QualityMetric.HOTSPOT_PRIORITY, value);
         });
+
+        /*
+            For those 3 metrics, we didn't fetch any values from Sonarqube, so they are not part of the metrics
+            report map. We calculate the value based on the issues details and hotspot details.
+         */
+        double value = applyMetricsUtf(issuesDetails, "BUG");
+        updatedMetricsReport.put(QualityMetric.BUG_SEVERITY, value);
+
+        value = applyMetricsUtf(issuesDetails, "VULNERABILITY");
+        updatedMetricsReport.put(QualityMetric.VULNERABILITY_SEVERITY, value);
+
+        value = applyHotSpotPriorityUtf(hotspotsDetails);
+        updatedMetricsReport.put(QualityMetric.HOTSPOT_PRIORITY, value);
 
         return updatedMetricsReport;
     }
@@ -64,11 +69,11 @@ public class MetricCalculationService {
     }
 
     private double applyMethodSizeUtf(double methodSize) {
-        if(methodSize <= 37) {
+        if (methodSize <= 37) {
             return 1.0;
         }
 
-        if(methodSize >= 162) {
+        if (methodSize >= 162) {
             return 0.0;
         }
 
@@ -80,22 +85,27 @@ public class MetricCalculationService {
     }
 
     private double applyReliabilityRemediationEffortUtf(double reliabilityRemediationEffort, double linesOfCode) {
-        return 1 - (reliabilityRemediationEffort / (60 * 8 * linesOfCode * LINE_COST));
+        if (linesOfCode > 0) {
+            return 1 - (reliabilityRemediationEffort / (60 * 8 * linesOfCode * LINE_COST));
+        }
+        throw new ServerErrorException(SERVER_ERROR_MSG);
     }
 
     private double applyComplexityUtf(double complexity, double linesOfCode) {
-        return  1 - complexity / linesOfCode;
+        return 1 - complexity / linesOfCode;
     }
 
     private double applySecurityRemediationEffortUtf(double securityRemediationEffort, double linesOfCode) {
-        return 1 - securityRemediationEffort / (linesOfCode * LINE_COST);
+        if (linesOfCode > 0) {
+            return 1 - securityRemediationEffort / (linesOfCode * LINE_COST);
+        }
+        throw new ServerErrorException(SERVER_ERROR_MSG);
     }
 
     /*
         This method will be applied for bug severity and vulnerability severity metrics.
      */
-    private double applyMetricsUtf(List<IssuesReport.IssueDetails> issuesDetails,
-                                   String issueType) {
+    private double applyMetricsUtf(List<IssuesReport.IssueDetails> issuesDetails, String issueType) {
         Map<Severity, Long> severityCount = countSeverityByType(issuesDetails, issueType);
 
         /*
@@ -108,33 +118,33 @@ public class MetricCalculationService {
         long minorCount = severityCount.getOrDefault(Severity.MINOR, 0L);
         long infoCount = severityCount.getOrDefault(Severity.INFO, 0L);
 
-        if(blockerCount > 0) {
-          return 0.2 * 1 / (blockerCount * (1 +
-                  Math.pow(10, -1) * utf(criticalCount) +
-                  Math.pow(10, -2) * utf(majorCount) +
-                  Math.pow(10, -3) * utf(minorCount) +
-                  Math.pow(10, -4) * utf(infoCount)));
+        if (blockerCount > 0) {
+            return 0.2 * 1 / (blockerCount * (1 +
+                    Math.pow(10, -1) * utf(criticalCount) +
+                    Math.pow(10, -2) * utf(majorCount) +
+                    Math.pow(10, -3) * utf(minorCount) +
+                    Math.pow(10, -4) * utf(infoCount)));
         }
 
-        if(criticalCount > 0) {
+        if (criticalCount > 0) {
             return 0.2 * 1 / (criticalCount * (1 +
                     Math.pow(10, -1) * utf(majorCount) +
                     Math.pow(10, -2) * utf(minorCount) +
                     Math.pow(10, -3) * utf(infoCount))) + 0.2;
         }
 
-        if(majorCount > 0) {
+        if (majorCount > 0) {
             return 0.2 * 1 / (majorCount * (1 +
                     Math.pow(10, -1) * utf(minorCount) +
                     Math.pow(10, -2) * utf(infoCount))) + 0.4;
         }
 
-        if(minorCount > 0) {
+        if (minorCount > 0) {
             return 0.2 * 1 / (minorCount * (1 +
                     Math.pow(10, -1) * utf(infoCount))) + 0.6;
         }
 
-        if(infoCount > 0) {
+        if (infoCount > 0) {
             return 0.19 * 1 / infoCount + 0.8;
         }
 
@@ -144,8 +154,7 @@ public class MetricCalculationService {
         return 1.0;
     }
 
-    private Map<Severity, Long> countSeverityByType(List<IssuesReport.IssueDetails> issuesDetails,
-                                                    String issueType) {
+    private Map<Severity, Long> countSeverityByType(List<IssuesReport.IssueDetails> issuesDetails, String issueType) {
         /*
             Returns a list of all the severities found.[BLOCKER, MAJOR, MINOR, MAJOR,  CRITICAL, CRITICAL]
          */
@@ -179,18 +188,18 @@ public class MetricCalculationService {
         long mediumCount = vulnerabilityProbabilityCount.getOrDefault(VulnerabilityProbability.MEDIUM, 0L);
         long lowCount = vulnerabilityProbabilityCount.getOrDefault(VulnerabilityProbability.LOW, 0L);
 
-        if(highCount > 0) {
+        if (highCount > 0) {
             return 0.33 * 1 / (highCount * (1 +
                     Math.pow(10, -1) * utf(mediumCount) +
                     Math.pow(10, -2) * utf(lowCount)));
         }
 
-        if(mediumCount > 0) {
+        if (mediumCount > 0) {
             return 0.33 * 1 / (mediumCount * (1 +
                     Math.pow(10, -1) * utf(lowCount) + 0.33));
         }
 
-        if(lowCount > 0) {
+        if (lowCount > 0) {
             return 0.33 * 1 / lowCount + 0.66;
         }
 

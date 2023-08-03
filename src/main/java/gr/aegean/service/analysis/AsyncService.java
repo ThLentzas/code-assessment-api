@@ -8,8 +8,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import gr.aegean.service.auth.AuthService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +16,9 @@ import org.springframework.stereotype.Service;
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.model.analysis.AnalysisRequest;
 import gr.aegean.entity.AnalysisReport;
+import gr.aegean.service.auth.AuthService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 
 @Service
@@ -36,7 +37,7 @@ public class AsyncService {
                             /*
                                 The default one and the one we configured, so we have to use @Qualifier
                              */
-                             @Qualifier("taskExecutor") Executor taskExecutor,
+                        @Qualifier("taskExecutor") Executor taskExecutor,
                         @Value("${projects.base-directory}") String baseDirectoryPath) {
         this.gitHubService = gitHubService;
         this.analysisService = analysisService;
@@ -47,7 +48,7 @@ public class AsyncService {
 
     public CompletableFuture<Integer> processProject(AnalysisRequest analysisRequest,
                                                      HttpServletRequest httpServletRequest) {
-        File requestFolder = new File(baseDirectory + "\\" + UUID.randomUUID());
+        File requestFolder = new File(baseDirectory + File.separator + UUID.randomUUID());
 
         if (!requestFolder.mkdir()) {
             throw new ServerErrorException(SERVER_ERROR_MSG);

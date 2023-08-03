@@ -66,7 +66,7 @@ public class AuthController {
 
     @PostMapping("/password_reset")
     public ResponseEntity<PasswordResetResponse> resetPassword(@Valid @RequestBody
-                                                                   PasswordResetRequest passwordResetRequest) {
+                                                               PasswordResetRequest passwordResetRequest) {
         PasswordResetResponse passwordResetResponse = passwordResetService.createPasswordResetToken(
                 passwordResetRequest);
 
@@ -82,7 +82,7 @@ public class AuthController {
 
     @PutMapping("/password_reset/confirm")
     public ResponseEntity<Void> resetPassword(@Valid @RequestBody
-                                                  PasswordResetConfirmationRequest resetConfirmationRequest) {
+                                              PasswordResetConfirmationRequest resetConfirmationRequest) {
         passwordResetService.resetPassword(resetConfirmationRequest);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

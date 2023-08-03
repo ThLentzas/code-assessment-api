@@ -1,14 +1,14 @@
 package gr.aegean.repository;
 
+import gr.aegean.mapper.row.EmailUpdateTokenRowMapper;
+import gr.aegean.entity.EmailUpdateToken;
 import gr.aegean.exception.ServerErrorException;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-
-import gr.aegean.mapper.row.EmailUpdateTokenRowMapper;
-import gr.aegean.entity.EmailUpdateToken;
 
 import lombok.RequiredArgsConstructor;
 

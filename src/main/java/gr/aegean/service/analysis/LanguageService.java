@@ -1,12 +1,12 @@
 package gr.aegean.service.analysis;
 
-import org.springframework.stereotype.Service;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
 
 import gr.aegean.model.analysis.Language;
 

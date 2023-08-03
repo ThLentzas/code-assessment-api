@@ -36,7 +36,8 @@ CREATE TYPE quality_attribute AS ENUM (
 CREATE TABLE IF NOT EXISTS analysis (
     id           SERIAL PRIMARY KEY,
     user_id      INTEGER   NOT NULL,
-    created_date TIMESTAMP NOT NULL
+    created_date DATE NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES app_user (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS analysis_report (

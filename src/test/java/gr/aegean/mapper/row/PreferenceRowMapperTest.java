@@ -1,16 +1,19 @@
 package gr.aegean.mapper.row;
 
-import gr.aegean.entity.Preference;
-import gr.aegean.model.analysis.quality.QualityAttribute;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import gr.aegean.entity.Preference;
+import gr.aegean.model.analysis.quality.QualityAttribute;
+
 
 class PreferenceRowMapperTest {
     private PreferenceRowMapper underTest;

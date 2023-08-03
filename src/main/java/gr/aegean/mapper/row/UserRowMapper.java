@@ -3,10 +3,10 @@ package gr.aegean.mapper.row;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import gr.aegean.entity.User;
-
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
+
+import gr.aegean.entity.User;
 
 
 @Service

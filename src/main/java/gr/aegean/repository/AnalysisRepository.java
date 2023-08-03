@@ -1,7 +1,5 @@
 package gr.aegean.repository;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import gr.aegean.entity.Analysis;
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.entity.Constraint;
@@ -12,17 +10,20 @@ import gr.aegean.mapper.row.AnalysisRowMapper;
 import gr.aegean.mapper.row.ConstraintRowMapper;
 import gr.aegean.mapper.row.PreferenceRowMapper;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -45,7 +46,7 @@ public class AnalysisRepository {
         int insert = jdbcTemplate.update(con -> {
             PreparedStatement preparedStatement = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setInt(1, analysis.getUserId());
-            preparedStatement.setTimestamp(2, Timestamp.valueOf(analysis.getCreatedDate()));
+            preparedStatement.setDate(2, Date.valueOf(analysis.getCreatedDate()));
 
             return preparedStatement;
         }, keyHolder);
@@ -159,9 +160,23 @@ public class AnalysisRepository {
         return Optional.of(constraints);
     }
 
-    public Optional<List<Analysis>> findAnalysesByUserId(Integer userId) {
-        final String sql = "SELECT id, user_id, created_date FROM analysis WHERE user_id = ? ORDER BY created_date DESC";
+    public Optional<List<Analysis>> getHistory(Integer userId) {
+        final String sql = "SELECT " +
+                "id, " +
+                "user_id, " +
+                "created_date FROM analysis WHERE user_id = ? ORDER BY created_date DESC";
         List<Analysis> analyses = jdbcTemplate.query(sql, analysisRowMapper, userId);
+
+        return Optional.of(analyses);
+    }
+
+    public Optional<List<Analysis>> getHistoryInDateRange(Integer userId, Date from, Date to) {
+        final String sql = "SELECT " +
+                "id, " +
+                "user_id, " +
+                "created_date FROM analysis WHERE user_id = ? AND " +
+                "created_date BETWEEN ? AND ? ORDER BY created_date DESC";
+        List<Analysis> analyses = jdbcTemplate.query(sql, analysisRowMapper, userId, from, to);
 
         return Optional.of(analyses);
     }
@@ -177,6 +192,12 @@ public class AnalysisRepository {
         final String sql = "DELETE FROM analysis WHERE id = ? AND user_id = ?";
 
         jdbcTemplate.update(sql, analysisId, userId);
+    }
+
+    public void deleteAllAnalyses() {
+        final String sql = "DELETE FROM analysis";
+
+        jdbcTemplate.update(sql);
     }
 
     public void deleteConstraintByAnalysisId(Integer analysisId) {

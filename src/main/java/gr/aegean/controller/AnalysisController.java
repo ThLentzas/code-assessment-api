@@ -1,6 +1,5 @@
 package gr.aegean.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import gr.aegean.model.analysis.RefreshRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -59,7 +58,7 @@ public class AnalysisController {
 
     @PutMapping("/{analysisId}")
     public ResponseEntity<AnalysisResult> refreshAnalysisResult(@RequestBody RefreshRequest refreshRequest,
-                                                                @PathVariable Integer analysisId) throws JsonProcessingException {
+                                                                @PathVariable Integer analysisId) {
         AnalysisResult result = analysisService.refreshAnalysisResult(analysisId, refreshRequest);
 
         return new ResponseEntity<>(result, HttpStatus.OK);

@@ -3,10 +3,10 @@ package gr.aegean.mapper.dto;
 import gr.aegean.entity.User;
 import gr.aegean.model.user.UserDTO;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 class UserDTOMapperTest {

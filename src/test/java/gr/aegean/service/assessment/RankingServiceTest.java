@@ -1,14 +1,15 @@
 package gr.aegean.service.assessment;
 
-import gr.aegean.entity.Preference;
-import gr.aegean.model.analysis.quality.QualityAttribute;
-import gr.aegean.model.analysis.quality.QualityMetric;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+
+import gr.aegean.entity.Preference;
+import gr.aegean.model.analysis.quality.QualityAttribute;
+import gr.aegean.model.analysis.quality.QualityMetric;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

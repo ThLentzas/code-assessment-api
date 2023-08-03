@@ -32,9 +32,9 @@ class LanguageServiceTest {
 
         Map<String, Double> actual = underTest.detectLanguage("path");
 
-        assertThat(actual.size()).isEqualTo(1);
-        assertThat(actual.containsKey("Python")).isTrue();
-        assertThat(actual.get("Python")).isEqualTo(100.0);
+        assertThat(actual).hasSize(1)
+                .containsKey("Python")
+                .containsEntry("Python", 100.0);
     }
 
     @Test

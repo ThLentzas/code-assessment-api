@@ -2,6 +2,7 @@ package gr.aegean.mapper.row;
 
 import gr.aegean.entity.Preference;
 import gr.aegean.model.analysis.quality.QualityAttribute;
+
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 

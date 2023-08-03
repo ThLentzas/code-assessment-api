@@ -18,9 +18,9 @@ import jakarta.servlet.http.HttpServletRequest;
 public class DefaultExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    private ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException manv,
+    private ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ma,
                                                                            HttpServletRequest httpServletRequest) {
-        String errorMessage = manv.getBindingResult()
+        String errorMessage = ma.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)

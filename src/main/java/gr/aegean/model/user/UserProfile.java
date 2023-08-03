@@ -2,6 +2,7 @@ package gr.aegean.model.user;
 
 import java.util.Objects;
 
+
 public record UserProfile(
         String firstname,
         String lastname,

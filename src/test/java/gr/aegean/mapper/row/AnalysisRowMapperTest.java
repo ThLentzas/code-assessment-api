@@ -1,17 +1,18 @@
 package gr.aegean.mapper.row;
 
-import gr.aegean.entity.Analysis;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import gr.aegean.entity.Analysis;
 
 
 class AnalysisRowMapperTest {
@@ -25,12 +26,12 @@ class AnalysisRowMapperTest {
     @Test
     void shouldMapRowToAnalysis() throws SQLException {
         try (ResultSet resultSet = mock(ResultSet.class)) {
-            LocalDateTime createdDate = LocalDateTime.now();
+            LocalDate createdDate = LocalDate.now();
             Analysis expected = new Analysis(1, 5, createdDate);
 
             when(resultSet.getInt("id")).thenReturn(1);
             when(resultSet.getInt("user_id")).thenReturn(5);
-            when(resultSet.getTimestamp("created_date")).thenReturn(Timestamp.valueOf(createdDate));
+            when(resultSet.getDate("created_date")).thenReturn(Date.valueOf(createdDate));
 
             Analysis actual = underTest.mapRow(resultSet, 1);
 

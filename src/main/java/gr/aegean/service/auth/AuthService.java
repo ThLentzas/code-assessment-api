@@ -8,9 +8,8 @@ import gr.aegean.model.auth.AuthResponse;
 import gr.aegean.model.auth.RegisterRequest;
 import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.model.auth.AuthRequest;
-
 import gr.aegean.service.user.UserService;
-import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,6 +19,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 
 @Service

@@ -37,7 +37,7 @@ public class GitHubService {
 
         return Optional.of(projectFile.toPath());
     }
-    
+
     private Git cloneRepository(String uri, File directory) throws GitAPIException {
         return Git.cloneRepository()
                 .setURI(uri)
@@ -46,7 +46,7 @@ public class GitHubService {
     }
 
     private boolean isValidGitHubUrl(String url) {
-        if(url == null || url.isBlank()) {
+        if (url == null || url.isBlank()) {
             return false;
         }
 

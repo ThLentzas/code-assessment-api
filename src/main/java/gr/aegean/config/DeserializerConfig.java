@@ -1,11 +1,13 @@
 package gr.aegean.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.quality.QualityMetricOperator;
 import gr.aegean.deserializer.OperatorDeserializer;
 import gr.aegean.deserializer.MetricDeserializer;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

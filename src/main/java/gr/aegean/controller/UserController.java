@@ -1,17 +1,23 @@
 package gr.aegean.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import gr.aegean.model.analysis.AnalysisResult;
 import gr.aegean.model.user.UserUpdatePasswordRequest;
 import gr.aegean.model.user.UserProfile;
-import jakarta.websocket.server.PathParam;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import gr.aegean.model.user.UserUpdateEmailRequest;
 import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.service.user.UserService;
 
+import jakarta.websocket.server.PathParam;
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
@@ -48,8 +54,6 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
-    // TODO: 7/20/2023 We need to review this endpoint. It's the email link that the user clicks, so we cant add the
-    //  token via postman.
     @GetMapping("/settings/email")
     public ResponseEntity<Void> updateEmail(@PathParam("token") String token) {
         userService.updateEmail(token);
@@ -66,8 +70,10 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/history")
-    public ResponseEntity<List<AnalysisResult>> getHistory(@PathVariable Integer userId) {
-        List<AnalysisResult> history = userService.getHistory(userId);
+    public ResponseEntity<List<AnalysisResult>> getHistory(@PathVariable Integer userId,
+                                                           @PathParam("from") String from,
+                                                           @PathParam("to") String to) {
+        List<AnalysisResult> history = userService.getHistory(userId, from, to);
 
         return new ResponseEntity<>(history, HttpStatus.OK);
     }

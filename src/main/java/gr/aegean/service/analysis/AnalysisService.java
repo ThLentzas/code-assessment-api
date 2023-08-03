@@ -1,8 +1,5 @@
 package gr.aegean.service.analysis;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import gr.aegean.entity.Analysis;
 import gr.aegean.entity.Constraint;
 import gr.aegean.entity.Preference;
@@ -20,9 +17,9 @@ import gr.aegean.service.assessment.AssessmentService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,46 +58,43 @@ public class AnalysisService {
 
         String projectKey = projectPath.toString().split("\\\\")[3];
 
-        try {
-            if (detectedLanguages.containsKey("Java")) {
-                if (isMavenProject(projectPath)) {
-                    analyzeMavenProject(projectKey, projectPath.toString());
-                } else {
-                    return Optional.empty();
-                }
+        if (detectedLanguages.containsKey("Java")) {
+            if (isMavenProject(projectPath)) {
+                analyzeMavenProject(projectKey, projectPath.toString());
             } else {
-                sonarService.analyzeProject(projectKey, projectPath.toString());
+                return Optional.empty();
             }
-
-            analysisReport = sonarService.fetchAnalysisReport(projectKey, detectedLanguages);
-            EnumMap<QualityMetric, Double> updatedQualityMetricsReport = metricCalculationService.applyUtf(
-                    analysisReport.getQualityMetricsReport(),
-                    analysisReport.getIssuesReport().getIssues(),
-                    analysisReport.getHotspotsReport().getHotspots());
-
-            analysisReport.setQualityMetricsReport(updatedQualityMetricsReport);
-            analysisReport.setProjectUrl(Link.of(projectUrl));
-        } catch (IOException | InterruptedException ioe) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
+        } else {
+            sonarService.analyzeProject(projectKey, projectPath.toString());
         }
+
+        analysisReport = sonarService.fetchAnalysisReport(projectKey, detectedLanguages);
+        Map<QualityMetric, Double> updatedQualityMetricsReport = metricCalculationService.applyUtf(
+                analysisReport.getQualityMetricsReport(),
+                analysisReport.getIssuesReport().getIssues(),
+                analysisReport.getHotspotsReport().getHotspots());
+
+        analysisReport.setQualityMetricsReport(updatedQualityMetricsReport);
+        analysisReport.setProjectUrl(Link.of(projectUrl));
 
         return Optional.of(analysisReport);
     }
 
-    public boolean isMavenProject(Path project) {
+    private boolean isMavenProject(Path project) {
         try (Stream<Path> paths = Files.walk(project)) {
             return paths.anyMatch(p -> p.getFileName().toString().equals("pom.xml"));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new ServerErrorException(SERVER_ERROR_MSG);
         }
-
-        return false;
     }
 
     private void analyzeMavenProject(String projectKey, String projectPath) {
         try {
             dockerService.analyzeMavenProject(projectKey, projectPath);
-        } catch (IOException | InterruptedException ie) {
+        } catch (IOException ioe) {
+            throw new ServerErrorException(SERVER_ERROR_MSG);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }
@@ -143,15 +137,11 @@ public class AnalysisService {
         return mapper.apply(report);
     }
 
-    public AnalysisResult refreshAnalysisResult(Integer analysisId, RefreshRequest request) throws JsonProcessingException {
+    public AnalysisResult refreshAnalysisResult(Integer analysisId, RefreshRequest request) {
         validateRefreshRequest(request);
 
         Analysis analysis = findAnalysisByAnalysisId(analysisId);
         List<AnalysisReport> reports = findAnalysisReportsByAnalysisId(analysisId);
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        String json = objectMapper.writeValueAsString(reports);
-        System.out.println(json);
 
         /*
             For null values an empty list will be assigned.
@@ -163,8 +153,8 @@ public class AnalysisService {
                 reports, constraints, preferences);
 
         /*
-            Updating wouldn't work also delete on cascade wouldn't work either because it would actually delete the
-            initial report, so we delete first the old constraints/preferences and then save the new
+            Updating wouldn't work, also DELETE ON CASCADE wouldn't work either because it would actually delete the
+            initial analysis, so we delete first the old constraints/preferences and then save the new
             ones.
          */
         analysisRepository.deleteConstraintByAnalysisId(analysisId);
@@ -177,16 +167,27 @@ public class AnalysisService {
         return new AnalysisResult(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
     }
 
-    public List<Analysis> findAnalysesByUserId(Integer userId) {
-        return analysisRepository.findAnalysesByUserId(userId).orElse(Collections.emptyList());
+    /*
+        Returns the entire user's history
+     */
+    public List<Analysis> getHistory(Integer userId) {
+        return analysisRepository.getHistory(userId).orElse(Collections.emptyList());
     }
+
+    /*
+        Returns the user's history in a date range.
+     */
+    public List<Analysis> getHistoryInDateRange(Integer userId, Date from, Date to) {
+        return analysisRepository.getHistoryInDateRange(userId, from, to).orElse(Collections.emptyList());
+    }
+
 
     public void deleteAnalysis(Integer analysisId, Integer userId) {
         analysisRepository.deleteAnalysis(analysisId, userId);
     }
 
     private int saveAnalysis(Integer userId) {
-        return analysisRepository.saveAnalysis(new Analysis(userId, LocalDateTime.now()));
+        return analysisRepository.saveAnalysis(new Analysis(userId, LocalDate.now()));
     }
 
     private void saveAllAnalysisReports(Integer analysisId, List<AnalysisReport> reports) {
@@ -243,7 +244,7 @@ public class AnalysisService {
     }
 
     private void validateRefreshRequest(RefreshRequest request) {
-        if(request == null) {
+        if (request == null) {
             throw new IllegalArgumentException("No refresh request was provided.");
         }
     }

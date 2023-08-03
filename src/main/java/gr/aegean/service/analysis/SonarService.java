@@ -12,6 +12,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import gr.aegean.exception.ServerErrorException;
+import gr.aegean.entity.AnalysisReport;
+import gr.aegean.model.analysis.quality.QualityMetric;
+import gr.aegean.model.analysis.sonarqube.HotspotsReport;
+import gr.aegean.model.analysis.sonarqube.IssuesReport;
+import gr.aegean.model.analysis.sonarqube.QualityMetricReport;
+import gr.aegean.model.analysis.sonarqube.Rule;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -20,14 +28,6 @@ import java.time.Duration;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
-
-import gr.aegean.exception.ServerErrorException;
-import gr.aegean.entity.AnalysisReport;
-import gr.aegean.model.analysis.quality.QualityMetric;
-import gr.aegean.model.analysis.sonarqube.HotspotsReport;
-import gr.aegean.model.analysis.sonarqube.IssuesReport;
-import gr.aegean.model.analysis.sonarqube.QualityMetricReport;
-import gr.aegean.model.analysis.sonarqube.Rule;
 
 import static org.awaitility.Awaitility.await;
 
@@ -61,38 +61,45 @@ public class SonarService {
             processBuilder.directory(new File(projectDirectory));
             Process process = processBuilder.start();
 
+            /*
+                Each process builder has an associated output buffer. We have to keep reading from those buffers, and
+                the process writes enough data to them, the buffers can fill up, and the process will block, waiting for
+                 space to become available.
+             */
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
                 System.out.println(line);
             }
-
             /*
                 Waiting for the analysis to end not to upload the analysis to the server.
              */
             process.waitFor();
-        } catch (IOException | InterruptedException ioe) {
-            ioe.printStackTrace();
+        } catch (IOException ioe) {
+            throw new ServerErrorException(SERVER_ERROR_MSG);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }
 
-    public AnalysisReport fetchAnalysisReport(String projectKey, Map<String, Double> languages) throws
-            InterruptedException, IOException {
-        /*
-            Wait for the report to be uploaded on the server.
-         */
-        await().pollDelay(Duration.ofSeconds(6)).until(() -> true);
-
+    public AnalysisReport fetchAnalysisReport(String projectKey, Map<String, Double> languages) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + authToken);
         HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
 
+        /*
+            Wait for the key to be created on the server.
+         */
         while (!projectExists(restTemplate, entity, projectKey)) {
-            await().pollDelay(Duration.ofSeconds(6)).until(() -> true);
+            await().pollDelay(Duration.ofSeconds(8)).until(() -> true);
         }
-        await().pollDelay(Duration.ofSeconds(6)).until(() -> true);
+
+        /*
+            Wait for the project to be uploaded.
+         */
+        await().pollDelay(Duration.ofSeconds(8)).until(() -> true);
 
         IssuesReport issuesReport = fetchIssues(restTemplate, entity, projectKey);
         HotspotsReport hotspotsReport = fetchHotspots(restTemplate, entity, projectKey);
@@ -106,7 +113,7 @@ public class SonarService {
     }
 
     private boolean projectExists(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
-        String projectUrl = String.format(baseUrl + "/projects/search?projects=%s", projectKey);
+        String projectUrl = String.format("%s/projects/search?projects=%s", baseUrl, projectKey);
 
         /*
             The request to check if a project is on the server does not return 404 but an empty components array if the
@@ -144,10 +151,11 @@ public class SonarService {
             more than 1 request to get all the issues from a single report.
          */
         while (page <= totalNumberOfPages) {
-            String issuesUrl = String.format(baseUrl + "/issues/search?"
-                    + "componentKeys=%s"
-                    + "&p=%d"
-                    + "&ps=%d", projectKey, page, pageSize);
+            String issuesUrl = String.format("%s/issues/search?componentKeys=%s&p=%d&ps=%d",
+                    baseUrl,
+                    projectKey,
+                    page,
+                    pageSize);
             ResponseEntity<IssuesReport> response = restTemplate.exchange(
                     issuesUrl,
                     HttpMethod.GET,
@@ -181,11 +189,11 @@ public class SonarService {
             more than 1 request to get all the issues from a single report.
          */
         while (page <= totalNumberOfPages) {
-            String hotspotUrl = String.format(baseUrl + "/hotspots/search?"
-                    + "projectKey=%s"
-                    + "&p=%d"
-                    + "&ps=%d", projectKey, page, pageSize);
-
+            String hotspotUrl = String.format("%s/hotspots/search?projectKey=%s&p=%d&ps=%d",
+                    baseUrl,
+                    projectKey,
+                    page,
+                    pageSize);
             ResponseEntity<HotspotsReport> response = restTemplate.exchange(
                     hotspotUrl,
                     HttpMethod.GET,
@@ -220,7 +228,7 @@ public class SonarService {
         hotspotsReport.getHotspots().stream()
                 .map(HotspotsReport.HotspotDetails::getRuleKey)
                 .forEach(ruleKey -> {
-                    String ruleUrl = String.format(baseUrl + "/rules/show?key=%s", ruleKey);
+                    String ruleUrl = String.format("%s/rules/show?key=%s", baseUrl, ruleKey);
                     ResponseEntity<Rule> response = restTemplate.exchange(
                             ruleUrl,
                             HttpMethod.GET,
@@ -237,7 +245,7 @@ public class SonarService {
         issuesReport.getIssues().stream()
                 .map(IssuesReport.IssueDetails::getRule)
                 .forEach(rule -> {
-                    String ruleUrl = String.format(baseUrl + "/rules/show?key=%s", rule);
+                    String ruleUrl = String.format("%s/rules/show?key=%s", baseUrl, rule);
                     ResponseEntity<Rule> response = restTemplate.exchange(
                             ruleUrl,
                             HttpMethod.GET,
@@ -294,10 +302,8 @@ public class SonarService {
     }
 
     private double fetchCommentRate(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
-        String commentRateUrl = String.format(baseUrl + "/measures/search?"
-                + "projectKeys=%s"
-                + "&metricKeys=comment_lines_density", projectKey);
-
+        String commentRateUrl = String.format("%s/measures/search?projectKeys=%s"
+                + "&metricKeys=comment_lines_density", baseUrl, projectKey);
         ResponseEntity<QualityMetricReport> response = restTemplate.exchange(
                 commentRateUrl,
                 HttpMethod.GET,
@@ -313,10 +319,9 @@ public class SonarService {
     }
 
     private double fetchMethodSize(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
-        String methodSizeUrl = String.format(baseUrl + "/measures/search?"
-                + "projectKeys=%s"
-                + "&metricKeys=functions,ncloc", projectKey);
-
+        String methodSizeUrl = String.format("%s/measures/search?projectKeys=%s&metricKeys=functions,ncloc",
+                baseUrl,
+                projectKey);
         ResponseEntity<QualityMetricReport> response = restTemplate.exchange(
                 methodSizeUrl,
                 HttpMethod.GET,
@@ -331,10 +336,8 @@ public class SonarService {
     }
 
     private double fetchDuplication(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
-        String duplicationUrl = String.format(baseUrl + "/measures/search?"
-                + "projectKeys=%s"
-                + "&metricKeys=duplicated_lines_density", projectKey);
-
+        String duplicationUrl = String.format("%s/measures/search?projectKeys=%s"
+                + "&metricKeys=duplicated_lines_density", baseUrl, projectKey);
         ResponseEntity<QualityMetricReport> response = restTemplate.exchange(
                 duplicationUrl,
                 HttpMethod.GET,
@@ -350,10 +353,9 @@ public class SonarService {
     }
 
     private double fetchTechnicalDebtRatio(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
-        String technicalDebtRatioUrl = String.format(baseUrl + "/measures/search?"
-                + "projectKeys=%s"
-                + "&metricKeys=sqale_debt_ratio", projectKey);
-
+        String technicalDebtRatioUrl = String.format("%s/measures/search?projectKeys=%s&metricKeys=sqale_debt_ratio",
+                baseUrl,
+                projectKey);
         ResponseEntity<QualityMetricReport> response = restTemplate.exchange(
                 technicalDebtRatioUrl,
                 HttpMethod.GET,
@@ -371,10 +373,8 @@ public class SonarService {
     private double fetchReliabilityRemediationEffort(RestTemplate restTemplate,
                                                      HttpEntity<String> entity,
                                                      String projectKey) {
-        String reliabilityRemediationEffortUrl = String.format(baseUrl + "/measures/search?"
-                + "projectKeys=%s"
-                + "&metricKeys=reliability_remediation_effort", projectKey);
-
+        String reliabilityRemediationEffortUrl = String.format("%s/measures/search?projectKeys=%s"
+                + "&metricKeys=reliability_remediation_effort", baseUrl, projectKey);
         ResponseEntity<QualityMetricReport> response = restTemplate.exchange(
                 reliabilityRemediationEffortUrl,
                 HttpMethod.GET,
@@ -387,10 +387,8 @@ public class SonarService {
     }
 
     private double fetchCognitiveComplexity(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
-        String cognitiveComplexityUrl = String.format(baseUrl + "/measures/search?"
-                + "projectKeys=%s"
-                + "&metricKeys=cognitive_complexity", projectKey);
-
+        String cognitiveComplexityUrl = String.format("%s/measures/search?projectKeys=%s"
+                + "&metricKeys=cognitive_complexity", baseUrl, projectKey);
         ResponseEntity<QualityMetricReport> response = restTemplate.exchange(
                 cognitiveComplexityUrl,
                 HttpMethod.GET,
@@ -403,10 +401,8 @@ public class SonarService {
     }
 
     private double fetchCyclomaticComplexity(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
-        String cyclomaticComplexityUrl = String.format(baseUrl + "/measures/search?"
-                + "projectKeys=%s"
-                + "&metricKeys=complexity", projectKey);
-
+        String cyclomaticComplexityUrl = String.format("%s/measures/search?projectKeys=%s"
+                + "&metricKeys=complexity", baseUrl, projectKey);
         ResponseEntity<QualityMetricReport> response = restTemplate.exchange(
                 cyclomaticComplexityUrl,
                 HttpMethod.GET,
@@ -421,10 +417,8 @@ public class SonarService {
     private double fetchSecurityRemediationEffort(RestTemplate restTemplate,
                                                   HttpEntity<String> entity,
                                                   String projectKey) {
-        String fetchSecurityRemediationEffortUrl = String.format(baseUrl + "/measures/search?"
-                + "projectKeys=%s"
-                + "&metricKeys=security_remediation_effort", projectKey);
-
+        String fetchSecurityRemediationEffortUrl = String.format("%s/measures/search?projectKeys=%s"
+                + "&metricKeys=security_remediation_effort", baseUrl, projectKey);
         ResponseEntity<QualityMetricReport> response = restTemplate.exchange(
                 fetchSecurityRemediationEffortUrl,
                 HttpMethod.GET,
@@ -439,10 +433,9 @@ public class SonarService {
     private double fetchLinesOfCode(RestTemplate restTemplate,
                                     HttpEntity<String> entity,
                                     String projectKey) {
-        String linesOfCodeUrl = String.format(baseUrl + "/measures/search?"
-                + "projectKeys=%s"
-                + "&metricKeys=ncloc", projectKey);
-
+        String linesOfCodeUrl = String.format("%s/measures/search?projectKeys=%s&metricKeys=ncloc",
+                baseUrl,
+                projectKey);
         ResponseEntity<QualityMetricReport> response = restTemplate.exchange(
                 linesOfCodeUrl,
                 HttpMethod.GET,

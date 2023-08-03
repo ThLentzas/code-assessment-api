@@ -1,17 +1,19 @@
 package gr.aegean.mapper.row;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import gr.aegean.entity.Constraint;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.quality.QualityMetricOperator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class ConstraintRowMapperTest {
     private ConstraintRowMapper underTest;

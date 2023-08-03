@@ -2,10 +2,11 @@ package gr.aegean.service.assessment;
 
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.entity.Constraint;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.stereotype.Service;
 
 
 @Service

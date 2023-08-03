@@ -8,8 +8,6 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import gr.aegean.repository.EmailUpdateRepository;
-import gr.aegean.repository.PasswordResetRepository;
 import gr.aegean.repository.UserRepository;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -20,10 +18,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public abstract class AbstractIntegrationTest {
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private PasswordResetRepository passwordResetRepository;
-    @Autowired
-    private EmailUpdateRepository emailUpdateRepository;
 
     static final PostgreSQLContainer<?> postgreSQLContainer =
             new PostgreSQLContainer<>("postgres:15.2-alpine")
@@ -44,8 +38,10 @@ public abstract class AbstractIntegrationTest {
 
     @BeforeEach
     void setup() {
-        emailUpdateRepository.deleteAllTokens();
-        passwordResetRepository.deleteAllTokens();
+        /*
+            There is no need to password reset tokens and email update tokens because the id of the user is a foreign
+            key with ON DELETE CASCADE
+         */
         userRepository.deleteAllUsers();
     }
 }

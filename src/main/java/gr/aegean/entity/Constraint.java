@@ -1,11 +1,12 @@
 package gr.aegean.entity;
 
-import gr.aegean.model.analysis.quality.QualityMetric;
-import gr.aegean.model.analysis.quality.QualityMetricOperator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import gr.aegean.model.analysis.quality.QualityMetric;
+import gr.aegean.model.analysis.quality.QualityMetricOperator;
 
 
 @Getter

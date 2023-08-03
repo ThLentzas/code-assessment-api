@@ -34,12 +34,12 @@ class PasswordResetTokenRowMapperTest {
             when(resultSet.getTimestamp("expiry_date")).thenReturn(Timestamp.valueOf(expiryDate));
 
             // Act
-            PasswordResetToken passwordResetToken = underTest.mapRow(resultSet, 1);
+            PasswordResetToken actual = underTest.mapRow(resultSet, 1);
 
             // Assert
-            assertThat(1).isEqualTo(passwordResetToken.userId());
-            assertThat("token").isEqualTo(passwordResetToken.token());
-            assertThat(expiryDate).isEqualTo(passwordResetToken.expiryDate());
+            assertThat(actual.userId()).isEqualTo(1);
+            assertThat(actual.token()).isEqualTo("token");
+            assertThat(actual.expiryDate()).isEqualTo(expiryDate);
         }
     }
 }

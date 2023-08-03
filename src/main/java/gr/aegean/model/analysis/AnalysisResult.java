@@ -2,9 +2,9 @@ package gr.aegean.model.analysis;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 /*
@@ -12,7 +12,7 @@ import java.util.List;
  */
 public record AnalysisResult(Integer analysisId,
                              List<List<AnalysisReportDTO>> reports,
-                             @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-                             @JsonSerialize(using = LocalDateTimeSerializer.class)
-                             LocalDateTime createdDate) {
+                             @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+                             @JsonSerialize(using = LocalDateSerializer.class)
+                             LocalDate createdDate) {
 }
