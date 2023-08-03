@@ -26,6 +26,7 @@ class ConstraintRowMapperTest {
     @Test
     void shouldMapRowToConstraint() throws SQLException {
         try (ResultSet resultSet = mock(ResultSet.class)) {
+            //Arrange
             Constraint expected = new Constraint(1, QualityMetric.DUPLICATION, QualityMetricOperator.LT, 0.8);
 
             when(resultSet.getInt("analysis_id")).thenReturn(1);
@@ -33,8 +34,10 @@ class ConstraintRowMapperTest {
             when(resultSet.getString("operator")).thenReturn(QualityMetricOperator.LT.name());
             when(resultSet.getDouble("threshold")).thenReturn(0.8);
 
+            //Act
             Constraint actual = underTest.mapRow(resultSet, 1);
 
+            //Assert
             assertThat(actual.getAnalysisId()).isEqualTo(expected.getAnalysisId());
             assertThat(actual.getQualityMetric()).isEqualTo(expected.getQualityMetric());
             assertThat(actual.getOperator()).isEqualTo(expected.getOperator());

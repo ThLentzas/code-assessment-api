@@ -2,13 +2,7 @@ package gr.aegean.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import gr.aegean.model.analysis.AnalysisResult;
 import gr.aegean.model.user.UserUpdatePasswordRequest;
@@ -78,10 +72,17 @@ public class UserController {
         return new ResponseEntity<>(history, HttpStatus.OK);
     }
 
-    @GetMapping("/{userId}/history/{analysisId}")
+    @DeleteMapping("/{userId}/history/{analysisId}")
     public ResponseEntity<Void> deleteAnalysis(@PathVariable Integer analysisId, @PathVariable Integer userId) {
         userService.deleteAnalysis(analysisId, userId);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/{userId}/settings/account")
+    public ResponseEntity<Void> deleteAccount(@PathVariable Integer userId) {
+        userService.deleteAccount(userId);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

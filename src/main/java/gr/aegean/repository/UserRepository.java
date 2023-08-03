@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import gr.aegean.exception.ResourceNotFoundException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -204,9 +205,19 @@ public class UserRepository {
         return count != null && count > 0;
     }
 
+    public void deleteAccount(Integer userId) {
+        final String sql = "DELETE FROM app_user WHERE id = ?";
+
+        int update = jdbcTemplate.update(sql, userId);
+
+        if (update != 1) {
+            throw new ResourceNotFoundException("No account was found with the provided: " + userId);
+        }
+    }
+
     public void deleteAllUsers() {
         final String sql = "DELETE FROM app_user";
 
-        jdbcTemplate.update(sql);
+       jdbcTemplate.update(sql);
     }
 }

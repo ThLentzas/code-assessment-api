@@ -28,6 +28,7 @@ class RankingServiceTest {
 
     @Test
     void shouldRankReportsWhenNoPreferencesWereProvided() {
+        //Arrange
         List<Preference> preferences = new ArrayList<>();
         EnumMap<QualityMetric, Double> metricsReport = new EnumMap<>(QualityMetric.class);
         double expected = 0.7041500477517852;
@@ -44,13 +45,16 @@ class RankingServiceTest {
         metricsReport.put(QualityMetric.HOTSPOT_PRIORITY, 0.041353383458646614);
         metricsReport.put(QualityMetric.SECURITY_REMEDIATION_EFFORT, 1.0);
 
+        //Act
         double actual = underTest.rankTree(metricsReport, preferences);
 
+        //Assert
         assertThat(actual).isEqualTo(expected);
     }
 
     @Test
     void shouldRankReportsWhenPreferencesWereProvided() {
+        //Arrange
         List<Preference> preferences = new ArrayList<>();
         EnumMap<QualityMetric, Double> metricsReport = new EnumMap<>(QualityMetric.class);
         double expected = 0.684178243240507;
@@ -70,8 +74,10 @@ class RankingServiceTest {
         metricsReport.put(QualityMetric.HOTSPOT_PRIORITY, 0.041353383458646614);
         metricsReport.put(QualityMetric.SECURITY_REMEDIATION_EFFORT, 1.0);
 
+        //Act
         double actual = underTest.rankTree(metricsReport, preferences);
 
+        //Assert
         assertThat(actual).isEqualTo(expected);
     }
 }

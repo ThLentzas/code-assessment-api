@@ -19,7 +19,7 @@ class UserDTOMapperTest {
 
     @Test
     void shouldConvertUserToUserDTO() {
-
+        //Arrange
         User user = User.builder()
                 .id(1)
                 .firstname("Test")
@@ -31,8 +31,10 @@ class UserDTOMapperTest {
                 .company("Code Monkey, LLC")
                 .build();
 
+        //Act
         UserDTO userDTO = underTest.apply(user);
 
+        //Assert
         assertThat(user.getId()).isEqualTo(userDTO.id());
         assertThat(user.getFirstname()).isEqualTo(userDTO.firstname());
         assertThat(user.getLastname()).isEqualTo(userDTO.lastname());

@@ -26,38 +26,47 @@ class MetricDeserializerTest {
 
     @Test
     void shouldDeserializeMetric() throws IOException {
+        //Arrange
         String expected = "DUPLICATION";
         JsonParser parser = mock(JsonParser.class);
         DeserializationContext context = mock(DeserializationContext.class);
 
         when(parser.getValueAsString()).thenReturn(expected.toUpperCase());
 
+        //Act
         QualityMetric actual = underTest.deserialize(parser, context);
 
+        //Assert
         assertThat(actual).isEqualTo(QualityMetric.valueOf(expected));
     }
 
     @Test
     void shouldDeserializeMetricIgnoringCase() throws IOException {
+        //Arrange
         String expected = "DupLIcatioN";
         JsonParser parser = mock(JsonParser.class);
         DeserializationContext context = mock(DeserializationContext.class);
 
         when(parser.getValueAsString()).thenReturn(expected.toUpperCase());
 
+        //Act
         QualityMetric actual = underTest.deserialize(parser, context);
 
+        //Assert
         assertThat(actual).isEqualTo(QualityMetric.valueOf(expected.toUpperCase()));
     }
 
     @Test
     void shouldThrowIllegalArgumentExceptionWhenMetricIsInvalid() throws IOException {
+        //Arrange
         String metric = "invalidMetric";
         JsonParser parser = mock(JsonParser.class);
         DeserializationContext context = mock(DeserializationContext.class);
 
+        //Act
         when(parser.getValueAsString()).thenReturn(metric.toUpperCase());
 
+        //Assert
         assertThatThrownBy(() -> underTest.deserialize(parser, context))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid quality metric: " + metric.toUpperCase());

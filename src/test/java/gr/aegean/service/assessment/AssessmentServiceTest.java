@@ -35,6 +35,7 @@ class AssessmentServiceTest {
 
     @Test
     void shouldNotFilterReportsWhenNoConstraintsWereProvided() throws IOException {
+        //Arrange
         ObjectMapper mapper = new ObjectMapper();
         List<Constraint> constraints = new ArrayList<>();
         List<Preference> preferences = new ArrayList<>();
@@ -43,8 +44,10 @@ class AssessmentServiceTest {
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 
+        //Act
         underTest.assessAnalysisResult(reports, constraints, preferences);
 
+        //Assert
         verifyNoInteractions(filteringService);
     }
 }

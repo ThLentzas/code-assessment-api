@@ -26,8 +26,8 @@ class PasswordResetTokenRowMapperTest {
 
     @Test
     void shouldMapRowToPasswordResetToken() throws SQLException {
-        // Arrange
         try (ResultSet resultSet = mock(ResultSet.class)) {
+            // Arrange
             LocalDateTime expiryDate = LocalDateTime.now();
             when(resultSet.getInt("user_id")).thenReturn(1);
             when(resultSet.getString("token")).thenReturn("token");

@@ -216,4 +216,41 @@ class UserIT extends AbstractIntegrationTest {
                 .exchange()
                 .expectStatus().isOk();
     }
+
+    @Test
+    void shouldDeleteAccount() {
+        String requestBody = """
+                {
+                    "firstname": "Test",
+                    "lastname": "Test",
+                    "username": "TestT",
+                    "email": "test@example.com",
+                    "password": "CyN549^*o2Cr",
+                    "bio": "I have a real passion for teaching",
+                    "location": "Cleveland, OH",
+                    "company": "Code Monkey, LLC"
+                }""";
+
+        EntityExchangeResult<AuthResponse> result = webTestClient.post()
+                .uri(AUTH_PATH + "/signup")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectHeader().exists(HttpHeaders.LOCATION)
+                .expectBody(AuthResponse.class)
+                .returnResult();
+
+        String jwtToken = result.getResponseBody().token();
+        String locationHeader = result.getResponseHeaders().getFirst(HttpHeaders.LOCATION);
+        Integer userId = Integer.parseInt(locationHeader.substring(locationHeader.lastIndexOf('/') + 1));
+
+        webTestClient.delete()
+                .uri(USER_PATH + "/{userId}/settings/account", userId)
+                .accept(MediaType.APPLICATION_JSON)
+                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .exchange()
+                .expectStatus().isNoContent();
+    }
 }

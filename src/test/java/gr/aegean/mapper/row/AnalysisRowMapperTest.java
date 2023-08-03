@@ -26,6 +26,7 @@ class AnalysisRowMapperTest {
     @Test
     void shouldMapRowToAnalysis() throws SQLException {
         try (ResultSet resultSet = mock(ResultSet.class)) {
+            //Arrange
             LocalDate createdDate = LocalDate.now();
             Analysis expected = new Analysis(1, 5, createdDate);
 
@@ -33,8 +34,10 @@ class AnalysisRowMapperTest {
             when(resultSet.getInt("user_id")).thenReturn(5);
             when(resultSet.getDate("created_date")).thenReturn(Date.valueOf(createdDate));
 
+            //Act
             Analysis actual = underTest.mapRow(resultSet, 1);
 
+            //Assert
             assertThat(actual.getId()).isEqualTo(expected.getId());
             assertThat(actual.getUserId()).isEqualTo(expected.getUserId());
             assertThat(actual.getCreatedDate()).isEqualTo(expected.getCreatedDate());

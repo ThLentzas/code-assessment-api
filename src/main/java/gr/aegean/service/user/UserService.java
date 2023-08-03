@@ -227,6 +227,10 @@ public class UserService {
         analysisService.deleteAnalysis(analysisId, userId);
     }
 
+    public void deleteAccount(Integer userId) {
+        userRepository.deleteAccount(userId);
+    }
+
 
     public void validateUser(User user) {
         validateFirstname(user.getFirstname());

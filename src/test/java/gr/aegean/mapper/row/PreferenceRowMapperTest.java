@@ -26,14 +26,17 @@ class PreferenceRowMapperTest {
     @Test
     void shouldMapRowToPreference() throws SQLException {
         try (ResultSet resultSet = mock(ResultSet.class)) {
+            // Arrange
             Preference expected = new Preference(1, QualityAttribute.BUG_SEVERITY, 0.4);
 
             when(resultSet.getInt("analysis_id")).thenReturn(1);
             when(resultSet.getString("quality_attribute")).thenReturn(QualityAttribute.BUG_SEVERITY.name());
             when(resultSet.getDouble("weight")).thenReturn(0.4);
 
+            //Act
             Preference actual = underTest.mapRow(resultSet, 1);
 
+            //Assert
             assertThat(actual.getAnalysisId()).isEqualTo(expected.getAnalysisId());
             assertThat(actual.getQualityAttribute()).isEqualTo(expected.getQualityAttribute());
             assertThat(actual.getWeight()).isEqualTo(expected.getWeight());

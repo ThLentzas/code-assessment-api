@@ -26,6 +26,7 @@ class OperatorDeserializerTest {
 
     @Test
     void shouldDeserializeSymbolToOperator() throws IOException {
+        //Arrange
         String symbol = "<=";
         QualityMetricOperator expected = QualityMetricOperator.LTE;
         JsonParser parser = mock(JsonParser.class);
@@ -33,19 +34,23 @@ class OperatorDeserializerTest {
 
         when(parser.getValueAsString()).thenReturn(symbol);
 
+        //Act
         QualityMetricOperator actual = underTest.deserialize(parser, context);
 
+        //Assert
         assertThat(actual).isEqualTo(expected);
     }
 
     @Test
     void shouldThrowIllegalArgumentExceptionWhenSymbolIsInvalid() throws IOException {
+        //Arrange
         String symbol = "://";
         JsonParser parser = mock(JsonParser.class);
         DeserializationContext context = mock(DeserializationContext.class);
 
         when(parser.getValueAsString()).thenReturn(symbol);
 
+        //Act Assert
         assertThatThrownBy(() -> underTest.deserialize(parser, context))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid operator symbol: " + symbol);

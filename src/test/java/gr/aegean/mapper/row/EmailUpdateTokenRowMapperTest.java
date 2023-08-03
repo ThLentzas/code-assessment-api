@@ -25,8 +25,8 @@ class EmailUpdateTokenRowMapperTest {
 
     @Test
     void shouldMapRowToEmailUpdateToken() throws SQLException {
-        // Arrange
         try (ResultSet resultSet = mock(ResultSet.class)) {
+            // Arrange
             LocalDateTime expiryDate = LocalDateTime.now();
 
             when(resultSet.getInt("user_id")).thenReturn(1);

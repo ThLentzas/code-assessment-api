@@ -25,8 +25,8 @@ class UserRowMapperTest {
 
     @Test
     void shouldMapRowToUser() throws SQLException {
-        // Arrange
         try (ResultSet resultSet = mock(ResultSet.class)) {
+            // Arrange
             when(resultSet.getInt("id")).thenReturn(1);
             when(resultSet.getString("first_name")).thenReturn("first_name");
             when(resultSet.getString("last_name")).thenReturn("last_name");

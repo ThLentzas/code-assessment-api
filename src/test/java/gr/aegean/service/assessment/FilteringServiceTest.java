@@ -19,15 +19,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 class FilteringServiceTest {
-    private FilteringService filteringService;
+    private FilteringService underTest;
 
     @BeforeEach
     void setup() {
-        filteringService = new FilteringService();
+        underTest = new FilteringService();
     }
 
     @Test
     void shouldReturnAnEmptyCompliantList() throws IOException {
+        //Arrange
         ObjectMapper mapper = new ObjectMapper();
         List<Constraint> constraints = new ArrayList<>();
         constraints.add(new Constraint(QualityMetric.CYCLOMATIC_COMPLEXITY, QualityMetricOperator.GT, 0.85));
@@ -36,9 +37,11 @@ class FilteringServiceTest {
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 
-        List<List<AnalysisReport>> actual = filteringService.filter(reports, constraints);
+        //Act
+        List<List<AnalysisReport>> actual = underTest.filter(reports, constraints);
 
         /*
+            Assert
             actual.get(0) = compliant list
             actual.get(1) = non-compliant list
          */
@@ -48,6 +51,7 @@ class FilteringServiceTest {
 
     @Test
     void shouldReturnOneReportInEachList() throws IOException {
+        //Arrange
         ObjectMapper mapper = new ObjectMapper();
         List<Constraint> constraints = new ArrayList<>();
         constraints.add(new Constraint(QualityMetric.TECHNICAL_DEBT_RATIO, QualityMetricOperator.GT, 0.95));
@@ -57,9 +61,11 @@ class FilteringServiceTest {
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 
-        List<List<AnalysisReport>> actual = filteringService.filter(reports, constraints);
+        //Act
+        List<List<AnalysisReport>> actual = underTest.filter(reports, constraints);
 
         /*
+            Assert
             actual.get(0) = compliant list
             actual.get(1) = non-compliant list
          */
@@ -69,6 +75,7 @@ class FilteringServiceTest {
 
     @Test
     void shouldReturnAnEmptyNonCompliantList() throws IOException {
+        //Assert
         ObjectMapper mapper = new ObjectMapper();
         List<Constraint> constraints = new ArrayList<>();
         constraints.add(new Constraint(QualityMetric.BUG_SEVERITY, QualityMetricOperator.LTE, 1.0));
@@ -78,9 +85,11 @@ class FilteringServiceTest {
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 
-        List<List<AnalysisReport>> actual = filteringService.filter(reports, constraints);
+        //Act
+        List<List<AnalysisReport>> actual = underTest.filter(reports, constraints);
 
         /*
+            Assert
             actual.get(0) = compliant list
             actual.get(1) = non-compliant list
          */

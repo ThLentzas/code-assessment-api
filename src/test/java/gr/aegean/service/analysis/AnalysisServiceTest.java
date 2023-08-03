@@ -102,6 +102,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
 
     @Test
     void shouldSaveAnalysisProcess() throws IOException {
+        //Arrange
         User user = generateUser();
         Integer userId = userService.registerUser(user);
 
@@ -117,13 +118,16 @@ class AnalysisServiceTest extends AbstractTestContainers {
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 
+        //Act
         Integer actual = underTest.saveAnalysisProcess(userId, reports, constraints, preferences);
 
+        //Assert
         assertThat(actual).isNotNull().isPositive();
     }
 
     @Test
     void shouldFindAnalysesByUserId() throws IOException {
+        //Arrange
         User user = generateUser();
         Integer userId = userService.registerUser(user);
 
@@ -138,15 +142,18 @@ class AnalysisServiceTest extends AbstractTestContainers {
         String analysisReportPath = "src/test/resources/reports/analysis-report.json";
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
-
         underTest.saveAnalysisProcess(userId, reports, constraints, preferences);
+
+        //Act
         List<Analysis> actual = underTest.getHistory(userId);
 
+        //Assert
         assertThat(actual).hasSize(1);
     }
 
     @Test
     void shouldDeleteAnalysis() throws IOException {
+        //Arrange
         User user = generateUser();
         Integer userId = userService.registerUser(user);
 
@@ -161,10 +168,12 @@ class AnalysisServiceTest extends AbstractTestContainers {
         String analysisReportPath = "src/test/resources/reports/analysis-report.json";
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
-
         Integer analysisId = underTest.saveAnalysisProcess(userId, reports, constraints, preferences);
+
+        //Act
         underTest.deleteAnalysis(analysisId, userId);
 
+        //Assert
         assertThatThrownBy(() -> underTest.findAnalysisResultByAnalysisId(analysisId))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("No analysis was found for analysis id: " + analysisId);
@@ -173,6 +182,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
     @ParameterizedTest
     @NullSource
     void shouldThrowIllegalArgumentExceptionWhenRefreshRequestIsNull(RefreshRequest request) {
+        //Arrange Act Assert
         assertThatThrownBy(() -> underTest.refreshAnalysisResult(1, request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("No refresh request was provided.");

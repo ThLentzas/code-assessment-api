@@ -390,8 +390,6 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdateProfile() {
         //Arrange
-        User user = generateUser();
-        Integer userId = userRepository.registerUser(user);
         UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
                 "foo",
                 "foo",
@@ -400,12 +398,11 @@ class UserServiceTest extends AbstractTestContainers {
                 "Miami, OH",
                 "VM, LLC"
         );
-        Integer nonExistingId = userId + 1;
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.updateProfile(nonExistingId, profileUpdateRequest))
+        assertThatThrownBy(() -> underTest.updateProfile(1, profileUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User with id: " + nonExistingId + " not found");
+                .hasMessage("User with id: " + 1 + " not found");
     }
 
     /*
@@ -442,15 +439,12 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdatePassword() {
         //Arrange
-        User user = generateUser();
-        Integer userId = userRepository.registerUser(user);
         UserUpdatePasswordRequest passwordUpdateRequest = new UserUpdatePasswordRequest("foo", "CyN549^*o2Cr");
-        Integer nonExistingId = userId + 1;
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.updatePassword(nonExistingId, passwordUpdateRequest))
+        assertThatThrownBy(() -> underTest.updatePassword(1, passwordUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User with id: " + nonExistingId + " not found");
+                .hasMessage("User with id: " + 1 + " not found");
     }
 
     /*
@@ -479,15 +473,10 @@ class UserServiceTest extends AbstractTestContainers {
 
     @Test
     void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToGetProfile() {
-        //Arrange
-        User user = generateUser();
-        Integer userId = userRepository.registerUser(user);
-        Integer nonExistingId = userId + 1;
-
-        //Act Assert
-        assertThatThrownBy(() -> underTest.getProfile(nonExistingId))
+        //Arrange Act Assert
+        assertThatThrownBy(() -> underTest.getProfile(1))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User with id: " + nonExistingId + " not found");
+                .hasMessage("User with id: " + 1 + " not found");
     }
 
     @Test
@@ -512,19 +501,15 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdateEmail() {
         //Arrange
-        User user = generateUser();
-        Integer userId = userRepository.registerUser(user);
-        Integer nonExistingId = userId + 1;
-
         UserUpdateEmailRequest emailUpdateRequest = new UserUpdateEmailRequest(
                 "foo@example.com",
                 "test"
         );
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.createEmailUpdateToken(nonExistingId, emailUpdateRequest))
+        assertThatThrownBy(() -> underTest.createEmailUpdateToken(1, emailUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User with id: " + nonExistingId + " not found");
+                .hasMessage("User with id: " + 1 + " not found");
     }
 
     @Test
@@ -618,6 +603,29 @@ class UserServiceTest extends AbstractTestContainers {
         assertThat(emailUpdateRepository.findToken(hashedToken)).isNotPresent();
     }
 
+    @Test
+    void shouldDeleteAccount() {
+        //Arrange
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+
+        //Act
+        underTest.deleteAccount(userId);
+
+        //Assert
+        assertThatThrownBy(() -> underTest.getProfile(userId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("User with id: " + userId + " not found");
+    }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenAccountDoesNotExist() {
+        //Arrange Act Assert
+        assertThatThrownBy(() -> underTest.deleteAccount(1))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("No account was found with the provided: " + 1);
+    }
+
     private User generateUser() {
         return User.builder()
                 .firstname("Test")
@@ -630,7 +638,6 @@ class UserServiceTest extends AbstractTestContainers {
                 .company("Code Monkey, LLC")
                 .build();
     }
-
 
     private String generateRandomString(int length) {
         return RandomStringUtils.randomAlphabetic(length);
