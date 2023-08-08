@@ -60,6 +60,12 @@ public class PasswordResetRepository {
 
     }
 
+    public void deleteAllUserTokens(Integer userId) {
+        final String sql = "DELETE FROM password_reset_token WHERE user_id = ?";
+
+        jdbcTemplate.update(sql, userId);
+    }
+
     public void deleteAllTokens() {
         final String sql = "DELETE FROM password_reset_token";
 

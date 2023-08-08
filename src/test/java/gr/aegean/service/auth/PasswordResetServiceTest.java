@@ -128,6 +128,30 @@ class PasswordResetServiceTest extends AbstractTestContainers {
                 .hasMessage("The password reset link has expired. Please request a new one.");
     }
 
+    @Test
+    void shouldInvalidateAllPreviousTokensWhenNewResetTokenIsGenerated() {
+        //Arrange
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+
+        String hashedToken = StringUtils.hashToken("token");
+        LocalDateTime expiryDate = LocalDateTime.now().plusHours(3);
+        PasswordResetToken passwordResetToken = new PasswordResetToken(
+                userId,
+                hashedToken,
+                expiryDate);
+
+        passwordResetRepository.saveToken(passwordResetToken);
+
+        PasswordResetRequest passwordResetRequest = new PasswordResetRequest("test@example.com");
+
+        //Act
+        underTest.createPasswordResetToken(passwordResetRequest);
+
+        //Assert
+        assertThat(passwordResetRepository.findToken(hashedToken)).isNotPresent();
+    }
+
     /*
         No need to test for the password encoder or to validate the updated password or the email service because they
         have been tested separately in email service, etc. The validatePasswordResetToken() it's tested here as well

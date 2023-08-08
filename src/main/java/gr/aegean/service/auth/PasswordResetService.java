@@ -36,11 +36,20 @@ public class PasswordResetService {
                             hashedToken,
                             expiryDate
                     );
+
+                    /*
+                        If the user requested a new password reset without clicking the link on the previous email, we
+                        have to invalidate the previous generated tokens. Best approach would also include rate limiting
+                     */
+                    passwordResetRepository.deleteAllUserTokens(user.getId());
                     passwordResetRepository.saveToken(passwordResetToken);
 
                     emailService.sendPasswordResetRequestEmail(resetRequest.email(), token);
                 });
 
+        /*
+            We return a generic response for security reasons, no matter if the emails exists or not.
+         */
         return new PasswordResetResponse("If your email address exists in our database, you will receive a password " +
                 "recovery link at your email address in a few minutes.");
     }

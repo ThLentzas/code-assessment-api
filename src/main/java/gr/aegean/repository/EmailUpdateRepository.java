@@ -61,6 +61,12 @@ public class EmailUpdateRepository {
         jdbcTemplate.update(sql, token);
     }
 
+    public void deleteAllUserTokens(Integer userId) {
+        final String sql = "DELETE FROM email_update_token WHERE user_id = ?";
+
+        jdbcTemplate.update(sql, userId);
+    }
+
     public void deleteAllTokens() {
         final String sql = "DELETE FROM email_update_token";
 

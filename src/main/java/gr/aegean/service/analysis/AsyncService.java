@@ -93,6 +93,10 @@ public class AsyncService {
 
     private CompletableFuture<Optional<AnalysisReport>> cloneAndAnalyzeProjectAsync(File requestFolder,
                                                                                     String projectUrl) {
+        /*
+            This is the async part, where we first download a project url, then we analyze it. We do that for every
+            project url
+         */
         return CompletableFuture.supplyAsync(() -> gitHubService.cloneProject(requestFolder, projectUrl)
                 .flatMap(projectPath -> analysisService.analyzeProject(projectPath, projectUrl)), taskExecutor);
     }

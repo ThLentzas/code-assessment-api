@@ -140,6 +140,11 @@ public class UserService {
                             emailUpdateRequest.email(),
                             expiryDate
                     );
+                    /*
+                        If the user requested a new email update without clicking the link on the previous email, we
+                        have to invalidate the previous generated tokens.
+                     */
+                    emailUpdateRepository.deleteAllUserTokens(user.getId());
                     emailUpdateRepository.saveToken(emailUpdateToken);
 
                     emailService.sendEmailVerification(emailUpdateRequest.email(), user.getUsername(), token);

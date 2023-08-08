@@ -116,6 +116,7 @@ class UserServiceTest extends AbstractTestContainers {
 
     @Test
     void shouldThrowIllegalArgumentExceptionWhenFirstnameExceedsMaxLength() {
+        //Arrange
         Random random = new Random();
         User user = User.builder()
                 .firstname(generateRandomString(random.nextInt(31) + 31))
@@ -176,6 +177,7 @@ class UserServiceTest extends AbstractTestContainers {
 
     @Test
     void shouldThrowIllegalArgumentExceptionWhenLastnameExceedsMaxLength() {
+        //Arrange
         Random random = new Random();
         User user = User.builder()
                 .firstname("Test")
@@ -236,6 +238,7 @@ class UserServiceTest extends AbstractTestContainers {
 
     @Test
     void shouldThrowIllegalArgumentExceptionWhenUsernameExceedsMaxLength() {
+        //Arrange
         Random random = new Random();
         User user = User.builder()
                 .firstname("Test")
@@ -581,6 +584,34 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
+    void shouldInvalidateAllPreviousTokensWhenNewEmailUpdateTokenIsGenerated() {
+        //Arrange
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+
+        String hashedToken = StringUtils.hashToken("token");
+        LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
+        EmailUpdateToken emailUpdateToken = new EmailUpdateToken(
+                userId,
+                hashedToken,
+                user.getEmail(),
+                expiryDate);
+
+        emailUpdateRepository.saveToken(emailUpdateToken);
+
+        UserUpdateEmailRequest emailUpdateRequest = new UserUpdateEmailRequest(
+                "foo@example.com",
+                "test"
+        );
+
+        //Act
+        underTest.createEmailUpdateToken(userId, emailUpdateRequest);
+
+        //Assert
+        assertThat(emailUpdateRepository.findToken(hashedToken)).isNotPresent();
+    }
+
+    @Test
     void shouldUpdateEmail() {
         //Arrange
         User user = generateUser();
@@ -602,6 +633,8 @@ class UserServiceTest extends AbstractTestContainers {
         //Assert
         assertThat(emailUpdateRepository.findToken(hashedToken)).isNotPresent();
     }
+
+
 
     @Test
     void shouldDeleteAccount() {

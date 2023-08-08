@@ -190,19 +190,15 @@ public class UserRepository {
     }
 
     public boolean existsUserWithEmail(String email) {
-        final String sql = "SELECT COUNT(*) FROM app_user WHERE email = ?";
+        final String sql = "SELECT EXISTS (SELECT 1 FROM app_user WHERE email = ?)";
 
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, email);
-
-        return count != null && count > 0;
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, Boolean.class, email));
     }
 
     public boolean existsUserWithUsername(String username) {
-        final String sql = "SELECT COUNT(*) FROM app_user WHERE username = ?";
+        final String sql = "SELECT EXISTS (SELECT 1 FROM app_user WHERE username = ?)";
 
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, username);
-
-        return count != null && count > 0;
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, Boolean.class, username));
     }
 
     public void deleteAccount(Integer userId) {

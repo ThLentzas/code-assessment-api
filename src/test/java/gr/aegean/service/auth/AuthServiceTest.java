@@ -120,9 +120,11 @@ class AuthServiceTest {
                 any(UsernamePasswordAuthenticationToken.class));
     }
 
-    //When authenticate from authentication manager fails it will throw either spring.security.BadCredentialsException
-    //if password is wrong or EmptyResultDataAccessException if the user's email doesn't exist. In any case both are run
-    //time exceptions.
+    /*
+        When authenticate from authentication manager fails it will throw either spring.security.BadCredentialsException
+        if password is wrong or EmptyResultDataAccessException if the user's email doesn't exist. In any case both are
+        run time exceptions.
+     */
     @Test
     void shouldThrowUnauthorizedExceptionWhenAuthEmailOrPasswordIsWrong() {
         //Arrange
