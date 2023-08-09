@@ -9532,7 +9532,7 @@
       }
     },
     "qualityMetricsReport": {
-      "COMMENT_RATE": 0.057,
+      "COMMENT_RATE": 0.14008178379015046,
       "METHOD_SIZE": 1.0,
       "DUPLICATION": 0.948,
       "BUG_SEVERITY": 0.0012985326580963513,
@@ -10950,7 +10950,7 @@
       }
     },
     "qualityMetricsReport": {
-      "COMMENT_RATE": 0.222,
+      "COMMENT_RATE": 0.6662906694752284,
       "METHOD_SIZE": 1.0,
       "DUPLICATION": 1.0,
       "BUG_SEVERITY": 1.0,

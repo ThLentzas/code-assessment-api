@@ -313,9 +313,9 @@ public class SonarService {
         QualityMetricReport qualityMetricReport = response.getBody();
 
         /*
-            We are getting a percentage back and converting to the [0.0, 1.0] range by dividing with 100.
+            We are getting a percentage back.
          */
-        return qualityMetricReport.getMeasures().get(0).getValue() / 100;
+        return qualityMetricReport.getMeasures().get(0).getValue();
     }
 
     private double fetchMethodSize(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {

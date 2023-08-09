@@ -30,9 +30,9 @@ public class MetricCalculationService {
                                                List<HotspotsReport.HotspotDetails> hotspotsDetails) {
         Map<QualityMetric, Double> updatedMetricsReport = new EnumMap<>(QualityMetric.class);
         Double linesOfCode = metricsReport.get(QualityMetric.LINES_OF_CODE);
-        updatedMetricsReport.put(QualityMetric.COMMENT_RATE, metricsReport.get(QualityMetric.COMMENT_RATE));
         metricsReport.forEach((metric, value) -> {
             switch (metric) {
+                case COMMENT_RATE -> updatedMetricsReport.put(metric, applyCommentRateUtf(value));
                 case METHOD_SIZE -> updatedMetricsReport.put(metric, applyMethodSizeUtf(value));
                 case DUPLICATION -> updatedMetricsReport.put(metric, applyDuplicationUtf(value));
                 case TECHNICAL_DEBT_RATIO -> updatedMetricsReport.put(metric, applyTechnicalDebtRatioUtf(value));
@@ -62,6 +62,18 @@ public class MetricCalculationService {
         updatedMetricsReport.put(QualityMetric.HOTSPOT_PRIORITY, value);
 
         return updatedMetricsReport;
+    }
+
+    private double applyCommentRateUtf(double commentRate) {
+        if(commentRate == 30.0) {
+            return 1.0;
+        }
+
+        if(commentRate > 30.0) {
+            return (100 - commentRate) / 70;
+        }
+
+        return Math.exp(0.023 * commentRate) - 1;
     }
 
     private double applyDuplicationUtf(double duplication) {

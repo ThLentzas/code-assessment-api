@@ -31,9 +31,9 @@ class RankingServiceTest {
         //Arrange
         List<Preference> preferences = new ArrayList<>();
         EnumMap<QualityMetric, Double> metricsReport = new EnumMap<>(QualityMetric.class);
-        double expected = 0.7041500477517852;
+        double expected = 0.7596863814361887;
 
-        metricsReport.put(QualityMetric.COMMENT_RATE, 0.222);
+        metricsReport.put(QualityMetric.COMMENT_RATE, 0.6662906694752284);
         metricsReport.put(QualityMetric.METHOD_SIZE, 1.0);
         metricsReport.put(QualityMetric.DUPLICATION, 1.0);
         metricsReport.put(QualityMetric.BUG_SEVERITY, 1.0);
@@ -57,12 +57,12 @@ class RankingServiceTest {
         //Arrange
         List<Preference> preferences = new ArrayList<>();
         EnumMap<QualityMetric, Double> metricsReport = new EnumMap<>(QualityMetric.class);
-        double expected = 0.684178243240507;
+        double expected = 0.7397145769249105;
 
         preferences.add(new Preference(QualityAttribute.SIMPLICITY, 0.34));
         preferences.add(new Preference(QualityAttribute.SECURITY_REMEDIATION_EFFORT, 0.25));
 
-        metricsReport.put(QualityMetric.COMMENT_RATE, 0.222);
+        metricsReport.put(QualityMetric.COMMENT_RATE, 0.6662906694752284);
         metricsReport.put(QualityMetric.METHOD_SIZE, 1.0);
         metricsReport.put(QualityMetric.DUPLICATION, 1.0);
         metricsReport.put(QualityMetric.BUG_SEVERITY, 1.0);

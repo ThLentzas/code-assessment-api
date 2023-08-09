@@ -41,7 +41,7 @@ class MetricCalculationServiceTest {
         EnumMap<QualityMetric, Double> metricsReport = mapper.readValue(new File(metricsReportPath), type);
         EnumMap<QualityMetric, Double> expected = new EnumMap<>(QualityMetric.class);
 
-        expected.put(QualityMetric.COMMENT_RATE, 0.222);
+        expected.put(QualityMetric.COMMENT_RATE, 0.6662906694752284);
         expected.put(QualityMetric.METHOD_SIZE, 1.0);
         expected.put(QualityMetric.DUPLICATION, 1.0);
         expected.put(QualityMetric.BUG_SEVERITY, 1.0);
