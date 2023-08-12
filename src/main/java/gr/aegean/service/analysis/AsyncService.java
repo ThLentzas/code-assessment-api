@@ -34,9 +34,9 @@ public class AsyncService {
     public AsyncService(GitHubService gitHubService,
                         AnalysisService analysisService,
                         AuthService authService,
-                            /*
-                                The default one and the one we configured, so we have to use @Qualifier
-                             */
+                        /*
+                            The default one and the one we configured, so we have to use @Qualifier
+                         */
                         @Qualifier("taskExecutor") Executor taskExecutor,
                         @Value("${projects.base-directory}") String baseDirectoryPath) {
         this.gitHubService = gitHubService;
@@ -59,7 +59,7 @@ public class AsyncService {
                 .toList();
 
         /*
-            Wait for all the threads to finish the collect the results remove empty optionals and return the analysis
+            Wait for all the threads to finish to collect the results, remove empty optionals and return the analysis
             report. Empty optionals would have null values in the list.
          */
         CompletableFuture<List<AnalysisReport>> allFutures = CompletableFuture.allOf(

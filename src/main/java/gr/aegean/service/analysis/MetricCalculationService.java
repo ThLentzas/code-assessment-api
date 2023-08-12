@@ -16,15 +16,15 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 
-/*
-    For a quality metric the relative utility function(utf) is applied.
- */
 @Service
 public class MetricCalculationService {
     private static final double LINE_COST = 0.06;
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 
+    /*
+        For every quality metric, the relative utility function(utf) is applied.
+     */
     public Map<QualityMetric, Double> applyUtf(Map<QualityMetric, Double> metricsReport,
                                                List<IssuesReport.IssueDetails> issuesDetails,
                                                List<HotspotsReport.HotspotDetails> hotspotsDetails) {
@@ -121,7 +121,7 @@ public class MetricCalculationService {
         Map<Severity, Long> severityCount = countSeverityByType(issuesDetails, issueType);
 
         /*
-            Getting the count for each severity, if its null, meaning no severity of the specific type was found we
+            Getting the count for each severity. If it's null, meaning no severity of the specific type was found we
             return 0, otherwise we would have NullPointerException.
          */
         long blockerCount = severityCount.getOrDefault(Severity.BLOCKER, 0L);

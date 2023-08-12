@@ -6,6 +6,7 @@ import gr.aegean.repository.UserRepository;
 import gr.aegean.model.auth.PasswordResetConfirmationRequest;
 import gr.aegean.model.auth.PasswordResetRequest;
 import gr.aegean.model.auth.PasswordResetResponse;
+import gr.aegean.service.email.EmailService;
 import gr.aegean.utility.StringUtils;
 
 import org.springframework.security.authentication.BadCredentialsException;
@@ -28,6 +29,9 @@ public class PasswordResetService {
     public PasswordResetResponse createPasswordResetToken(PasswordResetRequest resetRequest) {
         userRepository.findUserByEmail(resetRequest.email())
                 .ifPresent(user -> {
+                    /*
+                        The generated token will be on the email link and the hashed version will be stored in our db.
+                     */
                     String token = StringUtils.generateToken();
                     String hashedToken = StringUtils.hashToken(token);
                     LocalDateTime expiryDate = LocalDateTime.now().plusHours(3);
@@ -44,7 +48,7 @@ public class PasswordResetService {
                     passwordResetRepository.deleteAllUserTokens(user.getId());
                     passwordResetRepository.saveToken(passwordResetToken);
 
-                    emailService.sendPasswordResetRequestEmail(resetRequest.email(), token);
+                    emailService.sendPasswordResetEmail(resetRequest.email(), token);
                 });
 
         /*
@@ -54,6 +58,9 @@ public class PasswordResetService {
                 "recovery link at your email address in a few minutes.");
     }
 
+    /*
+        Validates the extracted token when the user clicks the email link
+     */
     public void validatePasswordResetToken(String token) {
         if (token == null || token.isBlank()) {
             throw new BadCredentialsException("Reset password token is invalid");
@@ -95,7 +102,7 @@ public class PasswordResetService {
 
     private void sendConfirmationEmail(Integer userId) {
         userRepository.findUserByUserId(userId)
-                .ifPresent(user -> emailService.sendPasswordResetConfirmationEmail(
+                .ifPresent(user -> emailService.sendPasswordResetSuccessEmail(
                         user.getEmail(),
                         user.getUsername()));
     }

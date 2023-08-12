@@ -64,7 +64,8 @@ public class DockerService {
             IOException,
             InterruptedException {
         /*
-            Splitting with the escape character which is also the file separator in Windows
+            The project key is the UUID that was assigned to the project folder. Splitting with the escape character
+            which is also the file separator in Windows.
          */
         String dockerImage = projectPath.split("\\\\")[3];
 

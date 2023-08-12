@@ -56,6 +56,10 @@ public class AnalysisService {
             return Optional.empty();
         }
 
+        /*
+            The project key is the UUID that was assigned to the project folder. Splitting with the escape character
+            which is also the file separator in Windows.
+         */
         String projectKey = projectPath.toString().split("\\\\")[3];
 
         if (detectedLanguages.containsKey("Java")) {
@@ -68,12 +72,13 @@ public class AnalysisService {
             sonarService.analyzeProject(projectKey, projectPath.toString());
         }
 
-        analysisReport = sonarService.fetchAnalysisReport(projectKey, detectedLanguages);
+        analysisReport = sonarService.fetchAnalysisReport(projectKey);
         Map<QualityMetric, Double> updatedQualityMetricsReport = metricCalculationService.applyUtf(
                 analysisReport.getQualityMetricsReport(),
                 analysisReport.getIssuesReport().getIssues(),
                 analysisReport.getHotspotsReport().getHotspots());
 
+        analysisReport.setLanguages(detectedLanguages);
         analysisReport.setQualityMetricsReport(updatedQualityMetricsReport);
         analysisReport.setProjectUrl(Link.of(projectUrl));
 
@@ -117,7 +122,7 @@ public class AnalysisService {
 
         /*
             If no constraints or/and no preferences were found meaning no constraints or/and no preferences were
-             provided for the specific analysis, we have an empty list.
+            provided for the specific analysis, we have an empty list.
          */
         List<Constraint> constraints = findAnalysisConstraintsByAnalysisId(analysisId);
         List<Preference> preferences = findAnalysisPreferencesByAnalysisId(analysisId);
@@ -154,8 +159,7 @@ public class AnalysisService {
 
         /*
             Updating wouldn't work, also DELETE ON CASCADE wouldn't work either because it would actually delete the
-            initial analysis, so we delete first the old constraints/preferences and then save the new
-            ones.
+            initial analysis, so we delete first the old constraints/preferences and then save the new ones.
          */
         analysisRepository.deleteConstraintByAnalysisId(analysisId);
         analysisRepository.deletePreferenceByAnalysisId(analysisId);

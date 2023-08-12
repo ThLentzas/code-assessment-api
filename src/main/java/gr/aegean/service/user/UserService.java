@@ -13,7 +13,7 @@ import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
-import gr.aegean.service.auth.EmailService;
+import gr.aegean.service.email.EmailService;
 import gr.aegean.utility.StringUtils;
 
 import java.sql.Date;

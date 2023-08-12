@@ -13,7 +13,7 @@ import gr.aegean.repository.AnalysisRepository;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.assessment.AssessmentService;
-import gr.aegean.service.auth.EmailService;
+import gr.aegean.service.email.EmailService;
 import gr.aegean.service.user.UserService;
 
 import org.junit.jupiter.api.BeforeEach;

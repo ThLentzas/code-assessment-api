@@ -8,18 +8,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.time.LocalDateTime;
 import java.util.stream.Collectors;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 
 @ControllerAdvice
 public class DefaultExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    private ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ma,
-                                                                           HttpServletRequest httpServletRequest) {
+    private ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ma) {
         String errorMessage = ma.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -27,82 +23,62 @@ public class DefaultExceptionHandler {
                 .collect(Collectors.joining(", "));
 
         ApiError apiError = new ApiError(
-                httpServletRequest.getRequestURI(),
                 errorMessage,
-                HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now());
+                HttpStatus.BAD_REQUEST.value());
 
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DuplicateResourceException.class)
-    private ResponseEntity<ApiError> handleDuplicateResourceException(DuplicateResourceException dre,
-                                                                      HttpServletRequest httpServletRequest) {
+    private ResponseEntity<ApiError> handleDuplicateResourceException(DuplicateResourceException dre) {
         ApiError apiError = new ApiError(
-                httpServletRequest.getRequestURI(),
                 dre.getMessage(),
-                HttpStatus.CONFLICT.value(),
-                LocalDateTime.now());
+                HttpStatus.CONFLICT.value());
 
         return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    private ResponseEntity<ApiError> handleBadCredentialsException(BadCredentialsException bce,
-                                                                   HttpServletRequest httpServletRequest) {
+    private ResponseEntity<ApiError> handleBadCredentialsException(BadCredentialsException bce) {
         ApiError apiError = new ApiError(
-                httpServletRequest.getRequestURI(),
                 bce.getMessage(),
-                HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now());
+                HttpStatus.BAD_REQUEST.value());
 
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    private ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException iae,
-                                                                    HttpServletRequest httpServletRequest) {
+    private ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException iae) {
         ApiError apiError = new ApiError(
-                httpServletRequest.getRequestURI(),
                 iae.getMessage(),
-                HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now());
+                HttpStatus.BAD_REQUEST.value());
 
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UnauthorizedException.class)
-    private ResponseEntity<ApiError> handleUnauthorizedException(UnauthorizedException ue,
-                                                                 HttpServletRequest httpServletRequest) {
+    private ResponseEntity<ApiError> handleUnauthorizedException(UnauthorizedException ue) {
         ApiError apiError = new ApiError(
-                httpServletRequest.getRequestURI(),
                 ue.getMessage(),
-                HttpStatus.UNAUTHORIZED.value(),
-                LocalDateTime.now());
+                HttpStatus.UNAUTHORIZED.value());
 
         return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(ServerErrorException.class)
-    private ResponseEntity<ApiError> handleServerErrorException(ServerErrorException se,
-                                                                HttpServletRequest httpServletRequest) {
+    private ResponseEntity<ApiError> handleServerErrorException(ServerErrorException se) {
         ApiError apiError = new ApiError(
-                httpServletRequest.getRequestURI(),
                 se.getMessage(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                LocalDateTime.now());
+                HttpStatus.INTERNAL_SERVER_ERROR.value());
 
         return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    private ResponseEntity<ApiError> handleResourceNotFoundException(ResourceNotFoundException se,
-                                                                     HttpServletRequest httpServletRequest) {
+    private ResponseEntity<ApiError> handleResourceNotFoundException(ResourceNotFoundException se) {
         ApiError apiError = new ApiError(
-                httpServletRequest.getRequestURI(),
                 se.getMessage(),
-                HttpStatus.NOT_FOUND.value(),
-                LocalDateTime.now());
+                HttpStatus.NOT_FOUND.value());
 
         return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }

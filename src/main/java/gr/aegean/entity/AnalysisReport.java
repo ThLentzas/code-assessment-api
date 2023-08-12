@@ -30,12 +30,10 @@ public class AnalysisReport {
     private Map<QualityMetric, Double> qualityMetricsReport;
     private Double rank;
 
-    public AnalysisReport(Map<String, Double> languages,
-                          IssuesReport issuesReport,
+    public AnalysisReport(IssuesReport issuesReport,
                           HotspotsReport hotspotsReport,
                           Map<String, Rule> ruleDetails,
                           Map<QualityMetric, Double> qualityMetricsReport) {
-        this.languages = languages;
         this.issuesReport = issuesReport;
         this.hotspotsReport = hotspotsReport;
         this.ruleDetails = ruleDetails;

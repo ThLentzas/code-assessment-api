@@ -1,6 +1,5 @@
 package gr.aegean.utility;
 
-
 import org.bouncycastle.util.encoders.Hex;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;

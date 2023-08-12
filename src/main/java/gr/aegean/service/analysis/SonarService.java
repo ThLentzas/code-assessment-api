@@ -62,9 +62,9 @@ public class SonarService {
             Process process = processBuilder.start();
 
             /*
-                Each process builder has an associated output buffer. We have to keep reading from those buffers, and
+                Each process builder has an associated output buffer. We have to keep reading from those buffers, as
                 the process writes enough data to them, the buffers can fill up, and the process will block, waiting for
-                 space to become available.
+                space to become available.
              */
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
@@ -72,7 +72,7 @@ public class SonarService {
                 System.out.println(line);
             }
             /*
-                Waiting for the analysis to end not to upload the analysis to the server.
+                Waiting for the analysis to end, not to upload the analysis to the server.
              */
             process.waitFor();
         } catch (IOException ioe) {
@@ -83,7 +83,7 @@ public class SonarService {
         }
     }
 
-    public AnalysisReport fetchAnalysisReport(String projectKey, Map<String, Double> languages) {
+    public AnalysisReport fetchAnalysisReport(String projectKey) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + authToken);
@@ -109,7 +109,7 @@ public class SonarService {
                 entity,
                 projectKey);
 
-        return new AnalysisReport(languages, issuesReport, hotspotsReport, rulesDetails, qualityMetricReport);
+        return new AnalysisReport(issuesReport, hotspotsReport, rulesDetails, qualityMetricReport);
     }
 
     private boolean projectExists(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {

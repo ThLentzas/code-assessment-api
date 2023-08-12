@@ -1,5 +1,6 @@
 package gr.aegean.service.auth;
 
+import gr.aegean.service.email.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,7 +77,7 @@ class PasswordResetServiceTest extends AbstractTestContainers {
                 "If your email address exists in our database, you will receive a password recovery link at " +
                         "your email address in a few minutes.");
 
-        verify(emailService, times(1)).sendPasswordResetRequestEmail(
+        verify(emailService, times(1)).sendPasswordResetEmail(
                 eq(user.getEmail()),
                 any(String.class));
     }
@@ -181,7 +182,7 @@ class PasswordResetServiceTest extends AbstractTestContainers {
 
         //Assert
         assertThat(passwordResetRepository.findToken(hashedToken)).isNotPresent();
-        verify(emailService, times(1)).sendPasswordResetConfirmationEmail(
+        verify(emailService, times(1)).sendPasswordResetSuccessEmail(
                 user.getEmail(),
                 user.getUsername());
     }

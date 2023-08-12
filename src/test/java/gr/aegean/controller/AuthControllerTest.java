@@ -108,7 +108,6 @@ class AuthControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.path", is("/api/v1/auth/signup")))
                 .andExpect(jsonPath("$.message", is("The First Name field is required.")));
     }
 
@@ -136,7 +135,6 @@ class AuthControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.path", is("/api/v1/auth/signup")))
                 .andExpect(jsonPath("$.message", is("The Last Name field is required.")));
     }
 
@@ -164,7 +162,6 @@ class AuthControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.path", is("/api/v1/auth/signup")))
                 .andExpect(jsonPath("$.message", is("The Username field is required.")));
     }
 
@@ -193,7 +190,6 @@ class AuthControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.path", is("/api/v1/auth/signup")))
                 .andExpect(jsonPath("$.message", is("The Email field is required.")));
     }
 
@@ -221,7 +217,6 @@ class AuthControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.path", is("/api/v1/auth/signup")))
                 .andExpect(jsonPath("$.message", is("The Password field is required.")));
     }
 
@@ -267,7 +262,6 @@ class AuthControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.path", is("/api/v1/auth/login")))
                 .andExpect(jsonPath("$.message", is("All fields are necessary.")));
     }
 
@@ -290,7 +284,6 @@ class AuthControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.path", is("/api/v1/auth/login")))
                 .andExpect(jsonPath("$.message", is("All fields are necessary.")));
     }
 
@@ -311,7 +304,6 @@ class AuthControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.path", is("/api/v1/auth/password_reset")))
                 .andExpect(jsonPath("$.message", is("The Email field is required.")));
     }
 
@@ -375,7 +367,6 @@ class AuthControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.path", is("/api/v1/auth/password_reset/confirm")))
                 .andExpect(jsonPath("$.message", is("The Password field is required.")));
     }
 

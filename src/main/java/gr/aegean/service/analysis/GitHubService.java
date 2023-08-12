@@ -24,13 +24,13 @@ public class GitHubService {
         /*
             We need two unique ids, 1 for the folder inside Projects and 1 for each repository we download.
             F:\Projects\UUID1\UUID2, F:\Projects\UUID1\UUID3. Each request will have a unique subfolder in the
-            Projects folder that will contain all the repositories for that request.
+            Projects folder(UUID1) that will contain all the repositories for that request(UUID2, UUID3).
         */
         File projectFile = new File(requestFolder, UUID.randomUUID().toString());
         try (Git git = cloneRepository(projectUrl, projectFile)) {
-            /*
-                Exception will be thrown when repository is private.
-             */
+        /*
+            Exception will be thrown when repository is private.
+         */
         } catch (GitAPIException gae) {
             return Optional.empty();
         }

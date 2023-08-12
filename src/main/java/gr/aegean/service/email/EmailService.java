@@ -1,10 +1,8 @@
-package gr.aegean.service.auth;
+package gr.aegean.service.email;
 
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.MessagingException;
@@ -18,38 +16,26 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmailService {
     private final JavaMailSender mailSender;
-    private final TemplateEngine templateEngine;
+    private final ThymeleafService thymeleafService;
     private static final String SENDER = "jarvis.email.from@gmail.com";
 
-    public void sendPasswordResetRequestEmail(String recipient, String token) {
+    public void sendPasswordResetEmail(String recipient, String token) {
         final String resetLink = "http://localhost:8080/api/v1/auth/password_reset?token=" + token;
-
-        Context context = new Context();
-        context.setVariable("resetLink", resetLink);
-        String emailContent = templateEngine.process("password_reset_request", context);
+        String emailContent = thymeleafService.setPasswordResetEmailContent(resetLink);
 
         sendEmail(recipient, "Reset your Jarvis password", emailContent);
     }
 
-    public void sendPasswordResetConfirmationEmail(String recipient, String username) {
+    public void sendPasswordResetSuccessEmail(String recipient, String username) {
         final String password_reset = "http://localhost:8080/api/v1/auth/password_reset";
-
-        Context context = new Context();
-        context.setVariable("username", username);
-        context.setVariable("email", recipient);
-        context.setVariable("password_reset", password_reset);
-        String emailContent = templateEngine.process("password_reset_success", context);
+        String emailContent = thymeleafService.setPasswordResetSuccessEmailContent(username, recipient, password_reset);
 
         sendEmail(recipient, "Your password was reset", emailContent);
     }
 
     public void sendEmailVerification(String recipient, String username, String token) {
         final String verifyLink = "http://localhost:8080/api/v1/users/settings/email?token=" + token;
-
-        Context context = new Context();
-        context.setVariable("username", username);
-        context.setVariable("verifyLink", verifyLink);
-        String emailContent = templateEngine.process("email_verification", context);
+        String emailContent = thymeleafService.setEmailVerificationContent(username, verifyLink);
 
         sendEmail(recipient, "Verify your email", emailContent);
     }

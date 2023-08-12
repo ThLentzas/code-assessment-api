@@ -24,6 +24,9 @@ public class LanguageService {
         return parseLinguistOutput(containerOutput);
     }
 
+    /*
+       The output of GitHub linguist is in the form of: 100.00% 31261      Python
+     */
     private Map<String, Double> parseLinguistOutput(String containerOutput) {
         Map<String, Double> languages = new HashMap<>();
         String[] lines = containerOutput.split("\n");
@@ -38,6 +41,9 @@ public class LanguageService {
         return languages;
     }
 
+    /**
+     * @return True if any detected language matches the supported ones, false otherwise.
+     */
     public boolean verifySupportedLanguages(Map<String, Double> detectedLanguages) {
         Set<String> supportedLanguages = Arrays.stream(Language.values())
                 .map(Language::name)
