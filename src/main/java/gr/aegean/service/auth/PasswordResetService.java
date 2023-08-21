@@ -7,6 +7,7 @@ import gr.aegean.model.auth.PasswordResetConfirmationRequest;
 import gr.aegean.model.auth.PasswordResetRequest;
 import gr.aegean.model.auth.PasswordResetResponse;
 import gr.aegean.service.email.EmailService;
+import gr.aegean.utility.PasswordValidator;
 import gr.aegean.utility.StringUtils;
 
 import org.springframework.security.authentication.BadCredentialsException;
@@ -84,7 +85,7 @@ public class PasswordResetService {
         validatePasswordResetToken(resetConfirmationRequest.token());
 
         //validate/hash the updated password
-        StringUtils.validatePassword(resetConfirmationRequest.newPassword());
+        PasswordValidator.validatePassword(resetConfirmationRequest.newPassword());
         String hashedPassword = passwordEncoder.encode(resetConfirmationRequest.newPassword());
 
         //update the password in db and delete the password reset token record after so subsequent requests will fail

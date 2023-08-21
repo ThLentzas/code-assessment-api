@@ -5,13 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.exception.ServerErrorException;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 
-@Service
 public class AnalysisReportRowMapper implements RowMapper<AnalysisReport> {
     private final ObjectMapper objectMapper = new ObjectMapper();
 

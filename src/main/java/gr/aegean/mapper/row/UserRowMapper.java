@@ -4,12 +4,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
 
 import gr.aegean.entity.User;
 
 
-@Service
 public class UserRowMapper implements RowMapper<User> {
 
     /**

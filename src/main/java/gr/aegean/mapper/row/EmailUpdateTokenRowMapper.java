@@ -6,12 +6,10 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
 
 import gr.aegean.entity.EmailUpdateToken;
 
 
-@Service
 public class EmailUpdateTokenRowMapper implements RowMapper<EmailUpdateToken> {
     @Override
     public EmailUpdateToken mapRow(ResultSet resultSet, int rowNum) throws SQLException {

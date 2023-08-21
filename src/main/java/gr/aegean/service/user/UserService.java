@@ -13,7 +13,10 @@ import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
+import gr.aegean.service.auth.CookieService;
+import gr.aegean.service.auth.JwtService;
 import gr.aegean.service.email.EmailService;
+import gr.aegean.utility.PasswordValidator;
 import gr.aegean.utility.StringUtils;
 
 import java.sql.Date;
@@ -23,9 +26,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,6 +39,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    private final CookieService cookieService;
+    private final JwtService jwtService;
     private final UserRepository userRepository;
     private final EmailUpdateRepository emailUpdateRepository;
     private final EmailService emailService;
@@ -58,12 +63,9 @@ public class UserService {
         return userRepository.registerUser(user);
     }
 
-    public Optional<User> findUserByEmail(String email) {
-        return userRepository.findUserByEmail(email);
-    }
+    public UserProfile getProfile(HttpServletRequest request) {
+        int userId = getUserIdFromToken(request);
 
-
-    public UserProfile getProfile(Integer userId) {
         return userRepository.findUserByUserId(userId)
                 .map(user -> new UserProfile(
                         user.getFirstname(),
@@ -75,7 +77,9 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User with id: " + userId + " not found"));
     }
 
-    public void updateProfile(Integer userId, UserProfileUpdateRequest profileUpdateRequest) {
+    public void updateProfile(HttpServletRequest request, UserProfileUpdateRequest profileUpdateRequest) {
+        int userId = getUserIdFromToken(request);
+
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> updateProfileProperties(user, profileUpdateRequest),
                         () -> {
@@ -119,7 +123,9 @@ public class UserService {
                 value -> userRepository.updateCompany(user.getId(), value));
     }
 
-    public void createEmailUpdateToken(Integer userId, UserUpdateEmailRequest emailUpdateRequest) {
+    public void createEmailUpdateToken(HttpServletRequest request, UserUpdateEmailRequest emailUpdateRequest) {
+        int userId = getUserIdFromToken(request);
+
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
                     if (!passwordEncoder.matches(emailUpdateRequest.password(), user.getPassword())) {
@@ -140,6 +146,7 @@ public class UserService {
                             emailUpdateRequest.email(),
                             expiryDate
                     );
+
                     /*
                         If the user requested a new email update without clicking the link on the previous email, we
                         have to invalidate the previous generated tokens.
@@ -174,14 +181,16 @@ public class UserService {
                 });
     }
 
-    public void updatePassword(Integer userId, UserUpdatePasswordRequest passwordUpdateRequest) {
+    public void updatePassword(HttpServletRequest request, UserUpdatePasswordRequest passwordUpdateRequest) {
+        int userId = getUserIdFromToken(request);
+
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
                     if (!passwordEncoder.matches(passwordUpdateRequest.oldPassword(), user.getPassword())) {
                         throw new BadCredentialsException("Old password is incorrect");
                     }
 
-                    StringUtils.validatePassword(passwordUpdateRequest.updatedPassword());
+                    PasswordValidator.validatePassword(passwordUpdateRequest.updatedPassword());
                     userRepository.updatePassword(
                             userId,
                             passwordEncoder.encode(passwordUpdateRequest.updatedPassword()));
@@ -190,7 +199,9 @@ public class UserService {
                 });
     }
 
-    public List<AnalysisResult> getHistory(Integer userId, String from, String to) {
+    public List<AnalysisResult> getHistory(HttpServletRequest request, String from, String to) {
+        int userId = getUserIdFromToken(request);
+
         List<AnalysisResult> history = new ArrayList<>();
         List<Analysis> analyses = null;
         AnalysisResult analysisResult;
@@ -228,21 +239,24 @@ public class UserService {
         return history;
     }
 
-    public void deleteAnalysis(Integer analysisId, Integer userId) {
+    public void deleteAnalysis(Integer analysisId, HttpServletRequest request) {
+        int userId = getUserIdFromToken(request);
+
         analysisService.deleteAnalysis(analysisId, userId);
     }
 
-    public void deleteAccount(Integer userId) {
+    public void deleteAccount(HttpServletRequest request) {
+        int userId = getUserIdFromToken(request);
+
         userRepository.deleteAccount(userId);
     }
-
 
     public void validateUser(User user) {
         validateFirstname(user.getFirstname());
         validateLastname(user.getLastname());
         validateUsername(user.getUsername());
         validateEmail(user.getEmail());
-        StringUtils.validatePassword(user.getPassword());
+        PasswordValidator.validatePassword(user.getPassword());
         validateBio(user.getBio());
         validateLocation(user.getLocation());
         validateCompany(user.getCompany());
@@ -319,5 +333,11 @@ public class UserService {
         } catch (DateTimeParseException dte) {
             throw new IllegalArgumentException("The provided date is invalid");
         }
+    }
+
+    private int getUserIdFromToken(HttpServletRequest request) {
+        String token = cookieService.getTokenFromCookie(request);
+
+        return Integer.parseInt(jwtService.getSubject(token));
     }
 }

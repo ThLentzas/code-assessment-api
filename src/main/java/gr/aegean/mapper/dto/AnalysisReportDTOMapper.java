@@ -1,7 +1,6 @@
 package gr.aegean.mapper.dto;
 
 import org.springframework.hateoas.Link;
-import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import gr.aegean.entity.AnalysisReport;
@@ -13,7 +12,6 @@ import java.util.function.Function;
 /*
     Will be tested with an IT test.
  */
-@Service
 public class AnalysisReportDTOMapper implements Function<AnalysisReport, AnalysisReportDTO> {
     @Override
     public AnalysisReportDTO apply(AnalysisReport report) {

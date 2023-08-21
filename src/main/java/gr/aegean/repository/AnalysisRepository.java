@@ -32,10 +32,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AnalysisRepository {
     private final JdbcTemplate jdbcTemplate;
-    private final AnalysisRowMapper analysisRowMapper;
-    private final AnalysisReportRowMapper reportRowMapper;
-    private final PreferenceRowMapper preferenceRowMapper;
-    private final ConstraintRowMapper constraintRowMapper;
+    private final AnalysisRowMapper analysisRowMapper = new AnalysisRowMapper();
+    private final AnalysisReportRowMapper reportRowMapper = new AnalysisReportRowMapper();
+    private final PreferenceRowMapper preferenceRowMapper = new PreferenceRowMapper();
+    private final ConstraintRowMapper constraintRowMapper = new ConstraintRowMapper();
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 

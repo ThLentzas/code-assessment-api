@@ -1,10 +1,12 @@
 package gr.aegean.service.analysis;
 
 import gr.aegean.AbstractTestContainers;
-import gr.aegean.entity.*;
+import gr.aegean.entity.Analysis;
+import gr.aegean.entity.AnalysisReport;
+import gr.aegean.entity.Constraint;
+import gr.aegean.entity.Preference;
+import gr.aegean.entity.User;
 import gr.aegean.exception.ResourceNotFoundException;
-import gr.aegean.mapper.dto.AnalysisReportDTOMapper;
-import gr.aegean.mapper.row.*;
 import gr.aegean.model.analysis.RefreshRequest;
 import gr.aegean.model.analysis.quality.QualityAttribute;
 import gr.aegean.model.analysis.quality.QualityMetric;
@@ -13,6 +15,8 @@ import gr.aegean.repository.AnalysisRepository;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.assessment.AssessmentService;
+import gr.aegean.service.auth.CookieService;
+import gr.aegean.service.auth.JwtService;
 import gr.aegean.service.email.EmailService;
 import gr.aegean.service.user.UserService;
 
@@ -50,43 +54,36 @@ class AnalysisServiceTest extends AbstractTestContainers {
     @Mock
     private DockerService dockerService;
     @Mock
-    private AnalysisReportDTOMapper DTOMapper;
-    @Mock
     private EmailService emailService;
     @Mock
     private AnalysisService analysisService;
     @Mock
+    private CookieService cookieService;
+    @Mock
+    private JwtService jwtService;
+    @Mock
     private EmailUpdateRepository emailUpdateRepository;
-    private AnalysisRepository analysisRepository;
-    private UserRepository userRepository;
     private UserService userService;
     private AnalysisService underTest;
-    private final AnalysisRowMapper analysisRowMapper = new AnalysisRowMapper();
-    private final AnalysisReportRowMapper reportRowMapper = new AnalysisReportRowMapper();
-    private final PreferenceRowMapper preferenceRowMapper = new PreferenceRowMapper();
-    private final ConstraintRowMapper constraintRowMapper = new ConstraintRowMapper();
-    private final UserRowMapper userRowMapper = new UserRowMapper();
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @BeforeEach
     void setup() {
-        analysisRepository = new AnalysisRepository(
-                getJdbcTemplate(),
-                analysisRowMapper,
-                reportRowMapper,
-                preferenceRowMapper,
-                constraintRowMapper);
+        AnalysisRepository analysisRepository = new AnalysisRepository(
+                getJdbcTemplate());
         underTest = new AnalysisService(
                 languageService,
                 sonarService,
                 metricCalculationService,
                 assessmentService,
                 dockerService,
-                analysisRepository,
-                DTOMapper);
+                analysisRepository);
 
-        userRepository = new UserRepository(getJdbcTemplate(), userRowMapper);
-        userService = new UserService(userRepository,
+        UserRepository userRepository = new UserRepository(getJdbcTemplate());
+        userService = new UserService(
+                cookieService,
+                jwtService,
+                userRepository,
                 emailUpdateRepository,
                 emailService,
                 analysisService,
@@ -100,6 +97,10 @@ class AnalysisServiceTest extends AbstractTestContainers {
         userRepository.deleteAllUsers();
     }
 
+    /*
+        We cant mock the UserService. We have to have a user in our db, in order to associate the userId foreign key in
+        the analysis table.
+     */
     @Test
     void shouldSaveAnalysisProcess() throws IOException {
         //Arrange
@@ -109,6 +110,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
         List<Constraint> constraints = new ArrayList<>();
         constraints.add(new Constraint(QualityMetric.TECHNICAL_DEBT_RATIO, QualityMetricOperator.GT, 0.95));
         constraints.add(new Constraint(QualityMetric.VULNERABILITY_SEVERITY, QualityMetricOperator.GT, 0.5));
+
         List<Preference> preferences = new ArrayList<>();
         preferences.add(new Preference(QualityAttribute.SIMPLICITY, 0.34));
         preferences.add(new Preference(QualityAttribute.SECURITY_REMEDIATION_EFFORT, 0.25));
@@ -134,6 +136,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
         List<Constraint> constraints = new ArrayList<>();
         constraints.add(new Constraint(QualityMetric.TECHNICAL_DEBT_RATIO, QualityMetricOperator.GT, 0.95));
         constraints.add(new Constraint(QualityMetric.VULNERABILITY_SEVERITY, QualityMetricOperator.GT, 0.5));
+
         List<Preference> preferences = new ArrayList<>();
         preferences.add(new Preference(QualityAttribute.SIMPLICITY, 0.34));
         preferences.add(new Preference(QualityAttribute.SECURITY_REMEDIATION_EFFORT, 0.25));
@@ -160,6 +163,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
         List<Constraint> constraints = new ArrayList<>();
         constraints.add(new Constraint(QualityMetric.TECHNICAL_DEBT_RATIO, QualityMetricOperator.GT, 0.95));
         constraints.add(new Constraint(QualityMetric.VULNERABILITY_SEVERITY, QualityMetricOperator.GT, 0.5));
+
         List<Preference> preferences = new ArrayList<>();
         preferences.add(new Preference(QualityAttribute.SIMPLICITY, 0.34));
         preferences.add(new Preference(QualityAttribute.SECURITY_REMEDIATION_EFFORT, 0.25));

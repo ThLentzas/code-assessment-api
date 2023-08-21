@@ -1,5 +1,10 @@
 package gr.aegean.controller;
 
+import gr.aegean.config.security.JwtFilter;
+import gr.aegean.exception.UnauthorizedException;
+import gr.aegean.service.auth.CookieService;
+import gr.aegean.service.auth.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -13,10 +18,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -25,8 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.hamcrest.Matchers.is;
 
 import gr.aegean.config.AuthConfig;
-import gr.aegean.config.JwtConfig;
-import gr.aegean.config.SecurityConfig;
+import gr.aegean.config.security.SecurityConfig;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.model.user.UserUpdateEmailRequest;
 import gr.aegean.model.user.UserProfile;
@@ -36,17 +37,22 @@ import gr.aegean.service.user.UserService;
 
 
 @WebMvcTest(UserController.class)
-@Import({SecurityConfig.class,
+@Import({JwtFilter.class,
+        JwtService.class,
         AuthConfig.class,
-        JwtConfig.class})
+        SecurityConfig.class})
 class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
     private UserService userService;
     @MockBean
+    private CookieService cookieService;
+    @MockBean
+    private JwtService jwtService;
+    @MockBean
     private UserRepository userRepository;
-    private static final String USER_PATH = "/api/v1/users";
+    private static final String USER_PATH = "/api/v1/user";
 
     @Test
     @WithMockUser(username = "test")
@@ -62,7 +68,8 @@ class UserControllerTest {
                 }
                 """;
 
-        mockMvc.perform(put(USER_PATH + "/{userId}/settings/profile", 1)
+        mockMvc.perform(put(USER_PATH + "/settings/profile")
+                        .servletPath(USER_PATH + "/settings/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -84,10 +91,11 @@ class UserControllerTest {
                 """;
 
         doThrow(new DuplicateResourceException("The provided username already exists"))
-                .when(userService).updateProfile(any(Integer.class), any(UserProfileUpdateRequest.class));
+                .when(userService).updateProfile(any(HttpServletRequest.class), any(UserProfileUpdateRequest.class));
 
 
-        mockMvc.perform(put(USER_PATH + "/{userId}/settings/profile", 1)
+        mockMvc.perform(put(USER_PATH + "/settings/profile")
+                        .servletPath(USER_PATH + "/settings/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -107,7 +115,11 @@ class UserControllerTest {
                 }
                 """;
 
-        mockMvc.perform(put(USER_PATH + "/{userId}/settings/profile", 1)
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenThrow(
+                new UnauthorizedException("Unauthorized"));
+
+        mockMvc.perform(put(USER_PATH + "/settings/profile")
+                        .servletPath(USER_PATH + "/settings/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -126,7 +138,8 @@ class UserControllerTest {
                 }
                 """;
 
-        mockMvc.perform(put(USER_PATH + "/{userId}/settings/password", 1)
+        mockMvc.perform(put(USER_PATH + "/settings/password")
+                        .servletPath(USER_PATH + "/settings/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -142,7 +155,11 @@ class UserControllerTest {
                 }
                 """;
 
-        mockMvc.perform(put(USER_PATH + "/{userId}/settings/password", 1)
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenThrow(
+                new UnauthorizedException("Unauthorized"));
+
+        mockMvc.perform(put(USER_PATH + "/settings/password")
+                        .servletPath(USER_PATH + "/settings/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -166,7 +183,7 @@ class UserControllerTest {
                 """, passwordValue);
 
         //Act Assert
-        mockMvc.perform(put(USER_PATH + "/{userId}/settings/password", 1)
+        mockMvc.perform(put(USER_PATH + "/settings/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -187,7 +204,8 @@ class UserControllerTest {
                 """, passwordValue);
 
         //Act Assert
-        mockMvc.perform(put(USER_PATH + "/{userId}/settings/password", 1)
+        mockMvc.perform(put(USER_PATH + "/settings/password")
+                        .servletPath(USER_PATH + "/settings/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -208,10 +226,11 @@ class UserControllerTest {
         );
 
         //Act
-        when(userService.getProfile(any(Integer.class))).thenReturn(profile);
+        when(userService.getProfile(any(HttpServletRequest.class))).thenReturn(profile);
 
         //Assert
-        mockMvc.perform(get(USER_PATH + "/{userId}/profile", 1))
+        mockMvc.perform(get(USER_PATH + "/profile")
+                        .servletPath(USER_PATH + "/profile"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstname", is(profile.firstname())))
                 .andExpect(jsonPath("$.lastname", is(profile.lastname())))
@@ -223,7 +242,11 @@ class UserControllerTest {
 
     @Test
     void shouldReturnHTTP401WhenGetProfileIsCalledByUnauthenticatedUser() throws Exception {
-        mockMvc.perform(get(USER_PATH + "/{userId}/profile", 1))
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenThrow(
+                new UnauthorizedException("Unauthorized"));
+
+        mockMvc.perform(get(USER_PATH + "/profile")
+                        .servletPath(USER_PATH + "/profile"))
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(userService);
@@ -239,7 +262,8 @@ class UserControllerTest {
                 }
                 """;
 
-        mockMvc.perform(post(USER_PATH + "/{userId}/settings/email", 1)
+        mockMvc.perform(post(USER_PATH + "/settings/email")
+                        .servletPath(USER_PATH + "/settings/email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -255,7 +279,11 @@ class UserControllerTest {
                 }
                 """;
 
-        mockMvc.perform(post(USER_PATH + "/{userId}/settings/email", 1)
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenThrow(
+                new UnauthorizedException("Unauthorized"));
+
+        mockMvc.perform(post(USER_PATH + "/settings/email")
+                        .servletPath(USER_PATH + "/settings/email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -275,10 +303,11 @@ class UserControllerTest {
                 """;
 
         doThrow(new BadCredentialsException("Wrong password"))
-                .when(userService).createEmailUpdateToken(any(Integer.class), any(UserUpdateEmailRequest.class));
+                .when(userService).createEmailUpdateToken(any(HttpServletRequest.class), any(UserUpdateEmailRequest.class));
 
 
-        mockMvc.perform(post(USER_PATH + "/{userId}/settings/email", 1)
+        mockMvc.perform(post(USER_PATH + "/settings/email")
+                        .servletPath(USER_PATH + "/settings/email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -296,10 +325,11 @@ class UserControllerTest {
                 """;
 
         doThrow(new DuplicateResourceException("Email already is use"))
-                .when(userService).createEmailUpdateToken(any(Integer.class), any(UserUpdateEmailRequest.class));
+                .when(userService).createEmailUpdateToken(any(HttpServletRequest.class), any(UserUpdateEmailRequest.class));
 
 
-        mockMvc.perform(post(USER_PATH + "/{userId}/settings/email", 1)
+        mockMvc.perform(post(USER_PATH + "/settings/email")
+                        .servletPath(USER_PATH + "/settings/email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -318,7 +348,8 @@ class UserControllerTest {
                 }
                 """, passwordValue);
 
-        mockMvc.perform(post(USER_PATH + "/{userId}/settings/email", 1)
+        mockMvc.perform(post(USER_PATH + "/settings/email")
+                        .servletPath(USER_PATH + "/settings/email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -339,7 +370,8 @@ class UserControllerTest {
                 }
                 """, emailValue);
 
-        mockMvc.perform(post(USER_PATH + "/{userId}/settings/email", 1)
+        mockMvc.perform(post(USER_PATH + "/settings/email")
+                        .servletPath(USER_PATH + "/settings/email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -350,7 +382,11 @@ class UserControllerTest {
 
     @Test
     void shouldReturnHTTP401WhenGetHistoryIsCalledByUnauthenticatedUser() throws Exception {
-        mockMvc.perform(post(USER_PATH + "/{userId}/history", 1))
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenThrow(
+                new UnauthorizedException("Unauthorized"));
+
+        mockMvc.perform(post(USER_PATH + "/history")
+                        .servletPath(USER_PATH + "/history"))
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(userService);

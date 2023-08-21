@@ -49,7 +49,7 @@ class AuthIT extends AbstractIntegrationTest {
                     "company": "Code Monkey, LLC"
                 }""";
 
-        String jwtToken = webTestClient.post()
+        webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -57,12 +57,8 @@ class AuthIT extends AbstractIntegrationTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
-                .expectBody(AuthResponse.class)
-                .returnResult()
-                .getResponseBody()
-                .token();
+                .expectHeader().exists(HttpHeaders.SET_COOKIE);
 
-        assertThat(jwtToken).isNotNull();
 
         requestBody = """
                 {
@@ -70,19 +66,14 @@ class AuthIT extends AbstractIntegrationTest {
                     "password": "CyN549^*o2Cr"
                 }""";
 
-        jwtToken = webTestClient.post()
+        webTestClient.post()
                 .uri(AUTH_PATH + "/login")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(AuthResponse.class)
-                .returnResult()
-                .getResponseBody()
-                .token();
-
-        assertThat(jwtToken).isNotNull();
+                .expectHeader().exists(HttpHeaders.SET_COOKIE);
     }
 
     @Test
@@ -99,7 +90,7 @@ class AuthIT extends AbstractIntegrationTest {
                     "company": "Code Monkey, LLC"
                 }""";
 
-        String jwtToken = webTestClient.post()
+        webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -107,12 +98,7 @@ class AuthIT extends AbstractIntegrationTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
-                .expectBody(AuthResponse.class)
-                .returnResult()
-                .getResponseBody()
-                .token();
-
-        assertThat(jwtToken).isNotNull();
+                .expectHeader().exists(HttpHeaders.SET_COOKIE);
 
         requestBody = """
                 {
@@ -129,7 +115,6 @@ class AuthIT extends AbstractIntegrationTest {
                 .expectStatus().isUnauthorized()
                 .expectBody()
                 .jsonPath("$.error", is("Username or password is incorrect"));
-        ;
     }
 
     @Test
@@ -146,21 +131,15 @@ class AuthIT extends AbstractIntegrationTest {
                     "company": "Code Monkey, LLC"
                 }""";
 
-        String jwtToken = webTestClient.post()
+        webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange()
-                .expectStatus()
-                .isCreated()
+                .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
-                .expectBody(AuthResponse.class)
-                .returnResult()
-                .getResponseBody()
-                .token();
-
-        assertThat(jwtToken).isNotNull();
+                .expectHeader().exists(HttpHeaders.SET_COOKIE);
 
         requestBody = """
                 {
@@ -194,7 +173,7 @@ class AuthIT extends AbstractIntegrationTest {
                     "company": "Code Monkey, LLC"
                 }""";
 
-        String jwtToken = webTestClient.post()
+        webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -202,12 +181,7 @@ class AuthIT extends AbstractIntegrationTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
-                .expectBody(AuthResponse.class)
-                .returnResult()
-                .getResponseBody()
-                .token();
-
-        assertThat(jwtToken).isNotNull();
+                .expectHeader().exists(HttpHeaders.SET_COOKIE);
 
         requestBody = """
                 {
@@ -303,7 +277,7 @@ class AuthIT extends AbstractIntegrationTest {
                     "company": "Code Monkey, LLC"
                 }""";
 
-        String jwtToken = webTestClient.post()
+        webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -311,12 +285,7 @@ class AuthIT extends AbstractIntegrationTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
-                .expectBody(AuthResponse.class)
-                .returnResult()
-                .getResponseBody()
-                .token();
-
-        assertThat(jwtToken).isNotNull();
+                .expectHeader().exists(HttpHeaders.SET_COOKIE);
 
         requestBody = """
                 {

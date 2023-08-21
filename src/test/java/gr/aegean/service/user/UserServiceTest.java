@@ -3,8 +3,6 @@ package gr.aegean.service.user;
 import gr.aegean.AbstractTestContainers;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
-import gr.aegean.mapper.row.EmailUpdateTokenRowMapper;
-import gr.aegean.mapper.row.UserRowMapper;
 import gr.aegean.entity.EmailUpdateToken;
 import gr.aegean.entity.User;
 import gr.aegean.model.user.UserUpdateEmailRequest;
@@ -14,9 +12,13 @@ import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
+import gr.aegean.service.auth.AuthService;
+import gr.aegean.service.auth.CookieService;
+import gr.aegean.service.auth.JwtService;
 import gr.aegean.service.email.EmailService;
 import gr.aegean.utility.StringUtils;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,8 +38,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -49,18 +53,22 @@ class UserServiceTest extends AbstractTestContainers {
     private EmailService emailService;
     @Mock
     private AnalysisService analysisService;
+    @Mock
+    private CookieService cookieService;
+    @Mock
+    private JwtService jwtService;
     private UserRepository userRepository;
     private EmailUpdateRepository emailUpdateRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    private final UserRowMapper userMapper = new UserRowMapper();
-    private final EmailUpdateTokenRowMapper tokenRowMapper = new EmailUpdateTokenRowMapper();
     private UserService underTest;
 
     @BeforeEach
     void setup() {
-        userRepository = new UserRepository(getJdbcTemplate(), userMapper);
-        emailUpdateRepository = new EmailUpdateRepository(getJdbcTemplate(), tokenRowMapper);
+        userRepository = new UserRepository(getJdbcTemplate());
+        emailUpdateRepository = new EmailUpdateRepository(getJdbcTemplate());
         underTest = new UserService(
+                cookieService,
+                jwtService,
                 userRepository,
                 emailUpdateRepository,
                 emailService,
@@ -374,9 +382,13 @@ class UserServiceTest extends AbstractTestContainers {
                 "Miami, OH",
                 "VM, LLC"
         );
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
 
         //Act
-        underTest.updateProfile(userId, profileUpdateRequest);
+        underTest.updateProfile(mockRequest, profileUpdateRequest);
 
         //Assert
         userRepository.findUserByUserId(userId)
@@ -401,9 +413,13 @@ class UserServiceTest extends AbstractTestContainers {
                 "Miami, OH",
                 "VM, LLC"
         );
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(String.valueOf(1));
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.updateProfile(1, profileUpdateRequest))
+        assertThatThrownBy(() -> underTest.updateProfile(mockRequest, profileUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User with id: " + 1 + " not found");
     }
@@ -417,9 +433,13 @@ class UserServiceTest extends AbstractTestContainers {
         User user = generateUser();
         Integer userId = userRepository.registerUser(user);
         UserUpdatePasswordRequest passwordUpdateRequest = new UserUpdatePasswordRequest("test", "CyN549^*o2Cr");
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
 
         //Act
-        underTest.updatePassword(userId, passwordUpdateRequest);
+        underTest.updatePassword(mockRequest, passwordUpdateRequest);
 
         //Assert
         userRepository.findUserByUserId(userId)
@@ -432,9 +452,13 @@ class UserServiceTest extends AbstractTestContainers {
         User user = generateUser();
         Integer userId = userRepository.registerUser(user);
         UserUpdatePasswordRequest passwordUpdateRequest = new UserUpdatePasswordRequest("foo", "CyN549^*o2Cr");
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.updatePassword(userId, passwordUpdateRequest))
+        assertThatThrownBy(() -> underTest.updatePassword(mockRequest, passwordUpdateRequest))
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("Old password is incorrect");
     }
@@ -443,9 +467,13 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdatePassword() {
         //Arrange
         UserUpdatePasswordRequest passwordUpdateRequest = new UserUpdatePasswordRequest("foo", "CyN549^*o2Cr");
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(String.valueOf(1));
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.updatePassword(1, passwordUpdateRequest))
+        assertThatThrownBy(() -> underTest.updatePassword(mockRequest, passwordUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User with id: " + 1 + " not found");
     }
@@ -466,9 +494,13 @@ class UserServiceTest extends AbstractTestContainers {
                 "Cleveland, OH",
                 "Code Monkey, LLC"
         );
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
 
         //Act
-        UserProfile actual = underTest.getProfile(userId);
+        UserProfile actual = underTest.getProfile(mockRequest);
 
         //Assert
         assertThat(actual).isEqualTo(expected);
@@ -476,8 +508,13 @@ class UserServiceTest extends AbstractTestContainers {
 
     @Test
     void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToGetProfile() {
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(String.valueOf(1));
+
         //Arrange Act Assert
-        assertThatThrownBy(() -> underTest.getProfile(1))
+        assertThatThrownBy(() -> underTest.getProfile(mockRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User with id: " + 1 + " not found");
     }
@@ -491,8 +528,12 @@ class UserServiceTest extends AbstractTestContainers {
                 "foo@example.com",
                 "test"
         );
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        underTest.createEmailUpdateToken(userId, emailUpdateRequest);
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
+
+        underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest);
 
         verify(emailService, times(1)).sendEmailVerification(
                 eq(emailUpdateRequest.email()),
@@ -509,8 +550,13 @@ class UserServiceTest extends AbstractTestContainers {
                 "test"
         );
 
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(String.valueOf(1));
+
         //Act Assert
-        assertThatThrownBy(() -> underTest.createEmailUpdateToken(1, emailUpdateRequest))
+        assertThatThrownBy(() -> underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User with id: " + 1 + " not found");
     }
@@ -525,9 +571,13 @@ class UserServiceTest extends AbstractTestContainers {
                 "foo@example.com",
                 "foo"
         );
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.createEmailUpdateToken(userId, emailUpdateRequest))
+        assertThatThrownBy(() -> underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest))
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("Wrong password");
     }
@@ -543,9 +593,13 @@ class UserServiceTest extends AbstractTestContainers {
                 "test@example.com",
                 "test"
         );
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.createEmailUpdateToken(userId, emailUpdateRequest))
+        assertThatThrownBy(() -> underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest))
                 .isInstanceOf(DuplicateResourceException.class)
                 .hasMessage("Email already in use");
     }
@@ -603,9 +657,13 @@ class UserServiceTest extends AbstractTestContainers {
                 "foo@example.com",
                 "test"
         );
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
 
         //Act
-        underTest.createEmailUpdateToken(userId, emailUpdateRequest);
+        underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest);
 
         //Assert
         assertThat(emailUpdateRepository.findToken(hashedToken)).isNotPresent();
@@ -635,26 +693,35 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
 
-
     @Test
     void shouldDeleteAccount() {
         //Arrange
         User user = generateUser();
         Integer userId = userRepository.registerUser(user);
 
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
+
         //Act
-        underTest.deleteAccount(userId);
+        underTest.deleteAccount(mockRequest);
 
         //Assert
-        assertThatThrownBy(() -> underTest.getProfile(userId))
+        assertThatThrownBy(() -> underTest.getProfile(mockRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User with id: " + userId + " not found");
     }
 
     @Test
     void shouldThrowResourceNotFoundExceptionWhenAccountDoesNotExist() {
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(String.valueOf(1));
+
         //Arrange Act Assert
-        assertThatThrownBy(() -> underTest.deleteAccount(1))
+        assertThatThrownBy(() -> underTest.deleteAccount(mockRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("No account was found with the provided: " + 1);
     }

@@ -1,5 +1,6 @@
 package gr.aegean.controller;
 
+import gr.aegean.service.auth.CookieService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -11,12 +12,14 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import gr.aegean.config.AuthConfig;
-import gr.aegean.config.JwtConfig;
-import gr.aegean.config.SecurityConfig;
+import gr.aegean.config.security.SecurityConfig;
 import gr.aegean.model.analysis.RefreshRequest;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
 import gr.aegean.service.analysis.AsyncService;
+import gr.aegean.config.security.JwtFilter;
+import gr.aegean.exception.UnauthorizedException;
+import gr.aegean.service.auth.JwtService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -26,11 +29,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 
 @WebMvcTest(AnalysisController.class)
-@Import({SecurityConfig.class,
+@Import({JwtFilter.class,
+        JwtService.class,
         AuthConfig.class,
-        JwtConfig.class})
+        SecurityConfig.class})
 class AnalysisControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -38,6 +44,10 @@ class AnalysisControllerTest {
     private AsyncService asyncService;
     @MockBean
     private AnalysisService analysisService;
+    @MockBean
+    private CookieService cookieService;
+    @MockBean
+    private JwtService jwtService;
     @MockBean
     private UserRepository userRepository;
     private static final String ANALYSIS_PATH = "/api/v1/analysis";
@@ -60,7 +70,11 @@ class AnalysisControllerTest {
                 }
                 """;
 
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenThrow(
+                new UnauthorizedException("Unauthorized"));
+
         mockMvc.perform(post(ANALYSIS_PATH)
+                        .servletPath(ANALYSIS_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -74,7 +88,7 @@ class AnalysisControllerTest {
      */
     @Test
     @WithMockUser(username = "test")
-    void shouldThrowIllegalArgumentExceptionWhenListOfProjectUrlsIsEmpty() throws Exception {
+    void shouldReturnHTTP400WhenListOfProjectUrlsIsEmpty() throws Exception {
         String requestBody = """
                 {
                     "projectUrls": []
@@ -82,6 +96,7 @@ class AnalysisControllerTest {
                 """;
 
         mockMvc.perform(post(ANALYSIS_PATH)
+                        .servletPath(ANALYSIS_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -95,7 +110,7 @@ class AnalysisControllerTest {
      */
     @Test
     @WithMockUser(username = "test")
-    void shouldThrowIllegalArgumentExceptionWhenListOfProjectUrlsIsNull() throws Exception {
+    void shouldReturnHTTP400WhenListOfProjectUrlsIsNull() throws Exception {
         String requestBody = """
                 {
                     "projectUrls": null
@@ -103,6 +118,7 @@ class AnalysisControllerTest {
                 """;
 
         mockMvc.perform(post(ANALYSIS_PATH)
+                        .servletPath(ANALYSIS_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -113,7 +129,11 @@ class AnalysisControllerTest {
 
     @Test
     void shouldReturnHTTP401WhenGetAnalysisResultIsCalledByUnauthenticatedUser() throws Exception {
-        mockMvc.perform(get(ANALYSIS_PATH + "{/analysisId}", 1))
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenThrow(
+                new UnauthorizedException("Unauthorized"));
+
+        mockMvc.perform(get(ANALYSIS_PATH + "/{analysisId}", 1)
+                        .servletPath(ANALYSIS_PATH + "/1"))
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(asyncService);
@@ -121,7 +141,11 @@ class AnalysisControllerTest {
 
     @Test
     void shouldReturnHTTP401WhenRefreshAnalysisResultIsCalledByUnauthenticatedUser() throws Exception {
-        mockMvc.perform(put(ANALYSIS_PATH + "/{analysisId}", 1))
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenThrow(
+                new UnauthorizedException("Unauthorized"));
+
+        mockMvc.perform(put(ANALYSIS_PATH + "/{analysisId}", 1)
+                        .servletPath(ANALYSIS_PATH + "/1"))
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(asyncService);
@@ -134,6 +158,7 @@ class AnalysisControllerTest {
                 .thenThrow(new IllegalArgumentException("No refresh request was provided."));
 
         mockMvc.perform(put(ANALYSIS_PATH + "/{analysisId}", 1)
+                        .servletPath(ANALYSIS_PATH + "/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("")
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -142,7 +167,11 @@ class AnalysisControllerTest {
 
     @Test
     void shouldReturnHTTP401WhenAnalysisResultIsCalledByUnauthenticatedUser() throws Exception {
-        mockMvc.perform(get(ANALYSIS_PATH + "/reports/{reportId}", 1))
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenThrow(
+                new UnauthorizedException("Unauthorized"));
+
+        mockMvc.perform(get(ANALYSIS_PATH + "/reports/{reportId}", 1)
+                        .servletPath(ANALYSIS_PATH + "/reports/1"))
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(asyncService);

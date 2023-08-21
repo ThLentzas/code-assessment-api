@@ -6,12 +6,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
 
 import gr.aegean.entity.Analysis;
 
 
-@Service
 public class AnalysisRowMapper implements RowMapper<Analysis> {
     @Override
     public Analysis mapRow(ResultSet resultSet, int rowNum) throws SQLException {

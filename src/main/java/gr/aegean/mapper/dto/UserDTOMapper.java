@@ -3,12 +3,9 @@ package gr.aegean.mapper.dto;
 import gr.aegean.entity.User;
 import gr.aegean.model.user.UserDTO;
 
-import org.springframework.stereotype.Service;
-
 import java.util.function.Function;
 
 
-@Service
 public class UserDTOMapper implements Function<User, UserDTO> {
 
     @Override

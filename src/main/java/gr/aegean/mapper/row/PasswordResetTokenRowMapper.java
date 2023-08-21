@@ -6,12 +6,10 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
 
 import gr.aegean.entity.PasswordResetToken;
 
 
-@Service
 public class PasswordResetTokenRowMapper implements RowMapper<PasswordResetToken> {
     @Override
     public PasswordResetToken mapRow(ResultSet resultSet, int rowNum) throws SQLException {

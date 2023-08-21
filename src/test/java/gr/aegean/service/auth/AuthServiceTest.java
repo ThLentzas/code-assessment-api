@@ -11,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import gr.aegean.entity.User;
-import gr.aegean.mapper.dto.UserDTOMapper;
 import gr.aegean.model.user.UserDTO;
 import gr.aegean.model.auth.AuthResponse;
 import gr.aegean.model.auth.AuthRequest;
@@ -37,9 +36,6 @@ class AuthServiceTest {
     private JwtService jwtService;
     @Mock
     private AuthenticationManager authenticationManager;
-    @Mock
-    private JwtDecoder jwtDecoder;
-    private final UserDTOMapper userDTOMapper = new UserDTOMapper();
     private AuthService underTest;
 
     @BeforeEach
@@ -48,9 +44,7 @@ class AuthServiceTest {
                 userService,
                 passwordEncoder,
                 jwtService,
-                authenticationManager,
-                userDTOMapper,
-                jwtDecoder);
+                authenticationManager);
     }
 
     @Test

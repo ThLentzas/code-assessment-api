@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @Repository
 public class UserRepository {
     private final JdbcTemplate jdbcTemplate;
-    private final UserRowMapper mapper;
+    private final UserRowMapper mapper = new UserRowMapper();
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 
@@ -56,15 +56,14 @@ public class UserRepository {
             return preparedStatement;
         }, keyHolder);
 
-        Integer id = null;
         if (insert == 1) {
             Map<String, Object> keys = keyHolder.getKeys();
             if (keys != null && keys.containsKey("id")) {
-                id = (Integer) keys.get("id");
+                user.setId((Integer) keys.get("id"));
             }
         }
 
-        return id;
+        return user.getId();
     }
 
     /*

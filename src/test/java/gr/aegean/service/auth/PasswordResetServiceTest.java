@@ -1,6 +1,5 @@
 package gr.aegean.service.auth;
 
-import gr.aegean.service.email.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,8 +22,7 @@ import gr.aegean.repository.UserRepository;
 import gr.aegean.repository.PasswordResetRepository;
 import gr.aegean.utility.StringUtils;
 import gr.aegean.AbstractTestContainers;
-import gr.aegean.mapper.row.PasswordResetTokenRowMapper;
-import gr.aegean.mapper.row.UserRowMapper;
+import gr.aegean.service.email.EmailService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -44,14 +42,12 @@ class PasswordResetServiceTest extends AbstractTestContainers {
     private PasswordResetRepository passwordResetRepository;
     private UserRepository userRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    private final UserRowMapper userMapper = new UserRowMapper();
-    private final PasswordResetTokenRowMapper tokenRowMapper = new PasswordResetTokenRowMapper();
     private PasswordResetService underTest;
 
     @BeforeEach
     void setup() {
-        userRepository = new UserRepository(getJdbcTemplate(), userMapper);
-        passwordResetRepository = new PasswordResetRepository(getJdbcTemplate(), tokenRowMapper);
+        userRepository = new UserRepository(getJdbcTemplate());
+        passwordResetRepository = new PasswordResetRepository(getJdbcTemplate());
         underTest = new PasswordResetService(
                 emailService,
                 passwordResetRepository,

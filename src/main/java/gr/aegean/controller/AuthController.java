@@ -1,7 +1,9 @@
 package gr.aegean.controller;
 
+import gr.aegean.service.auth.CookieService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +28,7 @@ import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 
 import java.net.URI;
+import java.time.Duration;
 
 
 @RestController
@@ -33,35 +36,36 @@ import java.net.URI;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final AuthService authService;
+    private final CookieService cookieService;
     private final PasswordResetService passwordResetService;
 
-    /**
-     * @return a ResponseEntity containing the authentication token.
-     */
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterRequest request,
-                                                     UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<Void> registerUser(@Valid @RequestBody RegisterRequest request,
+                                             UriComponentsBuilder uriBuilder) {
         AuthResponse authResponse = authService.registerUser(request);
 
         URI location = uriBuilder
                 .path("/api/v1/users/{userID}")
                 .buildAndExpand(authResponse.userId())
                 .toUri();
+        ResponseCookie cookie = cookieService.createHttpOnlyCookie(authResponse.token());
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(location);
+        headers.add(HttpHeaders.LOCATION, location.toString());
+        headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return new ResponseEntity<>(authResponse, headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
-    /**
-     * @return a ResponseEntity containing the authentication token.
-     */
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> authenticateUser(@Valid @RequestBody AuthRequest request) {
         AuthResponse authResponse = authService.authenticateUser(request);
+        ResponseCookie cookie = cookieService.createHttpOnlyCookie(authResponse.token());
 
-        return new ResponseEntity<>(authResponse, HttpStatus.OK);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return new ResponseEntity<>(headers, HttpStatus.OK);
     }
 
     @PostMapping("/password_reset")

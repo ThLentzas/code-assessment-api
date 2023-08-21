@@ -5,13 +5,11 @@ import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.quality.QualityMetricOperator;
 
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 
-@Service
 public class ConstraintRowMapper implements RowMapper<Constraint> {
     @Override
     public Constraint mapRow(ResultSet resultSet, int rowNum) throws SQLException {

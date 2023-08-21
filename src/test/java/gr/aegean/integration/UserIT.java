@@ -24,15 +24,15 @@ import java.util.regex.Pattern;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpHeaders.*;
 
 
 @AutoConfigureWebTestClient
 class UserIT extends AbstractIntegrationTest {
     @Autowired
     private WebTestClient webTestClient;
-    private static final String USER_PATH = "/api/v1/users";
+    private static final String USER_PATH = "/api/v1/user";
     private final String AUTH_PATH = "/api/v1/auth";
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
@@ -52,7 +52,10 @@ class UserIT extends AbstractIntegrationTest {
                     "company": "Code Monkey, LLC"
                 }""";
 
-        EntityExchangeResult<AuthResponse> result = webTestClient.post()
+        /*
+            Returns a byte[] if the response body is empty
+         */
+        EntityExchangeResult<byte[]> result = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -60,17 +63,22 @@ class UserIT extends AbstractIntegrationTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
-                .expectBody(AuthResponse.class)
+                .expectHeader().exists(HttpHeaders.SET_COOKIE)
+                .expectBody()
                 .returnResult();
 
-        String jwtToken = result.getResponseBody().token();
-        String locationHeader = result.getResponseHeaders().getFirst(HttpHeaders.LOCATION);
-        Integer userId = Integer.parseInt(locationHeader.substring(locationHeader.lastIndexOf('/') + 1));
+        String cookieHeader = result.getResponseHeaders().getFirst(HttpHeaders.SET_COOKIE);
+        /*
+            Extracting the token value from the Response Header(SET_COOKIE). The cookie is in the following form:
+            accessToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjkyNTc2NTk3LCJleHAiOjE2OTI1ODM3OTd9.NOBCnro0mknq0s
+            487G-g9QoQ1HGi6TE6FyT2nvKhgfs; Max-Age=3600; Expires=Mon, 21 Aug 2023 01:09:57 GMT; HttpOnly; SameSite=Lax
+         */
+        String accessToken = cookieHeader.split(";")[0].substring(12);
 
         UserProfile actual = webTestClient.get()
-                .uri(USER_PATH + "/{userId}/profile", userId)
+                .uri(USER_PATH + "/profile")
                 .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .header(COOKIE, String.format("accessToken=%s", accessToken))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(UserProfile.class)
@@ -103,7 +111,10 @@ class UserIT extends AbstractIntegrationTest {
                     "company": "Code Monkey, LLC"
                 }""";
 
-        EntityExchangeResult<AuthResponse> result = webTestClient.post()
+        /*
+            Returns a byte[] if the response body is empty
+         */
+        EntityExchangeResult<byte[]> result = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -111,12 +122,17 @@ class UserIT extends AbstractIntegrationTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
-                .expectBody(AuthResponse.class)
+                .expectHeader().exists(HttpHeaders.SET_COOKIE)
+                .expectBody()
                 .returnResult();
 
-        String jwtToken = result.getResponseBody().token();
-        String locationHeader = result.getResponseHeaders().getFirst(HttpHeaders.LOCATION);
-        Integer userId = Integer.parseInt(locationHeader.substring(locationHeader.lastIndexOf('/') + 1));
+        String cookieHeader = result.getResponseHeaders().getFirst(HttpHeaders.SET_COOKIE);
+        /*
+            Extracting the token value from the Response Header(SET_COOKIE). The cookie is in the following form:
+            accessToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjkyNTc2NTk3LCJleHAiOjE2OTI1ODM3OTd9.NOBCnro0mknq0s
+            487G-g9QoQ1HGi6TE6FyT2nvKhgfs; Max-Age=3600; Expires=Mon, 21 Aug 2023 01:09:57 GMT; HttpOnly; SameSite=Lax
+         */
+        String accessToken = cookieHeader.split(";")[0].substring(12);
 
         requestBody = """
                 {
@@ -130,9 +146,9 @@ class UserIT extends AbstractIntegrationTest {
                  """;
 
         webTestClient.put()
-                .uri(USER_PATH + "/{userId}/settings/profile", userId)
+                .uri(USER_PATH + "/settings/profile")
                 .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .header(COOKIE, String.format("accessToken=%s", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange()
@@ -153,7 +169,10 @@ class UserIT extends AbstractIntegrationTest {
                     "company": "Code Monkey, LLC"
                 }""";
 
-        EntityExchangeResult<AuthResponse> result = webTestClient.post()
+        /*
+            Returns a byte[] if the response body is empty
+         */
+        EntityExchangeResult<byte[]> result = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -161,12 +180,17 @@ class UserIT extends AbstractIntegrationTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
-                .expectBody(AuthResponse.class)
+                .expectHeader().exists(HttpHeaders.SET_COOKIE)
+                .expectBody()
                 .returnResult();
 
-        String jwtToken = result.getResponseBody().token();
-        String locationHeader = result.getResponseHeaders().getFirst(HttpHeaders.LOCATION);
-        Integer userId = Integer.parseInt(locationHeader.substring(locationHeader.lastIndexOf('/') + 1));
+        String cookieHeader = result.getResponseHeaders().getFirst(HttpHeaders.SET_COOKIE);
+        /*
+            Extracting the token value from the Response Header(SET_COOKIE). The cookie is in the following form:
+            accessToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjkyNTc2NTk3LCJleHAiOjE2OTI1ODM3OTd9.NOBCnro0mknq0s
+            487G-g9QoQ1HGi6TE6FyT2nvKhgfs; Max-Age=3600; Expires=Mon, 21 Aug 2023 01:09:57 GMT; HttpOnly; SameSite=Lax
+         */
+        String accessToken = cookieHeader.split(";")[0].substring(12);
 
         requestBody = """
                 {
@@ -176,9 +200,9 @@ class UserIT extends AbstractIntegrationTest {
                 """;
 
         webTestClient.post()
-                .uri(USER_PATH + "/{usersId}/settings/email", userId)
+                .uri(USER_PATH + "/settings/email")
                 .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .header(COOKIE, String.format("accessToken=%s", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange()
@@ -212,7 +236,7 @@ class UserIT extends AbstractIntegrationTest {
 
         webTestClient.get()
                 .uri(USER_PATH + "/settings/email?token={token}", token)
-                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .header(COOKIE, String.format("accessToken=%s", accessToken))
                 .exchange()
                 .expectStatus().isOk();
     }
@@ -231,7 +255,10 @@ class UserIT extends AbstractIntegrationTest {
                     "company": "Code Monkey, LLC"
                 }""";
 
-        EntityExchangeResult<AuthResponse> result = webTestClient.post()
+        /*
+            Returns a byte[] if the response body is empty
+         */
+        EntityExchangeResult<byte[]> result = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -239,17 +266,22 @@ class UserIT extends AbstractIntegrationTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
-                .expectBody(AuthResponse.class)
+                .expectHeader().exists(HttpHeaders.SET_COOKIE)
+                .expectBody()
                 .returnResult();
 
-        String jwtToken = result.getResponseBody().token();
-        String locationHeader = result.getResponseHeaders().getFirst(HttpHeaders.LOCATION);
-        Integer userId = Integer.parseInt(locationHeader.substring(locationHeader.lastIndexOf('/') + 1));
+        String cookieHeader = result.getResponseHeaders().getFirst(HttpHeaders.SET_COOKIE);
+        /*
+            Extracting the token value from the Response Header(SET_COOKIE). The cookie is in the following form:
+            accessToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjkyNTc2NTk3LCJleHAiOjE2OTI1ODM3OTd9.NOBCnro0mknq0s
+            487G-g9QoQ1HGi6TE6FyT2nvKhgfs; Max-Age=3600; Expires=Mon, 21 Aug 2023 01:09:57 GMT; HttpOnly; SameSite=Lax
+         */
+        String accessToken = cookieHeader.split(";")[0].substring(12);
 
         webTestClient.delete()
-                .uri(USER_PATH + "/{userId}/settings/account", userId)
+                .uri(USER_PATH + "/settings/account")
                 .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .header(COOKIE, String.format("accessToken=%s", accessToken))
                 .exchange()
                 .expectStatus().isNoContent();
     }

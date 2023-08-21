@@ -40,7 +40,7 @@ public class AnalysisService {
     private final AssessmentService assessmentService;
     private final DockerService dockerService;
     private final AnalysisRepository analysisRepository;
-    private final AnalysisReportDTOMapper mapper;
+    private final AnalysisReportDTOMapper mapper = new AnalysisReportDTOMapper();
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 
