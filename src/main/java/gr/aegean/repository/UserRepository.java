@@ -188,12 +188,19 @@ public class UserRepository {
         return users.stream().findFirst();
     }
 
+    /*
+        Emails are not case-sensitive.
+     */
     public boolean existsUserWithEmail(String email) {
-        final String sql = "SELECT EXISTS (SELECT 1 FROM app_user WHERE email = ?)";
+        final String sql = "SELECT EXISTS (SELECT 1 FROM app_user WHERE LOWER(email) = LOWER(?))";
 
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, Boolean.class, email));
     }
 
+    /*
+        Username is considered case-sensitive. It depends on the business requirements, but in our case we are going to
+        it consider as case-sensitive.
+     */
     public boolean existsUserWithUsername(String username) {
         final String sql = "SELECT EXISTS (SELECT 1 FROM app_user WHERE username = ?)";
 

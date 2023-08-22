@@ -23,7 +23,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import gr.aegean.AbstractIntegrationTest;
-import gr.aegean.model.auth.AuthResponse;
 
 
 @AutoConfigureWebTestClient
@@ -58,7 +57,6 @@ class AuthIT extends AbstractIntegrationTest {
                 .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
                 .expectHeader().exists(HttpHeaders.SET_COOKIE);
-
 
         requestBody = """
                 {

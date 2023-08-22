@@ -1,10 +1,18 @@
 package gr.aegean.controller;
 
+import gr.aegean.config.AuthConfig;
+import gr.aegean.config.security.SecurityConfig;
+import gr.aegean.exception.DuplicateResourceException;
+import gr.aegean.model.user.UserUpdateEmailRequest;
+import gr.aegean.model.user.UserProfile;
+import gr.aegean.model.user.UserProfileUpdateRequest;
+import gr.aegean.repository.UserRepository;
+import gr.aegean.service.user.UserService;
 import gr.aegean.config.security.JwtFilter;
 import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.service.auth.CookieService;
 import gr.aegean.service.auth.JwtService;
-import jakarta.servlet.http.HttpServletRequest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -18,7 +26,10 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -26,14 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.is;
 
-import gr.aegean.config.AuthConfig;
-import gr.aegean.config.security.SecurityConfig;
-import gr.aegean.exception.DuplicateResourceException;
-import gr.aegean.model.user.UserUpdateEmailRequest;
-import gr.aegean.model.user.UserProfile;
-import gr.aegean.model.user.UserProfileUpdateRequest;
-import gr.aegean.repository.UserRepository;
-import gr.aegean.service.user.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 @WebMvcTest(UserController.class)
@@ -305,7 +309,6 @@ class UserControllerTest {
         doThrow(new BadCredentialsException("Wrong password"))
                 .when(userService).createEmailUpdateToken(any(HttpServletRequest.class), any(UserUpdateEmailRequest.class));
 
-
         mockMvc.perform(post(USER_PATH + "/settings/email")
                         .servletPath(USER_PATH + "/settings/email")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -325,8 +328,9 @@ class UserControllerTest {
                 """;
 
         doThrow(new DuplicateResourceException("Email already is use"))
-                .when(userService).createEmailUpdateToken(any(HttpServletRequest.class), any(UserUpdateEmailRequest.class));
-
+                .when(userService).createEmailUpdateToken(
+                        any(HttpServletRequest.class),
+                        any(UserUpdateEmailRequest.class));
 
         mockMvc.perform(post(USER_PATH + "/settings/email")
                         .servletPath(USER_PATH + "/settings/email")

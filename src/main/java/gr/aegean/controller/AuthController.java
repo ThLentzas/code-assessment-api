@@ -1,6 +1,5 @@
 package gr.aegean.controller;
 
-import gr.aegean.service.auth.CookieService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -13,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import gr.aegean.model.auth.AuthRequest;
+import gr.aegean.model.auth.LoginRequest;
 import gr.aegean.model.auth.PasswordResetConfirmationRequest;
 import gr.aegean.model.auth.PasswordResetRequest;
 import gr.aegean.model.auth.PasswordResetResponse;
@@ -21,6 +20,7 @@ import gr.aegean.model.auth.AuthResponse;
 import gr.aegean.model.auth.RegisterRequest;
 import gr.aegean.service.auth.AuthService;
 import gr.aegean.service.auth.PasswordResetService;
+import gr.aegean.service.auth.CookieService;
 
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
@@ -28,7 +28,6 @@ import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 
 import java.net.URI;
-import java.time.Duration;
 
 
 @RestController
@@ -58,8 +57,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> authenticateUser(@Valid @RequestBody AuthRequest request) {
-        AuthResponse authResponse = authService.authenticateUser(request);
+    public ResponseEntity<AuthResponse> authenticateUser(@Valid @RequestBody LoginRequest request) {
+        AuthResponse authResponse = authService.loginUser(request);
         ResponseCookie cookie = cookieService.createHttpOnlyCookie(authResponse.token());
 
         HttpHeaders headers = new HttpHeaders();

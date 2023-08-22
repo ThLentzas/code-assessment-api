@@ -28,10 +28,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
 
@@ -186,6 +187,7 @@ public class UserService {
 
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
+                    System.out.println(passwordUpdateRequest.oldPassword());
                     if (!passwordEncoder.matches(passwordUpdateRequest.oldPassword(), user.getPassword())) {
                         throw new BadCredentialsException("Old password is incorrect");
                     }
@@ -206,7 +208,10 @@ public class UserService {
         List<Analysis> analyses = null;
         AnalysisResult analysisResult;
 
-        if ((from == null && to != null) || (from != null && to == null)) {
+        /*
+            One of the two dates is null or empty.
+         */
+        if (((from == null || from.isBlank()) && to != null) || (from != null && (to == null || to.isBlank()))) {
             throw new IllegalArgumentException("Both from and to dates must be provided");
         }
 

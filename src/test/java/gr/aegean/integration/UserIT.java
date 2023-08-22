@@ -15,7 +15,6 @@ import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
 
 import gr.aegean.AbstractIntegrationTest;
-import gr.aegean.model.auth.AuthResponse;
 import gr.aegean.model.user.UserProfile;
 
 import java.util.regex.Matcher;
@@ -130,7 +129,9 @@ class UserIT extends AbstractIntegrationTest {
         /*
             Extracting the token value from the Response Header(SET_COOKIE). The cookie is in the following form:
             accessToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjkyNTc2NTk3LCJleHAiOjE2OTI1ODM3OTd9.NOBCnro0mknq0s
-            487G-g9QoQ1HGi6TE6FyT2nvKhgfs; Max-Age=3600; Expires=Mon, 21 Aug 2023 01:09:57 GMT; HttpOnly; SameSite=Lax
+            487G-g9QoQ1HGi6TE6FyT2nvKhgfs; Max-Age=3600; Expires=Mon, 21 Aug 2023 01:09:57 GMT; HttpOnly; SameSite=Lax.
+            The substring(12) will create a String from the 12 character until the length of the String, its 0 based
+            index.
          */
         String accessToken = cookieHeader.split(";")[0].substring(12);
 

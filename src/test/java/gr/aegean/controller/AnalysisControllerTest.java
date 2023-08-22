@@ -1,6 +1,5 @@
 package gr.aegean.controller;
 
-import gr.aegean.service.auth.CookieService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -20,6 +19,7 @@ import gr.aegean.service.analysis.AsyncService;
 import gr.aegean.config.security.JwtFilter;
 import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.service.auth.JwtService;
+import gr.aegean.service.auth.CookieService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verifyNoInteractions;

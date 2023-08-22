@@ -17,7 +17,7 @@ public final class PasswordValidator {
 
     public static void validatePassword(String password) {
         org.passay.PasswordValidator validator = new org.passay.PasswordValidator(
-                new LengthRule(8, 128),
+                new LengthRule(12, 128),
                 new CharacterRule(EnglishCharacterData.UpperCase, 1),
                 new CharacterRule(EnglishCharacterData.LowerCase, 1),
                 new CharacterRule(EnglishCharacterData.Digit, 1),

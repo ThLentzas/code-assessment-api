@@ -1,7 +1,12 @@
 package gr.aegean.config.security;
 
+import gr.aegean.entity.User;
+import gr.aegean.exception.ServerErrorException;
+import gr.aegean.repository.UserRepository;
+import gr.aegean.service.auth.JwtService;
 import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.service.auth.CookieService;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,11 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import gr.aegean.entity.User;
-import gr.aegean.exception.ServerErrorException;
-import gr.aegean.repository.UserRepository;
-import gr.aegean.service.auth.JwtService;
 
 import java.io.IOException;
 
@@ -44,9 +44,8 @@ public class JwtFilter extends OncePerRequestFilter {
         String token;
         try {
             token = cookieService.getTokenFromCookie(request);
-
         /*
-            Exception Handlers don't work with Filters.
+            Exception Handlers don't work with Filters, when cookieService throws we have to catch the exception.
         */
         } catch (UnauthorizedException ue) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

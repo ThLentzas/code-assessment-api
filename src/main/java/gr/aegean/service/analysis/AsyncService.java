@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.model.analysis.AnalysisRequest;
 import gr.aegean.entity.AnalysisReport;
-import gr.aegean.service.auth.AuthService;
 
 import jakarta.servlet.http.HttpServletRequest;
 

@@ -1,16 +1,14 @@
 package gr.aegean.service.auth;
 
-import gr.aegean.exception.ServerErrorException;
 import gr.aegean.entity.User;
 import gr.aegean.mapper.dto.UserDTOMapper;
 import gr.aegean.model.user.UserDTO;
 import gr.aegean.model.auth.AuthResponse;
 import gr.aegean.model.auth.RegisterRequest;
 import gr.aegean.exception.UnauthorizedException;
-import gr.aegean.model.auth.AuthRequest;
+import gr.aegean.model.auth.LoginRequest;
 import gr.aegean.service.user.UserService;
 
-import jakarta.servlet.http.Cookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,9 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.web.util.WebUtils;
 
 
 @Service
@@ -45,7 +40,7 @@ public class AuthService {
                 .build();
 
         userService.validateUser(user);
-        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         Integer userId = userService.registerUser(user);
         UserDTO userDTO = userDTOMapper.apply(user);
@@ -54,7 +49,7 @@ public class AuthService {
         return new AuthResponse(userId, jwtToken);
     }
 
-    public AuthResponse authenticateUser(AuthRequest request) {
+    public AuthResponse loginUser(LoginRequest request) {
         Authentication authentication;
 
         try {

@@ -6,7 +6,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.function.Function;
 
-import gr.aegean.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -14,6 +13,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 import gr.aegean.model.user.UserDTO;
+import gr.aegean.entity.User;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,6 +31,9 @@ public class JwtService {
         Instant now = Instant.now();
         long expiresIn = 2;
 
+        /*
+            The subject of the token is the user's id.
+         */
         return Jwts.builder()
                 .setSubject(userDTO.id().toString())
                 .setIssuedAt(Date.from(now))

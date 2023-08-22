@@ -12,18 +12,17 @@ import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
-import gr.aegean.service.auth.AuthService;
 import gr.aegean.service.auth.CookieService;
 import gr.aegean.service.auth.JwtService;
 import gr.aegean.service.email.EmailService;
 import gr.aegean.utility.StringUtils;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
@@ -45,6 +44,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.Random;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -83,6 +84,7 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldCreateUserAndReturnTheGeneratedID() {
         //Arrange
         User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         //Act
         Integer userID = underTest.registerUser(user);
@@ -94,14 +96,18 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowDuplicateResourceExceptionIfEmailAlreadyExists() {
         //Arrange
-        User user1 = generateUser();
-        User user2 = generateUser();
+        User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        User duplicateEmailUser = generateUser();
+        duplicateEmailUser.setPassword(duplicateEmailUser.getPassword());
+        duplicateEmailUser.setEmail(user.getEmail());
 
         //Act
-        underTest.registerUser(user1);
+        underTest.registerUser(user);
 
         //Assert
-        assertThatThrownBy(() -> underTest.registerUser(user2))
+        assertThatThrownBy(() -> underTest.registerUser(duplicateEmailUser))
                 .isInstanceOf(DuplicateResourceException.class)
                 .hasMessage("Email already in use");
     }
@@ -109,15 +115,17 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowDuplicateResourceExceptionIfUsernameAlreadyExists() {
         //Arrange
-        User user1 = generateUser();
-        User user2 = generateUser();
+        User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        underTest.registerUser(user);
 
-        //Act
-        underTest.registerUser(user1);
-        user2.setEmail("test2@example.com");
+        User duplicateUsernameUser = generateUser();
+        duplicateUsernameUser.setPassword(duplicateUsernameUser.getPassword());
+        duplicateUsernameUser.setEmail("test2@example.com");
+        duplicateUsernameUser.setUsername(user.getUsername());
 
         //Assert
-        assertThatThrownBy(() -> underTest.registerUser(user2))
+        assertThatThrownBy(() -> underTest.registerUser(duplicateUsernameUser))
                 .isInstanceOf(DuplicateResourceException.class)
                 .hasMessage("The provided username already exists");
     }
@@ -126,16 +134,8 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowIllegalArgumentExceptionWhenFirstnameExceedsMaxLength() {
         //Arrange
         Random random = new Random();
-        User user = User.builder()
-                .firstname(generateRandomString(random.nextInt(31) + 31))
-                .lastname("Test")
-                .username("TestT")
-                .email("test@example.com")
-                .password(passwordEncoder.encode("test"))
-                .bio("I have a real passion for teaching")
-                .location("Cleveland, OH")
-                .company("Code Monkey, LLC")
-                .build();
+        User user = generateUser();
+        user.setFirstname(generateRandomString(random.nextInt(31) + 31));
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -146,16 +146,8 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowIllegalArgumentExceptionWhenFirstnameContainsNumbers() {
         //Arrange
-        User user = User.builder()
-                .firstname("T3st")
-                .lastname("Test")
-                .username("TestT")
-                .email("test@example.com")
-                .password(passwordEncoder.encode("test"))
-                .bio("I have a real passion for teaching")
-                .location("Cleveland, OH")
-                .company("Code Monkey, LLC")
-                .build();
+        User user = generateUser();
+        user.setFirstname("T3st");
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -166,16 +158,8 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowIllegalArgumentExceptionWhenFirstnameContainsSpecialCharacters() {
         //Arrange
-        User user = User.builder()
-                .firstname("T^st")
-                .lastname("Test")
-                .username("TestT")
-                .email("test@example.com")
-                .password(passwordEncoder.encode("test"))
-                .bio("I have a real passion for teaching")
-                .location("Cleveland, OH")
-                .company("Code Monkey, LLC")
-                .build();
+        User user = generateUser();
+        user.setFirstname("T^st");
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -187,16 +171,8 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowIllegalArgumentExceptionWhenLastnameExceedsMaxLength() {
         //Arrange
         Random random = new Random();
-        User user = User.builder()
-                .firstname("Test")
-                .lastname(generateRandomString(random.nextInt(31) + 31))
-                .username("TestT")
-                .email("test@example.com")
-                .password(passwordEncoder.encode("test"))
-                .bio("I have a real passion for teaching")
-                .location("Cleveland, OH")
-                .company("Code Monkey, LLC")
-                .build();
+        User user = generateUser();
+        user.setLastname(generateRandomString(random.nextInt(31) + 31));
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -207,16 +183,8 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowIllegalArgumentExceptionWhenLastnameContainsNumbers() {
         //Arrange
-        User user = User.builder()
-                .firstname("Test")
-                .lastname("T3st")
-                .username("TestT")
-                .email("test@example.com")
-                .password(passwordEncoder.encode("test"))
-                .bio("I have a real passion for teaching")
-                .location("Cleveland, OH")
-                .company("Code Monkey, LLC")
-                .build();
+        User user = generateUser();
+        user.setLastname("T3st");
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -227,16 +195,8 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowIllegalArgumentExceptionWhenLastnameContainsSpecialCharacters() {
         //Arrange
-        User user = User.builder()
-                .firstname("Test")
-                .lastname("T^st")
-                .username("TestT")
-                .email("test@example.com")
-                .password(passwordEncoder.encode("test"))
-                .bio("I have a real passion for teaching")
-                .location("Cleveland, OH")
-                .company("Code Monkey, LLC")
-                .build();
+        User user = generateUser();
+        user.setLastname("T^st");
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -248,16 +208,8 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowIllegalArgumentExceptionWhenUsernameExceedsMaxLength() {
         //Arrange
         Random random = new Random();
-        User user = User.builder()
-                .firstname("Test")
-                .lastname("Test")
-                .username(generateRandomString(random.nextInt(31) + 31))
-                .email("test@example.com")
-                .password(passwordEncoder.encode("test"))
-                .bio("I have a real passion for teaching")
-                .location("Cleveland, OH")
-                .company("Code Monkey, LLC")
-                .build();
+        User user = generateUser();
+        user.setUsername(generateRandomString(random.nextInt(31) + 31));
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -269,16 +221,8 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowIllegalArgumentExceptionWhenEmailExceedsMaxLength() {
         //Arrange
         Random random = new Random();
-        User user = User.builder()
-                .firstname("Test")
-                .lastname("Test")
-                .username("TestT")
-                .email(generateRandomString(random.nextInt(51) + 51))
-                .password(passwordEncoder.encode("test"))
-                .bio("I have a real passion for teaching")
-                .location("Cleveland, OH")
-                .company("Code Monkey, LLC")
-                .build();
+        User user = generateUser();
+        user.setEmail(generateRandomString(random.nextInt(51) + 51));
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -289,16 +233,8 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowIllegalArgumentExceptionWhenEmailDoesNotContainAtSymbol() {
         //Arrange
-        User user = User.builder()
-                .firstname("Test")
-                .lastname("Test")
-                .username("TestT")
-                .email("testexample.com")
-                .password(passwordEncoder.encode("test"))
-                .bio("I have a real passion for teaching")
-                .location("Cleveland, OH")
-                .company("Code Monkey, LLC")
-                .build();
+        User user = generateUser();
+        user.setEmail("testexample.com");
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -310,16 +246,8 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowIllegalArgumentExceptionWhenBioExceedsMaxLength() {
         //Arrange
         Random random = new Random();
-        User user = User.builder()
-                .firstname("Test")
-                .lastname("Test")
-                .username("TestT")
-                .email("test@example.com")
-                .password(passwordEncoder.encode("test"))
-                .bio(generateRandomString(random.nextInt(151) + 151))
-                .location("Cleveland, OH")
-                .company("Code Monkey, LLC")
-                .build();
+        User user = generateUser();
+        user.setBio(generateRandomString(random.nextInt(151) + 151));
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -331,16 +259,8 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowIllegalArgumentExceptionWhenLocationExceedsMaxLength() {
         //Arrange
         Random random = new Random();
-        User user = User.builder()
-                .firstname("Test")
-                .lastname("Test")
-                .username("TestT")
-                .email("test@example.com")
-                .password(passwordEncoder.encode("test"))
-                .bio("I have a real passion for teaching")
-                .location(generateRandomString(random.nextInt(51) + 51))
-                .company("Code Monkey, LLC")
-                .build();
+        User user = generateUser();
+        user.setLocation(generateRandomString(random.nextInt(51) + 51));
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -352,16 +272,8 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowIllegalArgumentExceptionWhenCompanyExceedsMaxLength() {
         //Arrange
         Random random = new Random();
-        User user = User.builder()
-                .firstname("Test")
-                .lastname("Test")
-                .username("TestT")
-                .email("test@example.com")
-                .password(passwordEncoder.encode("test"))
-                .bio("I have a real passion for teaching")
-                .location("Cleveland, OH")
-                .company(generateRandomString(random.nextInt(51) + 51))
-                .build();
+        User user = generateUser();
+        user.setCompany(generateRandomString(random.nextInt(51) + 51));
 
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
@@ -431,8 +343,10 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldUpdateUserPassword() {
         //Arrange
         User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         Integer userId = userRepository.registerUser(user);
-        UserUpdatePasswordRequest passwordUpdateRequest = new UserUpdatePasswordRequest("test", "CyN549^*o2Cr");
+
+        UserUpdatePasswordRequest passwordUpdateRequest = new UserUpdatePasswordRequest("Test2Ex@mple", "CyN549^*o2Cr");
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
         when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
@@ -508,12 +422,13 @@ class UserServiceTest extends AbstractTestContainers {
 
     @Test
     void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToGetProfile() {
+        //Arrange
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
         when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
         when(jwtService.getSubject(any(String.class))).thenReturn(String.valueOf(1));
 
-        //Arrange Act Assert
+        //Act Assert
         assertThatThrownBy(() -> underTest.getProfile(mockRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User with id: " + 1 + " not found");
@@ -521,20 +436,24 @@ class UserServiceTest extends AbstractTestContainers {
 
     @Test
     void shouldCreateEmailUpdateToken() {
+        //Arrange
         User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         Integer userId = userRepository.registerUser(user);
 
         UserUpdateEmailRequest emailUpdateRequest = new UserUpdateEmailRequest(
                 "foo@example.com",
-                "test"
+                "Test2Ex@mple"
         );
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
         when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
         when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
 
+        //Act
         underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest);
 
+        //Assert
         verify(emailService, times(1)).sendEmailVerification(
                 eq(emailUpdateRequest.email()),
                 any(String.class),
@@ -587,11 +506,12 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowDuplicateResourceExceptionWhenNewEmailExistsForEmailUpdateRequest() {
         //Arrange
         User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         Integer userId = userRepository.registerUser(user);
 
         UserUpdateEmailRequest emailUpdateRequest = new UserUpdateEmailRequest(
                 "test@example.com",
-                "test"
+                "Test2Ex@mple"
         );
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
@@ -641,6 +561,7 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldInvalidateAllPreviousTokensWhenNewEmailUpdateTokenIsGenerated() {
         //Arrange
         User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         Integer userId = userRepository.registerUser(user);
 
         String hashedToken = StringUtils.hashToken("token");
@@ -655,7 +576,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         UserUpdateEmailRequest emailUpdateRequest = new UserUpdateEmailRequest(
                 "foo@example.com",
-                "test"
+                "Test2Ex@mple"
         );
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
@@ -692,6 +613,43 @@ class UserServiceTest extends AbstractTestContainers {
         assertThat(emailUpdateRepository.findToken(hashedToken)).isNotPresent();
     }
 
+    @ParameterizedTest
+    @NullAndEmptySource
+    void shouldThrowIllegalArgumentExceptionWhenOnlyFromDateIsProvided(String from) {
+        //Arrange
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+        String to = "2020-04-22";
+
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.getHistory(mockRequest, from, to))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Both from and to dates must be provided");
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    void shouldThrowIllegalArgumentExceptionWhenOnlyToDateIsProvided(String to) {
+        //Arrange
+        User user = generateUser();
+        Integer userId = userRepository.registerUser(user);
+
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+        String from = "2020-04-22";
+
+        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
+        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.getHistory(mockRequest, from, to))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Both from and to dates must be provided");
+    }
 
     @Test
     void shouldDeleteAccount() {
@@ -715,12 +673,13 @@ class UserServiceTest extends AbstractTestContainers {
 
     @Test
     void shouldThrowResourceNotFoundExceptionWhenAccountDoesNotExist() {
+        //Arrange
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
         when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
         when(jwtService.getSubject(any(String.class))).thenReturn(String.valueOf(1));
 
-        //Arrange Act Assert
+        //Act Assert
         assertThatThrownBy(() -> underTest.deleteAccount(mockRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("No account was found with the provided: " + 1);
@@ -732,7 +691,7 @@ class UserServiceTest extends AbstractTestContainers {
                 .lastname("Test")
                 .username("TestT")
                 .email("test@example.com")
-                .password(passwordEncoder.encode("test"))
+                .password("Test2Ex@mple")
                 .bio("I have a real passion for teaching")
                 .location("Cleveland, OH")
                 .company("Code Monkey, LLC")

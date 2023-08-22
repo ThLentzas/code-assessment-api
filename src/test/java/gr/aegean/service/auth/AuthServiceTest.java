@@ -8,12 +8,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import gr.aegean.entity.User;
 import gr.aegean.model.user.UserDTO;
 import gr.aegean.model.auth.AuthResponse;
-import gr.aegean.model.auth.AuthRequest;
+import gr.aegean.model.auth.LoginRequest;
 import gr.aegean.model.auth.RegisterRequest;
 import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.service.user.UserService;
@@ -94,8 +93,8 @@ class AuthServiceTest {
     @Test
     void shouldAuthenticateUser() {
         //Arrange
-        AuthRequest authRequest = new AuthRequest("test@gmail.com", "test");
-        User user = new User(authRequest.email(), authRequest.password());
+        LoginRequest loginRequest = new LoginRequest("test@gmail.com", "test");
+        User user = new User(loginRequest.email(), loginRequest.password());
 
         String jwtToken = "jwtToken";
 
@@ -104,7 +103,7 @@ class AuthServiceTest {
                 new UsernamePasswordAuthenticationToken(user, "test"));
 
         //Act
-        AuthResponse authResponse = underTest.authenticateUser(authRequest);
+        AuthResponse authResponse = underTest.loginUser(loginRequest);
 
         //Assert
         assertThat(authResponse.token()).isEqualTo(jwtToken);
@@ -126,10 +125,10 @@ class AuthServiceTest {
                 .thenThrow(new RuntimeException());
 
         //Act
-        AuthRequest request = new AuthRequest("test@example.com", "password");
+        LoginRequest request = new LoginRequest("test@example.com", "password");
 
         //Assert
-        assertThatThrownBy(() -> underTest.authenticateUser(request))
+        assertThatThrownBy(() -> underTest.loginUser(request))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessage("Username or password is incorrect");
 

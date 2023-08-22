@@ -4,7 +4,7 @@ import gr.aegean.config.security.SecurityConfig;
 import gr.aegean.config.AuthConfig;
 import gr.aegean.model.auth.AuthResponse;
 import gr.aegean.model.auth.RegisterRequest;
-import gr.aegean.model.auth.AuthRequest;
+import gr.aegean.model.auth.LoginRequest;
 import gr.aegean.model.auth.PasswordResetRequest;
 import gr.aegean.model.auth.PasswordResetResponse;
 import gr.aegean.service.auth.AuthService;
@@ -13,6 +13,18 @@ import gr.aegean.service.auth.PasswordResetService;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.config.security.JwtFilter;
 import gr.aegean.service.auth.JwtService;
+
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
@@ -29,13 +41,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Duration;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.when;
-import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 
 
 @WebMvcTest(AuthController.class)
@@ -255,7 +261,7 @@ class AuthControllerTest {
                 .sameSite("Lax")
                 .build();
 
-        when(authService.authenticateUser(any(AuthRequest.class))).thenReturn(authResponse);
+        when(authService.loginUser(any(LoginRequest.class))).thenReturn(authResponse);
         when(cookieService.createHttpOnlyCookie(any(String.class))).thenReturn(cookie);
 
         //Act Assert
@@ -374,9 +380,9 @@ class AuthControllerTest {
     }
 
     /*
-    No need to test the token if its null or empty it is already tested in the validatePasswordResetToken() method
-    in PasswordResetServiceTest -> void shouldThrowBadCredentialsExceptionWhenTokenIsInvalid(String invalidToken)
-    We test @Valid annotation here
+        No need to test the token if its null or empty it is already tested in the validatePasswordResetToken() method
+        in PasswordResetServiceTest -> void shouldThrowBadCredentialsExceptionWhenTokenIsInvalid(String invalidToken)
+        We test @Valid annotation here
     */
     @ParameterizedTest
     @NullAndEmptySource
