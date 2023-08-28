@@ -100,7 +100,7 @@ public class AnalysisRepository {
                 sql,
                 constraint.getAnalysisId(),
                 constraint.getQualityMetric().name(),
-                constraint.getOperator().name(),
+                constraint.getQualityMetricOperator().name(),
                 constraint.getThreshold());
     }
 
@@ -117,6 +117,13 @@ public class AnalysisRepository {
                 preference.getWeight());
     }
 
+    public Optional<Analysis> findAnalysisByAnalysisId(Integer analysisId) {
+        final String sql = "SELECT id, user_id, created_date FROM analysis WHERE id = ?";
+        List<Analysis> analyses = jdbcTemplate.query(sql, analysisRowMapper, analysisId);
+
+        return analyses.stream().findFirst();
+    }
+
     public Optional<List<AnalysisReport>> findAnalysisReportsByAnalysisId(Integer analysisId) {
         final String sql = "SELECT id, report FROM analysis_report WHERE analysis_id = ?";
         List<AnalysisReport> reports = jdbcTemplate.query(sql, reportRowMapper, analysisId);
@@ -130,11 +137,11 @@ public class AnalysisRepository {
 
         return reports.stream().findFirst();
     }
-
     /*
         Returns an empty list if not found. We don't have to return an optional here. An empty list means no preferences
          were provided.
      */
+
     public Optional<List<Preference>> findAnalysisPreferencesByAnalysisId(Integer analysisId) {
         final String sql = "SELECT " +
                 "analysis_id, " +
@@ -144,11 +151,11 @@ public class AnalysisRepository {
 
         return Optional.of(preferences);
     }
-
     /*
         Returns an empty list if not found. We don't have to return an optional here. An empty list means no constraints
          were provided.
      */
+
     public Optional<List<Constraint>> findAnalysisConstraintsByAnalysisId(Integer analysisId) {
         final String sql = "SELECT " +
                 "analysis_id, " +
@@ -169,7 +176,6 @@ public class AnalysisRepository {
 
         return Optional.of(analyses);
     }
-
     public Optional<List<Analysis>> getHistoryInDateRange(Integer userId, Date from, Date to) {
         final String sql = "SELECT " +
                 "id, " +
@@ -181,12 +187,6 @@ public class AnalysisRepository {
         return Optional.of(analyses);
     }
 
-    public Optional<Analysis> findAnalysisByAnalysisId(Integer analysisId) {
-        final String sql = "SELECT id, user_id, created_date FROM analysis WHERE id = ?";
-        List<Analysis> analyses = jdbcTemplate.query(sql, analysisRowMapper, analysisId);
-
-        return analyses.stream().findFirst();
-    }
 
     public void deleteAnalysis(Integer analysisId, Integer userId) {
         final String sql = "DELETE FROM analysis WHERE id = ? AND user_id = ?";

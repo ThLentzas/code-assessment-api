@@ -14,10 +14,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import gr.aegean.entity.User;
-import gr.aegean.model.auth.PasswordResetRequest;
-import gr.aegean.model.auth.PasswordResetResponse;
+import gr.aegean.model.dto.auth.PasswordResetRequest;
+import gr.aegean.model.dto.auth.PasswordResetResponse;
 import gr.aegean.entity.PasswordResetToken;
-import gr.aegean.model.auth.PasswordResetConfirmationRequest;
+import gr.aegean.model.dto.auth.PasswordResetConfirmationRequest;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.repository.PasswordResetRepository;
 import gr.aegean.utility.StringUtils;

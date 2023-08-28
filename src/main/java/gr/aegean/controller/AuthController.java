@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import gr.aegean.model.auth.LoginRequest;
-import gr.aegean.model.auth.PasswordResetConfirmationRequest;
-import gr.aegean.model.auth.PasswordResetRequest;
-import gr.aegean.model.auth.PasswordResetResponse;
-import gr.aegean.model.auth.AuthResponse;
-import gr.aegean.model.auth.RegisterRequest;
+import gr.aegean.model.dto.auth.LoginRequest;
+import gr.aegean.model.dto.auth.PasswordResetConfirmationRequest;
+import gr.aegean.model.dto.auth.PasswordResetRequest;
+import gr.aegean.model.dto.auth.PasswordResetResponse;
+import gr.aegean.model.dto.auth.AuthResponse;
+import gr.aegean.model.dto.auth.RegisterRequest;
 import gr.aegean.service.auth.AuthService;
 import gr.aegean.service.auth.PasswordResetService;
 import gr.aegean.service.auth.CookieService;

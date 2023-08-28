@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import gr.aegean.exception.ServerErrorException;
-import gr.aegean.model.analysis.AnalysisRequest;
+import gr.aegean.model.dto.analysis.AnalysisRequest;
 import gr.aegean.entity.AnalysisReport;
 
 import jakarta.servlet.http.HttpServletRequest;

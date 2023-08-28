@@ -7,9 +7,9 @@ import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.mapper.dto.AnalysisReportDTOMapper;
-import gr.aegean.model.analysis.AnalysisReportDTO;
-import gr.aegean.model.analysis.AnalysisResult;
-import gr.aegean.model.analysis.RefreshRequest;
+import gr.aegean.model.dto.analysis.AnalysisReportDTO;
+import gr.aegean.model.dto.analysis.AnalysisResponse;
+import gr.aegean.model.dto.analysis.RefreshRequest;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.repository.AnalysisRepository;
 import gr.aegean.service.assessment.AssessmentService;
@@ -75,33 +75,14 @@ public class AnalysisService {
         analysisReport = sonarService.fetchAnalysisReport(projectKey);
         Map<QualityMetric, Double> updatedQualityMetricsReport = metricCalculationService.applyUtf(
                 analysisReport.getQualityMetricsReport(),
-                analysisReport.getIssuesReport().getIssues(),
-                analysisReport.getHotspotsReport().getHotspots());
+                analysisReport.getIssuesReport(),
+                analysisReport.getHotspotsReport());
 
         analysisReport.setLanguages(detectedLanguages);
         analysisReport.setQualityMetricsReport(updatedQualityMetricsReport);
         analysisReport.setProjectUrl(Link.of(projectUrl));
 
         return Optional.of(analysisReport);
-    }
-
-    private boolean isMavenProject(Path project) {
-        try (Stream<Path> paths = Files.walk(project)) {
-            return paths.anyMatch(p -> p.getFileName().toString().equals("pom.xml"));
-        } catch (IOException e) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        }
-    }
-
-    private void analyzeMavenProject(String projectKey, String projectPath) {
-        try {
-            dockerService.analyzeMavenProject(projectKey, projectPath);
-        } catch (IOException ioe) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        }
     }
 
     public Integer saveAnalysisProcess(Integer userId,
@@ -116,8 +97,9 @@ public class AnalysisService {
         return analysisId;
     }
 
-    public AnalysisResult findAnalysisResultByAnalysisId(Integer analysisId) {
+    public AnalysisResponse findAnalysisResultByAnalysisId(Integer analysisId) {
         Analysis analysis = findAnalysisByAnalysisId(analysisId);
+
         List<AnalysisReport> reports = findAnalysisReportsByAnalysisId(analysisId);
 
         /*
@@ -132,7 +114,7 @@ public class AnalysisService {
 
         List<List<AnalysisReportDTO>> rankedReportsDTO = mapToDTO(rankedReports);
 
-        return new AnalysisResult(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
+        return new AnalysisResponse(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
     }
 
     public AnalysisReportDTO findAnalysisReportById(Integer reportId) {
@@ -142,7 +124,7 @@ public class AnalysisService {
         return mapper.apply(report);
     }
 
-    public AnalysisResult refreshAnalysisResult(Integer analysisId, RefreshRequest request) {
+    public AnalysisResponse refreshAnalysisResult(Integer analysisId, RefreshRequest request) {
         validateRefreshRequest(request);
 
         Analysis analysis = findAnalysisByAnalysisId(analysisId);
@@ -168,7 +150,7 @@ public class AnalysisService {
 
         List<List<AnalysisReportDTO>> rankedReportsDTO = mapToDTO(rankedReports);
 
-        return new AnalysisResult(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
+        return new AnalysisResponse(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
     }
 
     /*
@@ -188,6 +170,25 @@ public class AnalysisService {
 
     public void deleteAnalysis(Integer analysisId, Integer userId) {
         analysisRepository.deleteAnalysis(analysisId, userId);
+    }
+
+    private boolean isMavenProject(Path project) {
+        try (Stream<Path> paths = Files.walk(project)) {
+            return paths.anyMatch(p -> p.getFileName().toString().equals("pom.xml"));
+        } catch (IOException e) {
+            throw new ServerErrorException(SERVER_ERROR_MSG);
+        }
+    }
+
+    private void analyzeMavenProject(String projectKey, String projectPath) {
+        try {
+            dockerService.analyzeMavenProject(projectKey, projectPath);
+        } catch (IOException ioe) {
+            throw new ServerErrorException(SERVER_ERROR_MSG);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new ServerErrorException(SERVER_ERROR_MSG);
+        }
     }
 
     private int saveAnalysis(Integer userId) {

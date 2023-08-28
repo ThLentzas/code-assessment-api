@@ -1,4 +1,4 @@
-package gr.aegean.model.analysis;
+package gr.aegean.model.dto.analysis;
 
 import gr.aegean.entity.Constraint;
 import gr.aegean.entity.Preference;

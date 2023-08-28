@@ -1,4 +1,4 @@
-package gr.aegean.model.auth;
+package gr.aegean.model.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
 

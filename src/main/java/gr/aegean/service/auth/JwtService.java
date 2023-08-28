@@ -12,7 +12,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-import gr.aegean.model.user.UserDTO;
+import gr.aegean.model.dto.user.UserDTO;
 import gr.aegean.entity.User;
 
 import org.springframework.beans.factory.annotation.Value;

@@ -1,10 +1,7 @@
 package gr.aegean.mapper.dto;
 
-import org.springframework.hateoas.Link;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import gr.aegean.entity.AnalysisReport;
-import gr.aegean.model.analysis.AnalysisReportDTO;
+import gr.aegean.model.dto.analysis.AnalysisReportDTO;
 
 import java.util.function.Function;
 
@@ -24,15 +21,7 @@ public class AnalysisReportDTOMapper implements Function<AnalysisReport, Analysi
                 report.getHotspotsReport(),
                 report.getRuleDetails(),
                 report.getQualityMetricsReport(),
-                report.getRank(),
-                Link.of(getBaseUrl() + "/analysis/reports" + "/" + report.getId())
+                report.getRank()
         );
-    }
-
-    private String getBaseUrl() {
-        return ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .build()
-                .toUriString() + "/api/v1";
     }
 }

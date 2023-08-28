@@ -1,4 +1,4 @@
-package gr.aegean.model.auth;
+package gr.aegean.model.dto.auth;
 
 
 public record PasswordResetResponse(String message) {

@@ -40,7 +40,7 @@ class AssessmentServiceTest {
         List<Constraint> constraints = new ArrayList<>();
         List<Preference> preferences = new ArrayList<>();
 
-        String analysisReportPath = "src/test/resources/reports/analysis-report.json";
+        String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 

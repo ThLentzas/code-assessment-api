@@ -12,7 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import gr.aegean.config.AuthConfig;
 import gr.aegean.config.security.SecurityConfig;
-import gr.aegean.model.analysis.RefreshRequest;
+import gr.aegean.model.dto.analysis.RefreshRequest;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
 import gr.aegean.service.analysis.AsyncService;

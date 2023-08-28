@@ -5,11 +5,8 @@ import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.entity.EmailUpdateToken;
 import gr.aegean.entity.User;
-import gr.aegean.model.analysis.AnalysisResult;
-import gr.aegean.model.user.UserUpdateEmailRequest;
-import gr.aegean.model.user.UserUpdatePasswordRequest;
-import gr.aegean.model.user.UserProfile;
-import gr.aegean.model.user.UserProfileUpdateRequest;
+import gr.aegean.model.dto.analysis.AnalysisResponse;
+import gr.aegean.model.dto.user.*;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
@@ -201,12 +198,12 @@ public class UserService {
                 });
     }
 
-    public List<AnalysisResult> getHistory(HttpServletRequest request, String from, String to) {
+    public UserHistory getHistory(HttpServletRequest request, String from, String to) {
         int userId = getUserIdFromToken(request);
 
-        List<AnalysisResult> history = new ArrayList<>();
+        List<AnalysisResponse> history = new ArrayList<>();
         List<Analysis> analyses = null;
-        AnalysisResult analysisResult;
+        AnalysisResponse analysisResponse;
 
         /*
             One of the two dates is null or empty.
@@ -233,15 +230,15 @@ public class UserService {
             If the user has no previous history, we won't return 404, but 200 with an empty list.
          */
         if (analyses.isEmpty()) {
-            return history;
+            return new UserHistory(history);
         }
 
         for (Analysis analysis : analyses) {
-            analysisResult = analysisService.findAnalysisResultByAnalysisId(analysis.getId());
-            history.add(analysisResult);
+            analysisResponse = analysisService.findAnalysisResultByAnalysisId(analysis.getId());
+            history.add(analysisResponse);
         }
 
-        return history;
+        return new UserHistory(history);
     }
 
     public void deleteAnalysis(Integer analysisId, HttpServletRequest request) {

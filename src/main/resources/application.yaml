@@ -41,7 +41,6 @@ sonar:
 jwt:
   secretKey: LbNnDHG8LJRrdE9vXo1s9hRTFn4al6l7zkCvBU0jHak=
 
-
 #spring:
 #  config:
 #    import: C:\Users\Thanos\Desktop\application.yaml

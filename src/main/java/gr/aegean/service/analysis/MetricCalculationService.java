@@ -26,8 +26,8 @@ public class MetricCalculationService {
         For every quality metric, the relative utility function(utf) is applied.
      */
     public Map<QualityMetric, Double> applyUtf(Map<QualityMetric, Double> metricsReport,
-                                               List<IssuesReport.IssueDetails> issuesDetails,
-                                               List<HotspotsReport.HotspotDetails> hotspotsDetails) {
+                                               IssuesReport issuesReport,
+                                               HotspotsReport hotspotsReport) {
         Map<QualityMetric, Double> updatedMetricsReport = new EnumMap<>(QualityMetric.class);
         Double linesOfCode = metricsReport.get(QualityMetric.LINES_OF_CODE);
         metricsReport.forEach((metric, value) -> {
@@ -52,13 +52,13 @@ public class MetricCalculationService {
             For those 3 metrics, we didn't fetch any values from Sonarqube, so they are not part of the metrics
             report map. We calculate the value based on the issues details and hotspot details.
          */
-        double value = applyMetricsUtf(issuesDetails, "BUG");
+        double value = applyMetricsUtf(issuesReport.getIssues(), "BUG");
         updatedMetricsReport.put(QualityMetric.BUG_SEVERITY, value);
 
-        value = applyMetricsUtf(issuesDetails, "VULNERABILITY");
+        value = applyMetricsUtf(issuesReport.getIssues(), "VULNERABILITY");
         updatedMetricsReport.put(QualityMetric.VULNERABILITY_SEVERITY, value);
 
-        value = applyHotSpotPriorityUtf(hotspotsDetails);
+        value = applyHotSpotPriorityUtf(hotspotsReport.getHotspots());
         updatedMetricsReport.put(QualityMetric.HOTSPOT_PRIORITY, value);
 
         return updatedMetricsReport;

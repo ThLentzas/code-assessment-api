@@ -2,11 +2,11 @@ package gr.aegean.controller;
 
 import gr.aegean.config.security.SecurityConfig;
 import gr.aegean.config.AuthConfig;
-import gr.aegean.model.auth.AuthResponse;
-import gr.aegean.model.auth.RegisterRequest;
-import gr.aegean.model.auth.LoginRequest;
-import gr.aegean.model.auth.PasswordResetRequest;
-import gr.aegean.model.auth.PasswordResetResponse;
+import gr.aegean.model.dto.auth.AuthResponse;
+import gr.aegean.model.dto.auth.RegisterRequest;
+import gr.aegean.model.dto.auth.LoginRequest;
+import gr.aegean.model.dto.auth.PasswordResetRequest;
+import gr.aegean.model.dto.auth.PasswordResetResponse;
 import gr.aegean.service.auth.AuthService;
 import gr.aegean.service.auth.CookieService;
 import gr.aegean.service.auth.PasswordResetService;

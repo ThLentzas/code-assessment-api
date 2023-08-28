@@ -1,7 +1,7 @@
 package gr.aegean.mapper.dto;
 
 import gr.aegean.entity.User;
-import gr.aegean.model.user.UserDTO;
+import gr.aegean.model.dto.user.UserDTO;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

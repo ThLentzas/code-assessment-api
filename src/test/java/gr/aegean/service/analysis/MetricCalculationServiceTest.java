@@ -33,13 +33,11 @@ class MetricCalculationServiceTest {
         String hotspotsReportPath = "src/test/resources/reports/hotspots-report.json";
         String metricsReportPath = "src/test/resources/reports/metrics-report.json";
 
-        JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, IssuesReport.IssueDetails.class);
-        List<IssuesReport.IssueDetails> issuesDetails = mapper.readValue(new File(issuesReportPath), type);
-        type = mapper.getTypeFactory().constructCollectionType(List.class, HotspotsReport.HotspotDetails.class);
-        List<HotspotsReport.HotspotDetails> hotspotsDetails = mapper.readValue(new File(hotspotsReportPath), type);
-        type = mapper.getTypeFactory().constructMapType(EnumMap.class, QualityMetric.class, Double.class);
-        EnumMap<QualityMetric, Double> metricsReport = mapper.readValue(new File(metricsReportPath), type);
-        EnumMap<QualityMetric, Double> expected = new EnumMap<>(QualityMetric.class);
+        IssuesReport issuesReport= mapper.readValue(new File(issuesReportPath), IssuesReport.class);
+        HotspotsReport hotspotsReport = mapper.readValue(new File(hotspotsReportPath), HotspotsReport.class);
+        JavaType type = mapper.getTypeFactory().constructMapType(Map.class, QualityMetric.class, Double.class);
+        Map<QualityMetric, Double> metricsReport = mapper.readValue(new File(metricsReportPath), type);
+        Map<QualityMetric, Double> expected = new EnumMap<>(QualityMetric.class);
 
         expected.put(QualityMetric.COMMENT_RATE, 0.6662906694752284);
         expected.put(QualityMetric.METHOD_SIZE, 1.0);
@@ -53,7 +51,7 @@ class MetricCalculationServiceTest {
         expected.put(QualityMetric.HOTSPOT_PRIORITY, 0.041353383458646614);
         expected.put(QualityMetric.SECURITY_REMEDIATION_EFFORT, 1.0);
 
-        Map<QualityMetric, Double> actual = underTest.applyUtf(metricsReport, issuesDetails, hotspotsDetails);
+        Map<QualityMetric, Double> actual = underTest.applyUtf(metricsReport, issuesReport, hotspotsReport);
 
         /*
             Will fail if the expected and actual maps are not exactly equal, meaning they contain the same keys with

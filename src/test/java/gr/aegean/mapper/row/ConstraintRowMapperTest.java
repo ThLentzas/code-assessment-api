@@ -40,7 +40,7 @@ class ConstraintRowMapperTest {
             //Assert
             assertThat(actual.getAnalysisId()).isEqualTo(expected.getAnalysisId());
             assertThat(actual.getQualityMetric()).isEqualTo(expected.getQualityMetric());
-            assertThat(actual.getOperator()).isEqualTo(expected.getOperator());
+            assertThat(actual.getQualityMetricOperator()).isEqualTo(expected.getQualityMetricOperator());
             assertThat(actual.getThreshold()).isEqualTo(expected.getThreshold());
         }
     }

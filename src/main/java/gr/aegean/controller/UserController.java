@@ -11,18 +11,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import gr.aegean.model.analysis.AnalysisResult;
-import gr.aegean.model.user.UserUpdatePasswordRequest;
-import gr.aegean.model.user.UserProfile;
-import gr.aegean.model.user.UserUpdateEmailRequest;
-import gr.aegean.model.user.UserProfileUpdateRequest;
 import gr.aegean.service.user.UserService;
+import gr.aegean.model.dto.user.UserHistory;
+import gr.aegean.model.dto.user.UserProfile;
+import gr.aegean.model.dto.user.UserProfileUpdateRequest;
+import gr.aegean.model.dto.user.UserUpdateEmailRequest;
+import gr.aegean.model.dto.user.UserUpdatePasswordRequest;
 
 import jakarta.websocket.server.PathParam;
 import jakarta.validation.Valid;
 import jakarta.servlet.http.HttpServletRequest;
-
-import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
@@ -72,10 +70,10 @@ public class UserController {
     }
 
     @GetMapping("/history")
-    public ResponseEntity<List<AnalysisResult>> getHistory(@PathParam("from") String from,
-                                                           @PathParam("to") String to,
-                                                           HttpServletRequest request) {
-        List<AnalysisResult> history = userService.getHistory(request, from, to);
+    public ResponseEntity<UserHistory> getHistory(@PathParam("from") String from,
+                                                             @PathParam("to") String to,
+                                                             HttpServletRequest request) {
+        UserHistory history = userService.getHistory(request, from, to);
 
         return new ResponseEntity<>(history, HttpStatus.OK);
     }

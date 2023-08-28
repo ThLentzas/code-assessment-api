@@ -1,12 +1,13 @@
-package gr.aegean.model.user;
+package gr.aegean.model.dto.user;
 
 
-public record UserProfileUpdateRequest(
+public record UserDTO(
+        Integer id,
         String firstname,
         String lastname,
         String username,
+        String email,
         String bio,
         String location,
-        String company
-) {
+        String company) {
 }

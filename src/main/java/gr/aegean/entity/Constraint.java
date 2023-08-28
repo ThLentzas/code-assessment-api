@@ -16,17 +16,17 @@ import gr.aegean.model.analysis.quality.QualityMetricOperator;
 public class Constraint {
     private Integer analysisId;
     private QualityMetric qualityMetric;
-    private QualityMetricOperator operator;
+    private QualityMetricOperator qualityMetricOperator;
     private Double threshold;
 
     public Constraint(QualityMetric qualityMetric, QualityMetricOperator operator, Double threshold) {
         this.qualityMetric = qualityMetric;
-        this.operator = operator;
+        this.qualityMetricOperator = operator;
         this.threshold = threshold;
     }
 
     public boolean matchOperatorToCondition(Double metricValue) {
-        return switch (operator) {
+        return switch (qualityMetricOperator) {
             case GT -> metricValue > threshold;
             case GTE -> metricValue >= threshold;
             case LT -> metricValue < threshold;

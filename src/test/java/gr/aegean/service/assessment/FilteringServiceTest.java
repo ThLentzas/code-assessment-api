@@ -33,7 +33,7 @@ class FilteringServiceTest {
         List<Constraint> constraints = new ArrayList<>();
         constraints.add(new Constraint(QualityMetric.CYCLOMATIC_COMPLEXITY, QualityMetricOperator.GT, 0.85));
 
-        String analysisReportPath = "src/test/resources/reports/analysis-report.json";
+        String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 
@@ -57,7 +57,7 @@ class FilteringServiceTest {
         constraints.add(new Constraint(QualityMetric.TECHNICAL_DEBT_RATIO, QualityMetricOperator.GT, 0.95));
         constraints.add(new Constraint(QualityMetric.VULNERABILITY_SEVERITY, QualityMetricOperator.GT, 0.5));
 
-        String analysisReportPath = "src/test/resources/reports/analysis-report.json";
+        String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 
@@ -81,7 +81,7 @@ class FilteringServiceTest {
         constraints.add(new Constraint(QualityMetric.BUG_SEVERITY, QualityMetricOperator.LTE, 1.0));
         constraints.add(new Constraint(QualityMetric.HOTSPOT_PRIORITY, QualityMetricOperator.LTE, 1.0));
 
-        String analysisReportPath = "src/test/resources/reports/analysis-report.json";
+        String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 

@@ -10,10 +10,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import gr.aegean.entity.User;
-import gr.aegean.model.user.UserDTO;
-import gr.aegean.model.auth.AuthResponse;
-import gr.aegean.model.auth.LoginRequest;
-import gr.aegean.model.auth.RegisterRequest;
+import gr.aegean.model.dto.user.UserDTO;
+import gr.aegean.model.dto.auth.AuthResponse;
+import gr.aegean.model.dto.auth.LoginRequest;
+import gr.aegean.model.dto.auth.RegisterRequest;
 import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.service.user.UserService;
 

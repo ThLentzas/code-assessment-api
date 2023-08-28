@@ -1,4 +1,4 @@
-package gr.aegean.model.analysis;
+package gr.aegean.model.dto.analysis;
 
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.sonarqube.HotspotsReport;
@@ -17,9 +17,8 @@ public record AnalysisReportDTO(
         Map<String, Double> languages,
         IssuesReport issuesReport,
         HotspotsReport hotspotsReport,
-        Map<String, Rule> rulesDetails,
+        Map<String, Rule> ruleDetails,
         Map<QualityMetric, Double> qualityMetricsReport,
-        Double rank,
-        Link self
+        Double rank
 ) {
 }

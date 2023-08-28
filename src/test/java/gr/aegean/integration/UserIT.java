@@ -15,7 +15,7 @@ import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
 
 import gr.aegean.AbstractIntegrationTest;
-import gr.aegean.model.user.UserProfile;
+import gr.aegean.model.dto.user.UserProfile;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

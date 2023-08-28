@@ -1,4 +1,4 @@
-package gr.aegean.model.user;
+package gr.aegean.model.dto.user;
 
 import jakarta.validation.constraints.NotBlank;
 

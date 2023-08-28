@@ -7,7 +7,7 @@ import gr.aegean.entity.Constraint;
 import gr.aegean.entity.Preference;
 import gr.aegean.entity.User;
 import gr.aegean.exception.ResourceNotFoundException;
-import gr.aegean.model.analysis.RefreshRequest;
+import gr.aegean.model.dto.analysis.RefreshRequest;
 import gr.aegean.model.analysis.quality.QualityAttribute;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.quality.QualityMetricOperator;
@@ -116,7 +116,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
         preferences.add(new Preference(QualityAttribute.SECURITY_REMEDIATION_EFFORT, 0.25));
 
         ObjectMapper mapper = new ObjectMapper();
-        String analysisReportPath = "src/test/resources/reports/analysis-report.json";
+        String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 
@@ -142,7 +142,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
         preferences.add(new Preference(QualityAttribute.SECURITY_REMEDIATION_EFFORT, 0.25));
 
         ObjectMapper mapper = new ObjectMapper();
-        String analysisReportPath = "src/test/resources/reports/analysis-report.json";
+        String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
         underTest.saveAnalysisProcess(userId, reports, constraints, preferences);
@@ -169,7 +169,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
         preferences.add(new Preference(QualityAttribute.SECURITY_REMEDIATION_EFFORT, 0.25));
 
         ObjectMapper mapper = new ObjectMapper();
-        String analysisReportPath = "src/test/resources/reports/analysis-report.json";
+        String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
         Integer analysisId = underTest.saveAnalysisProcess(userId, reports, constraints, preferences);
