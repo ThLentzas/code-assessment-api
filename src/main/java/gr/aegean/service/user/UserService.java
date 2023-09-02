@@ -17,10 +17,7 @@ import gr.aegean.utility.PasswordValidator;
 import gr.aegean.utility.StringUtils;
 
 import java.sql.Date;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -83,42 +80,6 @@ public class UserService {
                         () -> {
                             throw new ResourceNotFoundException("User with id: " + userId + " not found");
                         });
-    }
-
-    private void updateProfileProperties(User user, UserProfileUpdateRequest profileUpdateRequest) {
-        updatePropertyIfNonNullAndNotBlank(
-                profileUpdateRequest.firstname(),
-                this::validateFirstname,
-                value -> userRepository.updateFirstname(user.getId(), value));
-
-        updatePropertyIfNonNullAndNotBlank(
-                profileUpdateRequest.lastname(),
-                this::validateLastname,
-                value -> userRepository.updateLastname(user.getId(), value));
-
-        if (profileUpdateRequest.username() != null && !profileUpdateRequest.username().isBlank()) {
-            validateUsername(profileUpdateRequest.username());
-            if (userRepository.existsUserWithUsername(profileUpdateRequest.username())) {
-                throw new DuplicateResourceException("The provided username already exists");
-            }
-
-            userRepository.updateUsername(user.getId(), profileUpdateRequest.username());
-        }
-
-        updatePropertyIfNonNullAndNotBlank(
-                profileUpdateRequest.bio(),
-                this::validateBio,
-                value -> userRepository.updateBio(user.getId(), value));
-
-        updatePropertyIfNonNullAndNotBlank(
-                profileUpdateRequest.location(),
-                this::validateLocation,
-                value -> userRepository.updateLocation(user.getId(), value));
-
-        updatePropertyIfNonNullAndNotBlank(
-                profileUpdateRequest.company(),
-                this::validateCompany,
-                value -> userRepository.updateCompany(user.getId(), value));
     }
 
     public void createEmailUpdateToken(HttpServletRequest request, UserUpdateEmailRequest emailUpdateRequest) {
@@ -213,8 +174,8 @@ public class UserService {
         }
 
         if (from != null && !from.isBlank() && !to.isBlank()) {
-            validateDate(from);
-            validateDate(to);
+            StringUtils.validateDate(from);
+            StringUtils.validateDate(to);
 
             Date fromDate = Date.valueOf(from);
             Date toDate = Date.valueOf(to);
@@ -259,40 +220,37 @@ public class UserService {
         validateUsername(user.getUsername());
         validateEmail(user.getEmail());
         PasswordValidator.validatePassword(user.getPassword());
-        validateBio(user.getBio());
-        validateLocation(user.getLocation());
-        validateCompany(user.getCompany());
     }
 
     private void validateFirstname(String firstname) {
         if (firstname.length() > 30) {
-            throw new IllegalArgumentException("Invalid firstname. Too many characters");
+            throw new IllegalArgumentException("Invalid firstname. Firstname must not exceed 30 characters");
         }
 
         if (!firstname.matches("^[a-zA-Z]*$")) {
-            throw new IllegalArgumentException("Invalid firstname. Name should contain only characters");
+            throw new IllegalArgumentException("Invalid firstname. Firstname should contain only characters");
         }
     }
 
     private void validateLastname(String lastname) {
         if (lastname.length() > 30) {
-            throw new IllegalArgumentException("Invalid lastname. Too many characters");
+            throw new IllegalArgumentException("Invalid lastname. Lastname must not exceed 30 characters");
         }
 
         if (!lastname.matches("^[a-zA-Z]*$")) {
-            throw new IllegalArgumentException("Invalid lastname. Name should contain only characters");
+            throw new IllegalArgumentException("Invalid lastname. Lastname should contain only characters");
         }
     }
 
     private void validateUsername(String username) {
         if (username.length() > 30) {
-            throw new IllegalArgumentException("Invalid username. Too many characters");
+            throw new IllegalArgumentException("Invalid username. Username must not exceed 30 characters");
         }
     }
 
     private void validateEmail(String email) {
         if (email.length() > 50) {
-            throw new IllegalArgumentException("Invalid email. Too many characters");
+            throw new IllegalArgumentException("Invalid email. Email must not exceed 50 characters");
         }
 
         if (!email.contains("@")) {
@@ -302,20 +260,56 @@ public class UserService {
 
     public void validateBio(String bio) {
         if (bio.length() > 150) {
-            throw new IllegalArgumentException("Invalid bio. Too many characters");
+            throw new IllegalArgumentException("Invalid bio. Bio must not exceed 150 characters");
         }
     }
 
     public void validateLocation(String location) {
         if (location.length() > 50) {
-            throw new IllegalArgumentException("Invalid location. Too many characters");
+            throw new IllegalArgumentException("Invalid location. Location must not exceed 50 characters");
         }
     }
 
     public void validateCompany(String company) {
         if (company.length() > 50) {
-            throw new IllegalArgumentException("Invalid company. Too many characters");
+            throw new IllegalArgumentException("Invalid company. Company must not exceed 50 characters");
         }
+    }
+
+    private void updateProfileProperties(User user, UserProfileUpdateRequest profileUpdateRequest) {
+        updatePropertyIfNonNullAndNotBlank(
+                profileUpdateRequest.firstname(),
+                this::validateFirstname,
+                value -> userRepository.updateFirstname(user.getId(), value));
+
+        updatePropertyIfNonNullAndNotBlank(
+                profileUpdateRequest.lastname(),
+                this::validateLastname,
+                value -> userRepository.updateLastname(user.getId(), value));
+
+        if (profileUpdateRequest.username() != null && !profileUpdateRequest.username().isBlank()) {
+            validateUsername(profileUpdateRequest.username());
+            if (userRepository.existsUserWithUsername(profileUpdateRequest.username())) {
+                throw new DuplicateResourceException("The provided username already exists");
+            }
+
+            userRepository.updateUsername(user.getId(), profileUpdateRequest.username());
+        }
+
+        updatePropertyIfNonNullAndNotBlank(
+                profileUpdateRequest.bio(),
+                this::validateBio,
+                value -> userRepository.updateBio(user.getId(), value));
+
+        updatePropertyIfNonNullAndNotBlank(
+                profileUpdateRequest.location(),
+                this::validateLocation,
+                value -> userRepository.updateLocation(user.getId(), value));
+
+        updatePropertyIfNonNullAndNotBlank(
+                profileUpdateRequest.company(),
+                this::validateCompany,
+                value -> userRepository.updateCompany(user.getId(), value));
     }
 
     private void updatePropertyIfNonNullAndNotBlank(String property,
@@ -324,16 +318,6 @@ public class UserService {
         if (property != null && !property.isBlank()) {
             validator.accept(property);
             updater.accept(property);
-        }
-    }
-
-    private void validateDate(String date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        try {
-            LocalDate.parse(date, formatter);
-        } catch (DateTimeParseException dte) {
-            throw new IllegalArgumentException("The provided date is invalid");
         }
     }
 

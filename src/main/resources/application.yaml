@@ -43,4 +43,4 @@ jwt:
 
 #spring:
 #  config:
-#    import: C:\Users\Thanos\Desktop\application.yaml
+#    import: location to a properties.yaml file

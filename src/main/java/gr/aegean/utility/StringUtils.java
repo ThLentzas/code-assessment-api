@@ -1,21 +1,17 @@
 package gr.aegean.utility;
 
-import org.bouncycastle.util.encoders.Hex;
-import org.passay.CharacterRule;
-import org.passay.EnglishCharacterData;
-import org.passay.LengthRule;
-import org.passay.PasswordData;
-import org.passay.PasswordValidator;
-import org.passay.RuleResult;
-import org.springframework.security.authentication.BadCredentialsException;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Base64;
 
 import gr.aegean.exception.ServerErrorException;
+
+import org.bouncycastle.util.encoders.Hex;
 
 
 public final class StringUtils {
@@ -50,6 +46,16 @@ public final class StringUtils {
         }
 
         return new String(Hex.encode(hash));
+    }
+
+    public static void validateDate(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        try {
+            LocalDate.parse(date, formatter);
+        } catch (DateTimeParseException dte) {
+            throw new IllegalArgumentException("The provided date is invalid");
+        }
     }
 }
 

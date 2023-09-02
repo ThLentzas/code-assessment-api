@@ -3,6 +3,7 @@ package gr.aegean.deserializer;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+
 import gr.aegean.model.analysis.quality.QualityMetricOperator;
 
 import java.io.IOException;

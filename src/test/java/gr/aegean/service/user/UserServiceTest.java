@@ -140,7 +140,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid firstname. Too many characters");
+                .hasMessage("Invalid firstname. Firstname must not exceed 30 characters");
     }
 
     @Test
@@ -152,7 +152,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid firstname. Name should contain only characters");
+                .hasMessage("Invalid firstname. Firstname should contain only characters");
     }
 
     @Test
@@ -164,7 +164,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid firstname. Name should contain only characters");
+                .hasMessage("Invalid firstname. Firstname should contain only characters");
     }
 
     @Test
@@ -177,7 +177,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid lastname. Too many characters");
+                .hasMessage("Invalid lastname. Lastname must not exceed 30 characters");
     }
 
     @Test
@@ -189,7 +189,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid lastname. Name should contain only characters");
+                .hasMessage("Invalid lastname. Lastname should contain only characters");
     }
 
     @Test
@@ -201,7 +201,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid lastname. Name should contain only characters");
+                .hasMessage("Invalid lastname. Lastname should contain only characters");
     }
 
     @Test
@@ -214,7 +214,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid username. Too many characters");
+                .hasMessage("Invalid username. Username must not exceed 30 characters");
     }
 
     @Test
@@ -227,7 +227,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid email. Too many characters");
+                .hasMessage("Invalid email. Email must not exceed 50 characters");
     }
 
     @Test
@@ -240,45 +240,6 @@ class UserServiceTest extends AbstractTestContainers {
         assertThatThrownBy(() -> underTest.validateUser(user))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid email");
-    }
-
-    @Test
-    void shouldThrowIllegalArgumentExceptionWhenBioExceedsMaxLength() {
-        //Arrange
-        Random random = new Random();
-        User user = generateUser();
-        user.setBio(generateRandomString(random.nextInt(151) + 151));
-
-        //Act Assert
-        assertThatThrownBy(() -> underTest.validateUser(user))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid bio. Too many characters");
-    }
-
-    @Test
-    void shouldThrowIllegalArgumentExceptionWhenLocationExceedsMaxLength() {
-        //Arrange
-        Random random = new Random();
-        User user = generateUser();
-        user.setLocation(generateRandomString(random.nextInt(51) + 51));
-
-        //Act Assert
-        assertThatThrownBy(() -> underTest.validateUser(user))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid location. Too many characters");
-    }
-
-    @Test
-    void shouldThrowIllegalArgumentExceptionWhenCompanyExceedsMaxLength() {
-        //Arrange
-        Random random = new Random();
-        User user = generateUser();
-        user.setCompany(generateRandomString(random.nextInt(51) + 51));
-
-        //Act Assert
-        assertThatThrownBy(() -> underTest.validateUser(user))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid company. Too many characters");
     }
 
     @Test

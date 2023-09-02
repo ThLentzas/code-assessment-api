@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 
 @Service
-public class MetricCalculationService {
+public class MetricService {
     private static final double LINE_COST = 0.06;
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
@@ -30,6 +30,7 @@ public class MetricCalculationService {
                                                HotspotsReport hotspotsReport) {
         Map<QualityMetric, Double> updatedMetricsReport = new EnumMap<>(QualityMetric.class);
         Double linesOfCode = metricsReport.get(QualityMetric.LINES_OF_CODE);
+
         metricsReport.forEach((metric, value) -> {
             switch (metric) {
                 case COMMENT_RATE -> updatedMetricsReport.put(metric, applyCommentRateUtf(value));

@@ -42,10 +42,7 @@ class AuthIT extends AbstractIntegrationTest {
                     "lastname": "Test",
                     "username": "Test",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr",
-                    "bio": "I have a real passion for teaching",
-                    "location": "Cleveland, OH",
-                    "company": "Code Monkey, LLC"
+                    "password": "CyN549^*o2Cr"
                 }""";
 
         webTestClient.post()
@@ -82,10 +79,7 @@ class AuthIT extends AbstractIntegrationTest {
                     "lastname": "Test",
                     "username": "Test",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr",
-                    "bio": "I have a real passion for teaching",
-                    "location": "Cleveland, OH",
-                    "company": "Code Monkey, LLC"
+                    "password": "CyN549^*o2Cr"
                 }""";
 
         webTestClient.post()
@@ -123,10 +117,7 @@ class AuthIT extends AbstractIntegrationTest {
                     "lastname": "Test",
                     "username": "Test",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr",
-                    "bio": "I have a real passion for teaching",
-                    "location": "Cleveland, OH",
-                    "company": "Code Monkey, LLC"
+                    "password": "CyN549^*o2Cr"
                 }""";
 
         webTestClient.post()
@@ -165,10 +156,7 @@ class AuthIT extends AbstractIntegrationTest {
                     "lastname": "Test",
                     "username": "Test",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr",
-                    "bio": "I have a real passion for teaching",
-                    "location": "Cleveland, OH",
-                    "company": "Code Monkey, LLC"
+                    "password": "CyN549^*o2Cr"
                 }""";
 
         webTestClient.post()
@@ -269,10 +257,7 @@ class AuthIT extends AbstractIntegrationTest {
                     "lastname": "Test",
                     "username": "Test",
                     "email": "greenmail@example.com",
-                    "password": "CyN549^*o2Cr",
-                    "bio": "I have a real passion for teaching",
-                    "location": "Cleveland, OH",
-                    "company": "Code Monkey, LLC"
+                    "password": "CyN549^*o2Cr"
                 }""";
 
         webTestClient.post()

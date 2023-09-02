@@ -34,9 +34,6 @@ public class AuthService {
                 .username(request.username())
                 .email(request.email())
                 .password(request.password())
-                .bio(request.bio())
-                .location(request.location())
-                .company(request.company())
                 .build();
 
         userService.validateUser(user);

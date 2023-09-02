@@ -8,7 +8,6 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 
 import gr.aegean.model.analysis.quality.QualityMetric;
@@ -18,12 +17,12 @@ import gr.aegean.model.analysis.sonarqube.IssuesReport;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-class MetricCalculationServiceTest {
-    private MetricCalculationService underTest;
+class MetricServiceTest {
+    private MetricService underTest;
 
     @BeforeEach
     void setup() {
-        underTest = new MetricCalculationService();
+        underTest = new MetricService();
     }
 
     @Test

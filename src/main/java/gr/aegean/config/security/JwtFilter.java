@@ -35,7 +35,7 @@ public class JwtFilter extends OncePerRequestFilter {
                                     @NotNull HttpServletResponse response,
                                     @NotNull FilterChain filterChain) throws ServletException, IOException {
         //We allow the permit all endpoints
-        if (request.getServletPath().contains("/api/v1/")) {
+        if (request.getServletPath().contains("/api/v1/auth")) {
             filterChain.doFilter(request, response);
 
             return;

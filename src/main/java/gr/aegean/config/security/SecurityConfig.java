@@ -28,8 +28,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/api/v1/**").permitAll();
-                    //auth.anyRequest().authenticated();
+                    auth.requestMatchers("/api/v1/auth/**").permitAll();
+                    auth.anyRequest().authenticated();
                 })
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())

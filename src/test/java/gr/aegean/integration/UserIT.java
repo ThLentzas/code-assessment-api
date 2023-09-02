@@ -45,10 +45,7 @@ class UserIT extends AbstractIntegrationTest {
                     "lastname": "Test",
                     "username": "TestT",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr",
-                    "bio": "I have a real passion for teaching",
-                    "location": "Cleveland, OH",
-                    "company": "Code Monkey, LLC"
+                    "password": "CyN549^*o2Cr"
                 }""";
 
         /*
@@ -88,9 +85,9 @@ class UserIT extends AbstractIntegrationTest {
                 "Test",
                 "Test",
                 "TestT",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
+                null,
+                null,
+                null
         );
 
         assertThat(actual).isEqualTo(expected);
@@ -104,10 +101,7 @@ class UserIT extends AbstractIntegrationTest {
                     "lastname": "Test",
                     "username": "TestT",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr",
-                    "bio": "I have a real passion for teaching",
-                    "location": "Cleveland, OH",
-                    "company": "Code Monkey, LLC"
+                    "password": "CyN549^*o2Cr"
                 }""";
 
         /*
@@ -164,10 +158,7 @@ class UserIT extends AbstractIntegrationTest {
                     "lastname": "Test",
                     "username": "TestT",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr",
-                    "bio": "I have a real passion for teaching",
-                    "location": "Cleveland, OH",
-                    "company": "Code Monkey, LLC"
+                    "password": "CyN549^*o2Cr"
                 }""";
 
         /*
@@ -250,10 +241,7 @@ class UserIT extends AbstractIntegrationTest {
                     "lastname": "Test",
                     "username": "TestT",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr",
-                    "bio": "I have a real passion for teaching",
-                    "location": "Cleveland, OH",
-                    "company": "Code Monkey, LLC"
+                    "password": "CyN549^*o2Cr"
                 }""";
 
         /*

@@ -7,6 +7,7 @@ import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.mapper.dto.AnalysisReportDTOMapper;
+import gr.aegean.model.analysis.sonarqube.IssuesReport;
 import gr.aegean.model.dto.analysis.AnalysisReportDTO;
 import gr.aegean.model.dto.analysis.AnalysisResponse;
 import gr.aegean.model.dto.analysis.RefreshRequest;
@@ -36,7 +37,7 @@ import lombok.RequiredArgsConstructor;
 public class AnalysisService {
     private final LanguageService languageService;
     private final SonarService sonarService;
-    private final MetricCalculationService metricCalculationService;
+    private final MetricService metricService;
     private final AssessmentService assessmentService;
     private final DockerService dockerService;
     private final AnalysisRepository analysisRepository;
@@ -73,7 +74,16 @@ public class AnalysisService {
         }
 
         analysisReport = sonarService.fetchAnalysisReport(projectKey);
-        Map<QualityMetric, Double> updatedQualityMetricsReport = metricCalculationService.applyUtf(
+
+        /*
+            Converting 476af562-93da-47e4-a553-08c3173be0ac:graph.py -> graph.py
+         */
+        for(IssuesReport.IssueDetails issue: analysisReport.getIssuesReport().getIssues()) {
+            String component = issue.getComponent().split(":")[1];
+            issue.setComponent(component);
+        }
+
+        Map<QualityMetric, Double> updatedQualityMetricsReport = metricService.applyUtf(
                 analysisReport.getQualityMetricsReport(),
                 analysisReport.getIssuesReport(),
                 analysisReport.getHotspotsReport());
@@ -112,7 +122,11 @@ public class AnalysisService {
         List<List<AnalysisReport>> rankedReports = assessmentService.assessAnalysisResult(
                 reports, constraints, preferences);
 
-        List<List<AnalysisReportDTO>> rankedReportsDTO = mapToDTO(rankedReports);
+        List<List<AnalysisReportDTO>> rankedReportsDTO = rankedReports.stream()
+                .map(list -> list.stream()
+                        .map(mapper)
+                        .toList())
+                .toList();
 
         return new AnalysisResponse(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
     }
@@ -148,7 +162,11 @@ public class AnalysisService {
         saveConstraints(analysisId, constraints);
         savePreferences(analysisId, preferences);
 
-        List<List<AnalysisReportDTO>> rankedReportsDTO = mapToDTO(rankedReports);
+        List<List<AnalysisReportDTO>> rankedReportsDTO = rankedReports.stream()
+                .map(list -> list.stream()
+                        .map(mapper)
+                        .toList())
+                .toList();
 
         return new AnalysisResponse(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
     }
@@ -238,14 +256,6 @@ public class AnalysisService {
     private List<Preference> findAnalysisPreferencesByAnalysisId(Integer analysisId) {
         return analysisRepository.findAnalysisPreferencesByAnalysisId(analysisId).orElse(
                 Collections.emptyList());
-    }
-
-    private List<List<AnalysisReportDTO>> mapToDTO(List<List<AnalysisReport>> reports) {
-        return reports.stream()
-                .map(list -> list.stream()
-                        .map(mapper)
-                        .toList())
-                .toList();
     }
 
     private void validateRefreshRequest(RefreshRequest request) {

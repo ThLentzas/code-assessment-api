@@ -48,7 +48,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
     @Mock
     private SonarService sonarService;
     @Mock
-    private MetricCalculationService metricCalculationService;
+    private MetricService metricService;
     @Mock
     private AssessmentService assessmentService;
     @Mock
@@ -74,7 +74,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
         underTest = new AnalysisService(
                 languageService,
                 sonarService,
-                metricCalculationService,
+                metricService,
                 assessmentService,
                 dockerService,
                 analysisRepository);

@@ -13,10 +13,7 @@ public record RegisterRequest(
         @NotBlank(message = "The Email field is required.")
         String email,
         @NotBlank(message = "The Password field is required.")
-        String password,
-        String bio,
-        String location,
-        String company
+        String password
 ) {
 }
 

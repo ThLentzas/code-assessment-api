@@ -54,10 +54,7 @@ class AuthServiceTest {
                 "Test",
                 "TestT",
                 "test@gmail.com",
-                "CyN549^*o2Cr",
-                "I have a real passion for teaching",
-                "Cleveland, OH",
-                "Code Monkey, LLC"
+                "CyN549^*o2Cr"
         );
 
         User user = User.builder()
@@ -66,9 +63,6 @@ class AuthServiceTest {
                 .username(request.username())
                 .email(request.email())
                 .password(request.password())
-                .bio(request.bio())
-                .location(request.location())
-                .company(request.company())
                 .build();
 
         String jwtToken = "jwtToken";
