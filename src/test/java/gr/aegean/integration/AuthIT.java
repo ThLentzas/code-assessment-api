@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import gr.aegean.AbstractIntegrationTest;
+import gr.aegean.model.dto.auth.AuthResponse;
 
 
 @AutoConfigureWebTestClient
@@ -45,7 +46,7 @@ class AuthIT extends AbstractIntegrationTest {
                     "password": "CyN549^*o2Cr"
                 }""";
 
-        webTestClient.post()
+        String jwtToken = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -53,7 +54,12 @@ class AuthIT extends AbstractIntegrationTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
-                .expectHeader().exists(HttpHeaders.SET_COOKIE);
+                .expectBody(AuthResponse.class)
+                .returnResult()
+                .getResponseBody()
+                .token();
+
+        assertThat(jwtToken).isNotNull();
 
         requestBody = """
                 {
@@ -61,14 +67,19 @@ class AuthIT extends AbstractIntegrationTest {
                     "password": "CyN549^*o2Cr"
                 }""";
 
-        webTestClient.post()
+        jwtToken = webTestClient.post()
                 .uri(AUTH_PATH + "/login")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange()
                 .expectStatus().isOk()
-                .expectHeader().exists(HttpHeaders.SET_COOKIE);
+                .expectBody(AuthResponse.class)
+                .returnResult()
+                .getResponseBody()
+                .token();
+
+        assertThat(jwtToken).isNotNull();
     }
 
     @Test
@@ -82,7 +93,7 @@ class AuthIT extends AbstractIntegrationTest {
                     "password": "CyN549^*o2Cr"
                 }""";
 
-        webTestClient.post()
+        String jwtToken = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -90,7 +101,12 @@ class AuthIT extends AbstractIntegrationTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
-                .expectHeader().exists(HttpHeaders.SET_COOKIE);
+                .expectBody(AuthResponse.class)
+                .returnResult()
+                .getResponseBody()
+                .token();
+
+        assertThat(jwtToken).isNotNull();
 
         requestBody = """
                 {
@@ -120,15 +136,21 @@ class AuthIT extends AbstractIntegrationTest {
                     "password": "CyN549^*o2Cr"
                 }""";
 
-        webTestClient.post()
+        String jwtToken = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange()
-                .expectStatus().isCreated()
+                .expectStatus()
+                .isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
-                .expectHeader().exists(HttpHeaders.SET_COOKIE);
+                .expectBody(AuthResponse.class)
+                .returnResult()
+                .getResponseBody()
+                .token();
+
+        assertThat(jwtToken).isNotNull();
 
         requestBody = """
                 {
@@ -159,7 +181,7 @@ class AuthIT extends AbstractIntegrationTest {
                     "password": "CyN549^*o2Cr"
                 }""";
 
-        webTestClient.post()
+        String jwtToken = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -167,7 +189,12 @@ class AuthIT extends AbstractIntegrationTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
-                .expectHeader().exists(HttpHeaders.SET_COOKIE);
+                .expectBody(AuthResponse.class)
+                .returnResult()
+                .getResponseBody()
+                .token();
+
+        assertThat(jwtToken).isNotNull();
 
         requestBody = """
                 {
@@ -260,7 +287,7 @@ class AuthIT extends AbstractIntegrationTest {
                     "password": "CyN549^*o2Cr"
                 }""";
 
-        webTestClient.post()
+        String jwtToken = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -268,7 +295,12 @@ class AuthIT extends AbstractIntegrationTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
-                .expectHeader().exists(HttpHeaders.SET_COOKIE);
+                .expectBody(AuthResponse.class)
+                .returnResult()
+                .getResponseBody()
+                .token();
+
+        assertThat(jwtToken).isNotNull();
 
         requestBody = """
                 {

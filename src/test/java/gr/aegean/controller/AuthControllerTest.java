@@ -1,18 +1,16 @@
 package gr.aegean.controller;
 
+import gr.aegean.config.security.JwtConfig;
 import gr.aegean.config.security.SecurityConfig;
-import gr.aegean.config.AuthConfig;
+import gr.aegean.config.security.AuthConfig;
 import gr.aegean.model.dto.auth.AuthResponse;
 import gr.aegean.model.dto.auth.RegisterRequest;
 import gr.aegean.model.dto.auth.LoginRequest;
 import gr.aegean.model.dto.auth.PasswordResetRequest;
 import gr.aegean.model.dto.auth.PasswordResetResponse;
 import gr.aegean.service.auth.AuthService;
-import gr.aegean.service.auth.CookieService;
 import gr.aegean.service.auth.PasswordResetService;
 import gr.aegean.repository.UserRepository;
-import gr.aegean.config.security.JwtFilter;
-import gr.aegean.service.auth.JwtService;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
@@ -21,7 +19,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,19 +33,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseCookie;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.Duration;
-
-
 
 
 @WebMvcTest(AuthController.class)
-@Import({JwtFilter.class,
-        JwtService.class,
+@Import({SecurityConfig.class,
         AuthConfig.class,
-        SecurityConfig.class})
+        JwtConfig.class})
 class AuthControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -57,13 +48,11 @@ class AuthControllerTest {
     @MockBean
     private PasswordResetService passwordResetService;
     @MockBean
-    private CookieService cookieService;
-    @MockBean
     private UserRepository userRepository;
     private static final String AUTH_PATH = "/api/v1/auth";
 
     @Test
-    void shouldSetJwtTokenInCookieHeaderWhenUserIsRegisteredSuccessfully() throws Exception {
+    void shouldReturnJwtTokenWhenUserIsRegisteredSuccessfully() throws Exception {
         //Arrange
         String requestBody = """
                 {
@@ -71,35 +60,23 @@ class AuthControllerTest {
                     "lastname": "Test",
                     "username": "Test",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr",
-                    "bio": "I have a real passion for teaching",
-                    "location": "Cleveland, OH",
-                    "company": "Code Monkey, LLC"
+                    "password": "CyN549^*o2Cr"
                 }
                 """;
-
         AuthResponse authResponse = new AuthResponse(1, "jwtToken");
-        ResponseCookie cookie = ResponseCookie.from("accessToken", authResponse.token())
-                .httpOnly(true)
-                .secure(false)
-                .maxAge(Duration.ofHours(1))
-                .sameSite("Lax")
-                .build();
 
         when(authService.registerUser(any(RegisterRequest.class))).thenReturn(authResponse);
-        when(cookieService.createHttpOnlyCookie(any(String.class))).thenReturn(cookie);
 
         //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/signup")
-                        .servletPath(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(cookie().exists("accessToken"))
-                .andExpect(cookie().value("accessToken", cookie.getValue()))
                 .andExpect(header().string("Location", Matchers.containsString(
-                        "api/v1/users/" + authResponse.userId())));
+                        "api/v1/users/" + authResponse.userId())))
+                .andExpect(jsonPath("$.token", is(authResponse.token())));
     }
 
     @ParameterizedTest
@@ -114,16 +91,12 @@ class AuthControllerTest {
                     "lastname": "Test",
                     "username": "Test",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr",
-                    "bio": "I have a real passion for teaching",
-                    "location": "Cleveland, OH",
-                    "company": "Code Monkey, LLC"
+                    "password": "CyN549^*o2Cr"
                 }
                 """, firstnameValue);
 
         //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/signup")
-                        .servletPath(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -142,16 +115,12 @@ class AuthControllerTest {
                     "lastname": %s,
                     "username": "Test",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr",
-                    "bio": "I have a real passion for teaching",
-                    "location": "Cleveland, OH",
-                    "company": "Code Monkey, LLC"
+                    "password": "CyN549^*o2Cr"
                 }
                 """, lastnameValue);
 
         //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/signup")
-                        .servletPath(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -170,10 +139,7 @@ class AuthControllerTest {
                     "lastname": "Test",
                     "username": %s,
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr",
-                    "bio": "I have a real passion for teaching",
-                    "location": "Cleveland, OH",
-                    "company": "Code Monkey, LLC"
+                    "password": "CyN549^*o2Cr"
                 }
                 """, usernameValue);
 
@@ -199,16 +165,12 @@ class AuthControllerTest {
                     "lastname": "Test",
                     "username": "TestT",
                     "email": %s,
-                    "password": "CyN549^*o2Cr",
-                    "bio": "I have a real passion for teaching",
-                    "location": "Cleveland, OH",
-                    "company": "Code Monkey, LLC"
+                    "password": "CyN549^*o2Cr"
                 }
                 """, emailValue);
 
         //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/signup")
-                        .servletPath(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -227,16 +189,12 @@ class AuthControllerTest {
                     "lastname": "Test",
                     "username": "TestT",
                     "email": "test@example.com",
-                    "password": %s,
-                    "bio": "I have a real passion for teaching",
-                    "location": "Cleveland, OH",
-                    "company": "Code Monkey, LLC"
+                    "password": %s
                 }
                 """, passwordValue);
 
         //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/signup")
-                        .servletPath(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -245,7 +203,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void shouldSetJwtTokenInCookieHeaderWhenUserIsAuthenticatedSuccessfully() throws Exception {
+    void shouldReturnJwtTokenWhenUserIsAuthenticatedSuccessfully() throws Exception {
         //Arrange
         String requestBody = """
                 {
@@ -254,25 +212,17 @@ class AuthControllerTest {
                 }
                 """;
         AuthResponse authResponse = new AuthResponse(1, "jwtToken");
-        ResponseCookie cookie = ResponseCookie.from("accessToken", authResponse.token())
-                .httpOnly(true)
-                .secure(false)
-                .maxAge(Duration.ofHours(1))
-                .sameSite("Lax")
-                .build();
 
         when(authService.loginUser(any(LoginRequest.class))).thenReturn(authResponse);
-        when(cookieService.createHttpOnlyCookie(any(String.class))).thenReturn(cookie);
 
         //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/login")
-                        .servletPath(AUTH_PATH + "/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(cookie().exists("accessToken"))
-                .andExpect(cookie().value("accessToken", cookie.getValue()));
+                .andExpect(jsonPath("$.token", is(authResponse.token())));
     }
 
     @ParameterizedTest
@@ -289,7 +239,6 @@ class AuthControllerTest {
 
         //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/login")
-                        .servletPath(AUTH_PATH + "/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -312,7 +261,6 @@ class AuthControllerTest {
 
         //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/login")
-                        .servletPath(AUTH_PATH + "/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -333,7 +281,6 @@ class AuthControllerTest {
                 """, emailValue);
 
         mockMvc.perform(post(AUTH_PATH + "/password_reset")
-                        .servletPath(AUTH_PATH + "/password_reset")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -357,7 +304,6 @@ class AuthControllerTest {
 
         //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/password_reset")
-                        .servletPath(AUTH_PATH + "/password_reset")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -373,7 +319,6 @@ class AuthControllerTest {
 
         // Act Assert
         mockMvc.perform(get(AUTH_PATH + "/password_reset?token={token}", validToken)
-                        .servletPath(AUTH_PATH + "/password_reset")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -399,7 +344,6 @@ class AuthControllerTest {
 
         //Act Assert
         mockMvc.perform(put(AUTH_PATH + "/password_reset/confirm")
-                        .servletPath(AUTH_PATH + "/password_reset/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -420,7 +364,6 @@ class AuthControllerTest {
 
         //Act Assert
         mockMvc.perform(put(AUTH_PATH + "/password_reset/confirm")
-                        .servletPath(AUTH_PATH + "/password_reset/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))

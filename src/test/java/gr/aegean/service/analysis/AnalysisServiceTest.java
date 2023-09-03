@@ -15,7 +15,6 @@ import gr.aegean.repository.AnalysisRepository;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.assessment.AssessmentService;
-import gr.aegean.service.auth.CookieService;
 import gr.aegean.service.auth.JwtService;
 import gr.aegean.service.email.EmailService;
 import gr.aegean.service.user.UserService;
@@ -58,8 +57,6 @@ class AnalysisServiceTest extends AbstractTestContainers {
     @Mock
     private AnalysisService analysisService;
     @Mock
-    private CookieService cookieService;
-    @Mock
     private JwtService jwtService;
     @Mock
     private EmailUpdateRepository emailUpdateRepository;
@@ -81,7 +78,6 @@ class AnalysisServiceTest extends AbstractTestContainers {
 
         UserRepository userRepository = new UserRepository(getJdbcTemplate());
         userService = new UserService(
-                cookieService,
                 jwtService,
                 userRepository,
                 emailUpdateRepository,

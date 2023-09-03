@@ -1,4 +1,4 @@
-package gr.aegean.config;
+package gr.aegean.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

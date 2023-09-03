@@ -12,7 +12,6 @@ import gr.aegean.model.dto.user.UserProfileUpdateRequest;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
-import gr.aegean.service.auth.CookieService;
 import gr.aegean.service.auth.JwtService;
 import gr.aegean.service.email.EmailService;
 import gr.aegean.utility.StringUtils;
@@ -55,8 +54,6 @@ class UserServiceTest extends AbstractTestContainers {
     @Mock
     private AnalysisService analysisService;
     @Mock
-    private CookieService cookieService;
-    @Mock
     private JwtService jwtService;
     private UserRepository userRepository;
     private EmailUpdateRepository emailUpdateRepository;
@@ -68,7 +65,6 @@ class UserServiceTest extends AbstractTestContainers {
         userRepository = new UserRepository(getJdbcTemplate());
         emailUpdateRepository = new EmailUpdateRepository(getJdbcTemplate());
         underTest = new UserService(
-                cookieService,
                 jwtService,
                 userRepository,
                 emailUpdateRepository,
@@ -130,6 +126,9 @@ class UserServiceTest extends AbstractTestContainers {
                 .hasMessage("The provided username already exists");
     }
 
+    /*
+        Password hashing happens after user validation that's why the below password are not hashed.
+     */
     @Test
     void shouldThrowIllegalArgumentExceptionWhenFirstnameExceedsMaxLength() {
         //Arrange
@@ -246,6 +245,7 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldUpdateUserProfile() {
         //Arrange
         User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         Integer userId = userRepository.registerUser(user);
         UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
                 "foo",
@@ -257,8 +257,7 @@ class UserServiceTest extends AbstractTestContainers {
         );
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(userId.toString());
 
         //Act
         underTest.updateProfile(mockRequest, profileUpdateRequest);
@@ -288,8 +287,7 @@ class UserServiceTest extends AbstractTestContainers {
         );
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(String.valueOf(1));
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(String.valueOf(1));
 
         //Act Assert
         assertThatThrownBy(() -> underTest.updateProfile(mockRequest, profileUpdateRequest))
@@ -306,12 +304,11 @@ class UserServiceTest extends AbstractTestContainers {
         User user = generateUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         Integer userId = userRepository.registerUser(user);
-
         UserUpdatePasswordRequest passwordUpdateRequest = new UserUpdatePasswordRequest("Test2Ex@mple", "CyN549^*o2Cr");
+
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(userId.toString());
 
         //Act
         underTest.updatePassword(mockRequest, passwordUpdateRequest);
@@ -329,8 +326,8 @@ class UserServiceTest extends AbstractTestContainers {
         UserUpdatePasswordRequest passwordUpdateRequest = new UserUpdatePasswordRequest("foo", "CyN549^*o2Cr");
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(userId.toString());
+
 
         //Act Assert
         assertThatThrownBy(() -> underTest.updatePassword(mockRequest, passwordUpdateRequest))
@@ -344,8 +341,7 @@ class UserServiceTest extends AbstractTestContainers {
         UserUpdatePasswordRequest passwordUpdateRequest = new UserUpdatePasswordRequest("foo", "CyN549^*o2Cr");
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(String.valueOf(1));
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(String.valueOf(1));
 
         //Act Assert
         assertThatThrownBy(() -> underTest.updatePassword(mockRequest, passwordUpdateRequest))
@@ -371,8 +367,7 @@ class UserServiceTest extends AbstractTestContainers {
         );
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(userId.toString());
 
         //Act
         UserProfile actual = underTest.getProfile(mockRequest);
@@ -386,8 +381,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Arrange
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(String.valueOf(1));
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(String.valueOf(1));
 
         //Act Assert
         assertThatThrownBy(() -> underTest.getProfile(mockRequest))
@@ -408,8 +402,7 @@ class UserServiceTest extends AbstractTestContainers {
         );
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(userId.toString());
 
         //Act
         underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest);
@@ -421,7 +414,6 @@ class UserServiceTest extends AbstractTestContainers {
                 any(String.class));
     }
 
-
     @Test
     void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdateEmail() {
         //Arrange
@@ -432,8 +424,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(String.valueOf(1));
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(String.valueOf(1));
 
         //Act Assert
         assertThatThrownBy(() -> underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest))
@@ -453,8 +444,7 @@ class UserServiceTest extends AbstractTestContainers {
         );
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(userId.toString());
 
         //Act Assert
         assertThatThrownBy(() -> underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest))
@@ -476,8 +466,7 @@ class UserServiceTest extends AbstractTestContainers {
         );
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(userId.toString());
 
         //Act Assert
         assertThatThrownBy(() -> underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest))
@@ -541,8 +530,7 @@ class UserServiceTest extends AbstractTestContainers {
         );
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(userId.toString());
 
         //Act
         underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest);
@@ -584,8 +572,7 @@ class UserServiceTest extends AbstractTestContainers {
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
         String to = "2020-04-22";
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(userId.toString());
 
         //Act Assert
         assertThatThrownBy(() -> underTest.getHistory(mockRequest, from, to))
@@ -603,8 +590,7 @@ class UserServiceTest extends AbstractTestContainers {
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
         String from = "2020-04-22";
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(userId.toString());
 
         //Act Assert
         assertThatThrownBy(() -> underTest.getHistory(mockRequest, from, to))
@@ -620,8 +606,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(userId.toString());
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(userId.toString());
 
         //Act
         underTest.deleteAccount(mockRequest);
@@ -637,8 +622,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Arrange
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(cookieService.getTokenFromCookie(any(HttpServletRequest.class))).thenReturn("token");
-        when(jwtService.getSubject(any(String.class))).thenReturn(String.valueOf(1));
+        when(jwtService.getSubjectFromJwt(any(HttpServletRequest.class))).thenReturn(String.valueOf(1));
 
         //Act Assert
         assertThatThrownBy(() -> underTest.deleteAccount(mockRequest))

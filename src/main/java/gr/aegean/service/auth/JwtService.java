@@ -1,22 +1,15 @@
 package gr.aegean.service.auth;
 
-import java.security.Key;
+import gr.aegean.entity.User;
+import gr.aegean.exception.ServerErrorException;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.oauth2.jwt.*;
+import org.springframework.stereotype.Service;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.function.Function;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 
 import gr.aegean.model.dto.user.UserDTO;
-import gr.aegean.entity.User;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,59 +17,37 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-    @Value("${jwt.secretKey}")
-    private String secretKey;
+    private final JwtEncoder jwtEncoder;
+    private final JwtDecoder jwtDecoder;
 
+    /**
+     * The claims of the JwtToken are: issuer, when it is issued at, when it expires at, subject(user's email).
+     */
     public String assignToken(UserDTO userDTO) {
         Instant now = Instant.now();
         long expiresIn = 2;
 
-        /*
-            The subject of the token is the user's id.
-         */
-        return Jwts.builder()
-                .setSubject(userDTO.id().toString())
-                .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(now.plus(expiresIn, ChronoUnit.HOURS)))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
+        JwtClaimsSet claims = JwtClaimsSet
+                .builder()
+                .issuer("self")
+                .issuedAt(now)
+                .expiresAt(now.plus(expiresIn, ChronoUnit.HOURS))
+                .subject(userDTO.id().toString())
+                .build();
+
+        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    public boolean isTokenValid(String token, User user) {
-        int userId = Integer.parseInt(getSubject(token));
+    public String getSubjectFromJwt(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        String bearerToken = null;
 
-        return (userId == user.getId()) && !isTokenExpired(token);
-    }
+        if (!token.isBlank() && token.startsWith("Bearer ")) {
+            bearerToken = token.substring(7);
+        }
 
-    private boolean isTokenExpired(String token) {
-        return getExpiration(token).before(new Date());
-    }
+        Jwt jwt = jwtDecoder.decode(bearerToken);
 
-    private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSignInKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-    }
-
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-
-        return claimsResolver.apply(claims);
-    }
-
-    private Date getExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
-    public String getSubject(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
-    private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-
-        return Keys.hmacShaKeyFor(keyBytes);
+        return jwt.getSubject();
     }
 }

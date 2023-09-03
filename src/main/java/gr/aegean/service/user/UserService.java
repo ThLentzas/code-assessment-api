@@ -6,11 +6,14 @@ import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.entity.EmailUpdateToken;
 import gr.aegean.entity.User;
 import gr.aegean.model.dto.analysis.AnalysisResponse;
-import gr.aegean.model.dto.user.*;
+import gr.aegean.model.dto.user.UserHistory;
+import gr.aegean.model.dto.user.UserProfile;
+import gr.aegean.model.dto.user.UserProfileUpdateRequest;
+import gr.aegean.model.dto.user.UserUpdateEmailRequest;
+import gr.aegean.model.dto.user.UserUpdatePasswordRequest;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
-import gr.aegean.service.auth.CookieService;
 import gr.aegean.service.auth.JwtService;
 import gr.aegean.service.email.EmailService;
 import gr.aegean.utility.PasswordValidator;
@@ -34,7 +37,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final CookieService cookieService;
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final EmailUpdateRepository emailUpdateRepository;
@@ -59,7 +61,7 @@ public class UserService {
     }
 
     public UserProfile getProfile(HttpServletRequest request) {
-        int userId = getUserIdFromToken(request);
+        int userId = Integer.parseInt(jwtService.getSubjectFromJwt(request));
 
         return userRepository.findUserByUserId(userId)
                 .map(user -> new UserProfile(
@@ -73,7 +75,7 @@ public class UserService {
     }
 
     public void updateProfile(HttpServletRequest request, UserProfileUpdateRequest profileUpdateRequest) {
-        int userId = getUserIdFromToken(request);
+        int userId = Integer.parseInt(jwtService.getSubjectFromJwt(request));
 
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> updateProfileProperties(user, profileUpdateRequest),
@@ -83,7 +85,7 @@ public class UserService {
     }
 
     public void createEmailUpdateToken(HttpServletRequest request, UserUpdateEmailRequest emailUpdateRequest) {
-        int userId = getUserIdFromToken(request);
+        int userId = Integer.parseInt(jwtService.getSubjectFromJwt(request));
 
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
@@ -141,7 +143,7 @@ public class UserService {
     }
 
     public void updatePassword(HttpServletRequest request, UserUpdatePasswordRequest passwordUpdateRequest) {
-        int userId = getUserIdFromToken(request);
+        int userId = Integer.parseInt(jwtService.getSubjectFromJwt(request));
 
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
@@ -160,7 +162,7 @@ public class UserService {
     }
 
     public UserHistory getHistory(HttpServletRequest request, String from, String to) {
-        int userId = getUserIdFromToken(request);
+        int userId = Integer.parseInt(jwtService.getSubjectFromJwt(request));
 
         List<AnalysisResponse> history = new ArrayList<>();
         List<Analysis> analyses = null;
@@ -203,13 +205,13 @@ public class UserService {
     }
 
     public void deleteAnalysis(Integer analysisId, HttpServletRequest request) {
-        int userId = getUserIdFromToken(request);
+        int userId = Integer.parseInt(jwtService.getSubjectFromJwt(request));
 
         analysisService.deleteAnalysis(analysisId, userId);
     }
 
     public void deleteAccount(HttpServletRequest request) {
-        int userId = getUserIdFromToken(request);
+        int userId = Integer.parseInt(jwtService.getSubjectFromJwt(request));
 
         userRepository.deleteAccount(userId);
     }
@@ -319,11 +321,5 @@ public class UserService {
             validator.accept(property);
             updater.accept(property);
         }
-    }
-
-    private int getUserIdFromToken(HttpServletRequest request) {
-        String token = cookieService.getTokenFromCookie(request);
-
-        return Integer.parseInt(jwtService.getSubject(token));
     }
 }

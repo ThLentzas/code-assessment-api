@@ -8,7 +8,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import gr.aegean.service.auth.CookieService;
 import gr.aegean.service.auth.JwtService;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,7 +25,6 @@ import jakarta.servlet.http.HttpServletRequest;
 public class AsyncService {
     private final GitHubService gitHubService;
     private final AnalysisService analysisService;
-    private final CookieService cookieService;
     private final JwtService jwtService;
     private final Executor taskExecutor;
     private final File baseDirectory;
@@ -35,7 +33,6 @@ public class AsyncService {
 
     public AsyncService(GitHubService gitHubService,
                         AnalysisService analysisService,
-                        CookieService cookieService,
                         JwtService jwtService,
                         /*
                             The default one and the one we configured, so we have to use @Qualifier
@@ -44,7 +41,6 @@ public class AsyncService {
                         @Value("${projects.base-directory}") String baseDirectoryPath) {
         this.gitHubService = gitHubService;
         this.analysisService = analysisService;
-        this.cookieService = cookieService;
         this.jwtService = jwtService;
         this.taskExecutor = taskExecutor;
         baseDirectory = new File(baseDirectoryPath);
@@ -84,8 +80,7 @@ public class AsyncService {
                         "repository is public and uses a supported language.");
             }
 
-            String token = cookieService.getTokenFromCookie(httpServletRequest);
-            Integer userId = Integer.parseInt(jwtService.getSubject(token));
+            Integer userId = Integer.parseInt(jwtService.getSubjectFromJwt(httpServletRequest));
             Integer analysisId = saveAnalysisProcess(userId, reports, analysisRequest);
             /*
                 Delete the folder after all the threads are done being processed.
