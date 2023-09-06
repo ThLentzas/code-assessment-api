@@ -4,12 +4,11 @@ import gr.aegean.config.security.AuthConfig;
 import gr.aegean.config.security.JwtConfig;
 import gr.aegean.config.security.SecurityConfig;
 import gr.aegean.exception.DuplicateResourceException;
-import gr.aegean.model.dto.user.UserUpdateEmailRequest;
+import gr.aegean.model.dto.user.UserEmailUpdateRequest;
 import gr.aegean.model.dto.user.UserProfile;
 import gr.aegean.model.dto.user.UserProfileUpdateRequest;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.user.UserService;
-import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.service.auth.JwtService;
 
 import org.junit.jupiter.api.Test;
@@ -283,7 +282,7 @@ class UserControllerTest {
                 """;
 
         doThrow(new BadCredentialsException("Wrong password"))
-                .when(userService).createEmailUpdateToken(any(HttpServletRequest.class), any(UserUpdateEmailRequest.class));
+                .when(userService).createEmailUpdateToken(any(HttpServletRequest.class), any(UserEmailUpdateRequest.class));
 
         mockMvc.perform(post(USER_PATH + "/settings/email")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -305,7 +304,7 @@ class UserControllerTest {
         doThrow(new DuplicateResourceException("Email already is use"))
                 .when(userService).createEmailUpdateToken(
                         any(HttpServletRequest.class),
-                        any(UserUpdateEmailRequest.class));
+                        any(UserEmailUpdateRequest.class));
 
         mockMvc.perform(post(USER_PATH + "/settings/email")
                         .contentType(MediaType.APPLICATION_JSON)

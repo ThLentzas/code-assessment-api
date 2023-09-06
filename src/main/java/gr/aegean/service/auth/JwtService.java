@@ -1,7 +1,5 @@
 package gr.aegean.service.auth;
 
-import gr.aegean.entity.User;
-import gr.aegean.exception.ServerErrorException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
@@ -38,7 +36,7 @@ public class JwtService {
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    public String getSubjectFromJwt(HttpServletRequest request) {
+    public String getSubject(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         String bearerToken = null;
 

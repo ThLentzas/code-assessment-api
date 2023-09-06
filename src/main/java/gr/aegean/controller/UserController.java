@@ -15,8 +15,8 @@ import gr.aegean.service.user.UserService;
 import gr.aegean.model.dto.user.UserHistory;
 import gr.aegean.model.dto.user.UserProfile;
 import gr.aegean.model.dto.user.UserProfileUpdateRequest;
-import gr.aegean.model.dto.user.UserUpdateEmailRequest;
-import gr.aegean.model.dto.user.UserUpdatePasswordRequest;
+import gr.aegean.model.dto.user.UserEmailUpdateRequest;
+import gr.aegean.model.dto.user.UserPasswordUpdateRequest;
 
 import jakarta.websocket.server.PathParam;
 import jakarta.validation.Valid;
@@ -38,7 +38,7 @@ public class UserController {
         return new ResponseEntity<>(profile, HttpStatus.OK);
     }
 
-    @PutMapping("/settings/profile")
+    @PutMapping("/profile")
     public ResponseEntity<Void> updateProfile(@RequestBody UserProfileUpdateRequest profileUpdateRequest,
                                               HttpServletRequest request) {
         userService.updateProfile(request, profileUpdateRequest);
@@ -47,7 +47,7 @@ public class UserController {
     }
 
     @PostMapping("/settings/email")
-    public ResponseEntity<Void> updateEmail(@Valid @RequestBody UserUpdateEmailRequest emailUpdateRequest,
+    public ResponseEntity<Void> updateEmail(@Valid @RequestBody UserEmailUpdateRequest emailUpdateRequest,
                                             HttpServletRequest request) {
         userService.createEmailUpdateToken(request, emailUpdateRequest);
 
@@ -62,7 +62,7 @@ public class UserController {
     }
 
     @PutMapping("/settings/password")
-    public ResponseEntity<Void> updatePassword(@Valid @RequestBody UserUpdatePasswordRequest passwordUpdateRequest,
+    public ResponseEntity<Void> updatePassword(@Valid @RequestBody UserPasswordUpdateRequest passwordUpdateRequest,
                                                HttpServletRequest request) {
         userService.updatePassword(request, passwordUpdateRequest);
 

@@ -80,7 +80,7 @@ public class AsyncService {
                         "repository is public and uses a supported language.");
             }
 
-            Integer userId = Integer.parseInt(jwtService.getSubjectFromJwt(httpServletRequest));
+            Integer userId = Integer.parseInt(jwtService.getSubject(httpServletRequest));
             Integer analysisId = saveAnalysisProcess(userId, reports, analysisRequest);
             /*
                 Delete the folder after all the threads are done being processed.

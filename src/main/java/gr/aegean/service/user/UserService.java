@@ -9,8 +9,8 @@ import gr.aegean.model.dto.analysis.AnalysisResponse;
 import gr.aegean.model.dto.user.UserHistory;
 import gr.aegean.model.dto.user.UserProfile;
 import gr.aegean.model.dto.user.UserProfileUpdateRequest;
-import gr.aegean.model.dto.user.UserUpdateEmailRequest;
-import gr.aegean.model.dto.user.UserUpdatePasswordRequest;
+import gr.aegean.model.dto.user.UserEmailUpdateRequest;
+import gr.aegean.model.dto.user.UserPasswordUpdateRequest;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
@@ -61,7 +61,7 @@ public class UserService {
     }
 
     public UserProfile getProfile(HttpServletRequest request) {
-        int userId = Integer.parseInt(jwtService.getSubjectFromJwt(request));
+        int userId = Integer.parseInt(jwtService.getSubject(request));
 
         return userRepository.findUserByUserId(userId)
                 .map(user -> new UserProfile(
@@ -75,7 +75,7 @@ public class UserService {
     }
 
     public void updateProfile(HttpServletRequest request, UserProfileUpdateRequest profileUpdateRequest) {
-        int userId = Integer.parseInt(jwtService.getSubjectFromJwt(request));
+        int userId = Integer.parseInt(jwtService.getSubject(request));
 
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> updateProfileProperties(user, profileUpdateRequest),
@@ -84,8 +84,8 @@ public class UserService {
                         });
     }
 
-    public void createEmailUpdateToken(HttpServletRequest request, UserUpdateEmailRequest emailUpdateRequest) {
-        int userId = Integer.parseInt(jwtService.getSubjectFromJwt(request));
+    public void createEmailUpdateToken(HttpServletRequest request, UserEmailUpdateRequest emailUpdateRequest) {
+        int userId = Integer.parseInt(jwtService.getSubject(request));
 
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
@@ -142,27 +142,26 @@ public class UserService {
                 });
     }
 
-    public void updatePassword(HttpServletRequest request, UserUpdatePasswordRequest passwordUpdateRequest) {
-        int userId = Integer.parseInt(jwtService.getSubjectFromJwt(request));
+    public void updatePassword(HttpServletRequest request, UserPasswordUpdateRequest passwordUpdateRequest) {
+        int userId = Integer.parseInt(jwtService.getSubject(request));
 
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
-                    System.out.println(passwordUpdateRequest.oldPassword());
                     if (!passwordEncoder.matches(passwordUpdateRequest.oldPassword(), user.getPassword())) {
                         throw new BadCredentialsException("Old password is incorrect");
                     }
 
-                    PasswordValidator.validatePassword(passwordUpdateRequest.updatedPassword());
+                    PasswordValidator.validatePassword(passwordUpdateRequest.newPassword());
                     userRepository.updatePassword(
                             userId,
-                            passwordEncoder.encode(passwordUpdateRequest.updatedPassword()));
+                            passwordEncoder.encode(passwordUpdateRequest.newPassword()));
                 }, () -> {
                     throw new ResourceNotFoundException("User with id: " + userId + " not found");
                 });
     }
 
     public UserHistory getHistory(HttpServletRequest request, String from, String to) {
-        int userId = Integer.parseInt(jwtService.getSubjectFromJwt(request));
+        int userId = Integer.parseInt(jwtService.getSubject(request));
 
         List<AnalysisResponse> history = new ArrayList<>();
         List<Analysis> analyses = null;
@@ -205,13 +204,13 @@ public class UserService {
     }
 
     public void deleteAnalysis(Integer analysisId, HttpServletRequest request) {
-        int userId = Integer.parseInt(jwtService.getSubjectFromJwt(request));
+        int userId = Integer.parseInt(jwtService.getSubject(request));
 
         analysisService.deleteAnalysis(analysisId, userId);
     }
 
     public void deleteAccount(HttpServletRequest request) {
-        int userId = Integer.parseInt(jwtService.getSubjectFromJwt(request));
+        int userId = Integer.parseInt(jwtService.getSubject(request));
 
         userRepository.deleteAccount(userId);
     }
@@ -279,12 +278,12 @@ public class UserService {
     }
 
     private void updateProfileProperties(User user, UserProfileUpdateRequest profileUpdateRequest) {
-        updatePropertyIfNonNullAndNotBlank(
+        updatePropertyIfNonNull(
                 profileUpdateRequest.firstname(),
                 this::validateFirstname,
                 value -> userRepository.updateFirstname(user.getId(), value));
 
-        updatePropertyIfNonNullAndNotBlank(
+        updatePropertyIfNonNull(
                 profileUpdateRequest.lastname(),
                 this::validateLastname,
                 value -> userRepository.updateLastname(user.getId(), value));
@@ -298,26 +297,24 @@ public class UserService {
             userRepository.updateUsername(user.getId(), profileUpdateRequest.username());
         }
 
-        updatePropertyIfNonNullAndNotBlank(
+        updatePropertyIfNonNull(
                 profileUpdateRequest.bio(),
                 this::validateBio,
                 value -> userRepository.updateBio(user.getId(), value));
 
-        updatePropertyIfNonNullAndNotBlank(
+        updatePropertyIfNonNull(
                 profileUpdateRequest.location(),
                 this::validateLocation,
                 value -> userRepository.updateLocation(user.getId(), value));
 
-        updatePropertyIfNonNullAndNotBlank(
+        updatePropertyIfNonNull(
                 profileUpdateRequest.company(),
                 this::validateCompany,
                 value -> userRepository.updateCompany(user.getId(), value));
     }
 
-    private void updatePropertyIfNonNullAndNotBlank(String property,
-                                                    Consumer<String> validator,
-                                                    Consumer<String> updater) {
-        if (property != null && !property.isBlank()) {
+    private void updatePropertyIfNonNull(String property, Consumer<String> validator, Consumer<String> updater) {
+        if (property != null) {
             validator.accept(property);
             updater.accept(property);
         }
