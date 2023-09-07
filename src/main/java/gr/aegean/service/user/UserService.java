@@ -110,7 +110,7 @@ public class UserService {
 
                     /*
                         If the user requested a new email update without clicking the link on the previous email, we
-                        have to invalidate the previous generated tokens.
+                        have to invalidate the previous generated tokens and save the latest one.
                      */
                     emailUpdateRepository.deleteAllUserTokens(user.getId());
                     emailUpdateRepository.saveToken(emailUpdateToken);
@@ -135,6 +135,9 @@ public class UserService {
                                 "Please request a new one.");
                     }
 
+                    /*
+                        Update user's email and delete the relevant email token.
+                     */
                     userRepository.updateEmail(emailUpdateToken.userId(), emailUpdateToken.email());
                     emailUpdateRepository.deleteToken(hashedToken);
                 }, () -> {

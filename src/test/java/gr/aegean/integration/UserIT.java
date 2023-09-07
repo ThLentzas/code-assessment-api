@@ -120,7 +120,7 @@ class UserIT extends AbstractIntegrationTest {
                  """;
 
         webTestClient.put()
-                .uri(USER_PATH + "/settings/profile")
+                .uri(USER_PATH + "/profile")
                 .accept(MediaType.APPLICATION_JSON)
                 .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
                 .contentType(MediaType.APPLICATION_JSON)

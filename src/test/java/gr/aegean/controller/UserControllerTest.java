@@ -67,7 +67,7 @@ class UserControllerTest {
                 }
                 """;
 
-        mockMvc.perform(put(USER_PATH + "/settings/profile")
+        mockMvc.perform(put(USER_PATH + "/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -92,7 +92,7 @@ class UserControllerTest {
                 .when(userService).updateProfile(any(HttpServletRequest.class), any(UserProfileUpdateRequest.class));
 
 
-        mockMvc.perform(put(USER_PATH + "/settings/profile")
+        mockMvc.perform(put(USER_PATH + "/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -127,7 +127,7 @@ class UserControllerTest {
         String requestBody = """
                 {
                     "oldPassword": "3frMH4v!20d4",
-                    "updatedPassword": "CyN549^*o2Cr"
+                    "newPassword": "CyN549^*o2Cr"
                 }
                 """;
 

@@ -71,8 +71,8 @@ public class UserController {
 
     @GetMapping("/history")
     public ResponseEntity<UserHistory> getHistory(@PathParam("from") String from,
-                                                             @PathParam("to") String to,
-                                                             HttpServletRequest request) {
+                                                  @PathParam("to") String to,
+                                                  HttpServletRequest request) {
         UserHistory history = userService.getHistory(request, from, to);
 
         return new ResponseEntity<>(history, HttpStatus.OK);

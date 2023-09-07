@@ -33,7 +33,6 @@ public abstract class AbstractTestContainers {
                     .withPassword("test")
                     .withDatabaseName("code_assessment_test");
 
-
     @DynamicPropertySource
     private static void registerDataSourceProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
