@@ -3,7 +3,6 @@ package gr.aegean.controller;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,14 +13,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import gr.aegean.model.dto.auth.LoginRequest;
 import gr.aegean.model.dto.auth.PasswordResetConfirmationRequest;
 import gr.aegean.model.dto.auth.PasswordResetRequest;
-import gr.aegean.model.dto.auth.PasswordResetResponse;
 import gr.aegean.model.dto.auth.AuthResponse;
 import gr.aegean.model.dto.auth.RegisterRequest;
 import gr.aegean.service.auth.AuthService;
 import gr.aegean.service.auth.PasswordResetService;
 
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
 
 import lombok.RequiredArgsConstructor;
 
@@ -59,19 +56,11 @@ public class AuthController {
     }
 
     @PostMapping("/password_reset")
-    public ResponseEntity<PasswordResetResponse> resetPassword(@Valid @RequestBody
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody
                                                                PasswordResetRequest passwordResetRequest) {
-        PasswordResetResponse passwordResetResponse = passwordResetService.createPasswordResetToken(
-                passwordResetRequest);
+        passwordResetService.createPasswordResetToken(passwordResetRequest);
 
-        return new ResponseEntity<>(passwordResetResponse, HttpStatus.ACCEPTED);
-    }
-
-    @GetMapping("/password_reset")
-    public ResponseEntity<Void> resetPassword(@PathParam("token") String token) {
-        passwordResetService.validatePasswordResetToken(token);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
     @PutMapping("/password_reset/confirm")

@@ -6,8 +6,6 @@ import gr.aegean.config.security.AuthConfig;
 import gr.aegean.model.dto.auth.AuthResponse;
 import gr.aegean.model.dto.auth.RegisterRequest;
 import gr.aegean.model.dto.auth.LoginRequest;
-import gr.aegean.model.dto.auth.PasswordResetRequest;
-import gr.aegean.model.dto.auth.PasswordResetResponse;
 import gr.aegean.service.auth.AuthService;
 import gr.aegean.service.auth.PasswordResetService;
 import gr.aegean.repository.UserRepository;
@@ -290,26 +288,20 @@ class AuthControllerTest {
     }
 
     @Test
-    void shouldReturnGenericMessageForPasswordResetRequestRegardlessIfEmailExists() throws Exception {
+    void shouldReturnHTTP200ForPasswordResetRequestRegardlessIfEmailExists() throws Exception {
         //Arrange
         String requestBody = """
                 {
                     "email": "test@example.com"
                 }
                 """;
-        PasswordResetResponse resetResult = new PasswordResetResponse("If your email address exists in our database, " +
-                "you will receive a password recovery link at your email address in a few minutes.");
-
-        when(passwordResetService.createPasswordResetToken(any(PasswordResetRequest.class))).thenReturn(resetResult);
 
         //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/password_reset")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$.message", is(resetResult.message())));
+                .andExpect(status().isAccepted());
     }
 
     @Test

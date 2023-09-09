@@ -258,7 +258,7 @@ public class UserService {
         }
 
         if (!email.contains("@")) {
-            throw new IllegalArgumentException("Invalid email");
+            throw new IllegalArgumentException("Invalid email format");
         }
     }
 

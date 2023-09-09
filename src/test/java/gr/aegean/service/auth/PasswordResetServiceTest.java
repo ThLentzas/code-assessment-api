@@ -15,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import gr.aegean.entity.User;
 import gr.aegean.model.dto.auth.PasswordResetRequest;
-import gr.aegean.model.dto.auth.PasswordResetResponse;
 import gr.aegean.entity.PasswordResetToken;
 import gr.aegean.model.dto.auth.PasswordResetConfirmationRequest;
 import gr.aegean.repository.UserRepository;
@@ -66,13 +65,9 @@ class PasswordResetServiceTest extends AbstractTestContainers {
         PasswordResetRequest passwordResetRequest = new PasswordResetRequest("test@example.com");
 
         //Act
-        PasswordResetResponse passwordResetResponse = underTest.createPasswordResetToken(passwordResetRequest);
+        underTest.createPasswordResetToken(passwordResetRequest);
 
         //Assert
-        assertThat(passwordResetResponse.message()).isEqualTo(
-                "If your email address exists in our database, you will receive a password recovery link at " +
-                        "your email address in a few minutes.");
-
         verify(emailService, times(1)).sendPasswordResetEmail(
                 eq(user.getEmail()),
                 any(String.class));
@@ -83,13 +78,9 @@ class PasswordResetServiceTest extends AbstractTestContainers {
         PasswordResetRequest passwordResetRequest = new PasswordResetRequest("test1@example.com");
 
         //Act
-        PasswordResetResponse passwordResetResponse = underTest.createPasswordResetToken(passwordResetRequest);
+        underTest.createPasswordResetToken(passwordResetRequest);
 
         //Assert
-        assertThat(passwordResetResponse.message()).isEqualTo(
-                "If your email address exists in our database, you will receive a password recovery link at " +
-                        "your email address in a few minutes.");
-
         verifyNoInteractions(emailService);
     }
 
@@ -98,8 +89,13 @@ class PasswordResetServiceTest extends AbstractTestContainers {
     @EmptySource
     @ValueSource(strings = {"invalidToken"})
     void shouldThrowBadCredentialsExceptionWhenPasswordResetTokenIsInvalid(String invalidToken) {
-        //Arrange Act Assert
-        assertThatThrownBy(() -> underTest.validatePasswordResetToken(invalidToken))
+        //Arrange
+        PasswordResetConfirmationRequest passwordResetConfirmationRequest = new PasswordResetConfirmationRequest(
+                invalidToken,
+                "@4ts0v6$Cz06");
+
+        // Act Assert
+        assertThatThrownBy(() -> underTest.resetPassword(passwordResetConfirmationRequest))
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("Reset password token is invalid");
     }
@@ -116,11 +112,14 @@ class PasswordResetServiceTest extends AbstractTestContainers {
                 userId,
                 hashedToken,
                 expiryDate);
+        PasswordResetConfirmationRequest passwordResetConfirmationRequest = new PasswordResetConfirmationRequest(
+                "expiredToken",
+                "@4ts0v6$Cz06");
 
         passwordResetRepository.saveToken(passwordResetToken);
 
         //Assert
-        assertThatThrownBy(() -> underTest.validatePasswordResetToken("expiredToken"))
+        assertThatThrownBy(() -> underTest.resetPassword(passwordResetConfirmationRequest))
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("The password reset link has expired. Please request a new one.");
     }

@@ -238,7 +238,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.validateUser(user))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid email");
+                .hasMessage("Invalid email format");
     }
 
     @Test

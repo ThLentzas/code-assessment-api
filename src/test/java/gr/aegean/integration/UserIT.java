@@ -175,7 +175,7 @@ class UserIT extends AbstractIntegrationTest {
 
         // Remove encoded line breaks before extracting URL
         body = body.replace("=\r\n", "");
-        Pattern pattern = Pattern.compile("http://localhost:8080/api/v1/users/settings/email[^\"]*");
+        Pattern pattern = Pattern.compile("http://localhost:8080/api/v1/user/email[^\"]*");
         Matcher matcher = pattern.matcher(body);
         String token = null;
 
@@ -196,10 +196,11 @@ class UserIT extends AbstractIntegrationTest {
         assertThat(message.getSubject()).isEqualTo("Verify your email");
 
         webTestClient.get()
-                .uri(USER_PATH + "/settings/email?token={token}", token)
+                .uri(USER_PATH + "/email?token={token}", token)
                 .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().is3xxRedirection()
+                .expectHeader().valueEquals("Location", "http://localhost:4200/profile");
     }
 
     @Test

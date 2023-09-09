@@ -20,7 +20,7 @@ public class EmailService {
     private static final String SENDER = "jarvis.email.from@gmail.com";
 
     public void sendPasswordResetEmail(String recipient, String token) {
-        final String resetLink = "http://localhost:8080/api/v1/auth/password_reset?token=" + token;
+        final String resetLink = "http://localhost:4200/password_reset/confirm?token=" + token;
         String emailContent = thymeleafService.setPasswordResetEmailContent(resetLink);
 
         sendEmail(recipient, "Reset your Jarvis password", emailContent);
@@ -34,7 +34,7 @@ public class EmailService {
     }
 
     public void sendEmailVerification(String recipient, String username, String token) {
-        final String verifyLink = "http://localhost:8080/api/v1/users/settings/email?token=" + token;
+        final String verifyLink = "http://localhost:8080/api/v1/user/email?token=" + token;
         String emailContent = thymeleafService.setEmailVerificationContent(username, verifyLink);
 
         sendEmail(recipient, "Verify your email", emailContent);

@@ -5,7 +5,6 @@ import gr.aegean.repository.PasswordResetRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.model.dto.auth.PasswordResetConfirmationRequest;
 import gr.aegean.model.dto.auth.PasswordResetRequest;
-import gr.aegean.model.dto.auth.PasswordResetResponse;
 import gr.aegean.service.email.EmailService;
 import gr.aegean.utility.PasswordValidator;
 import gr.aegean.utility.StringUtils;
@@ -27,7 +26,7 @@ public class PasswordResetService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public PasswordResetResponse createPasswordResetToken(PasswordResetRequest resetRequest) {
+    public void createPasswordResetToken(PasswordResetRequest resetRequest) {
         userRepository.findUserByEmail(resetRequest.email())
                 .ifPresent(user -> {
                     /*
@@ -51,18 +50,33 @@ public class PasswordResetService {
 
                     emailService.sendPasswordResetEmail(resetRequest.email(), token);
                 });
-
-        /*
-            We return a generic response for security reasons, no matter if the emails exists or not.
-         */
-        return new PasswordResetResponse("If your email address exists in our database, you will receive a password " +
-                "recovery link at your email address in a few minutes.");
     }
 
-    /*
-        Validates the extracted token when the user clicks the email link
-     */
-    public void validatePasswordResetToken(String token) {
+    public void resetPassword(PasswordResetConfirmationRequest resetConfirmationRequest) {
+        //Validate the token
+        validatePasswordResetToken(resetConfirmationRequest.token());
+
+        //validate/hash the updated password
+        PasswordValidator.validatePassword(resetConfirmationRequest.password());
+        String hashedPassword = passwordEncoder.encode(resetConfirmationRequest.password());
+
+        //Update the password in db and delete the password reset token record after so subsequent requests will fail
+        String hashedToken = StringUtils.hashToken(resetConfirmationRequest.token());
+
+        passwordResetRepository.findToken(hashedToken)
+                .ifPresent(passwordResetToken -> {
+                    userRepository.updatePassword(passwordResetToken.userId(), hashedPassword);
+                    passwordResetRepository.deleteToken(hashedToken);
+
+                    // send confirmation email
+                    userRepository.findUserByUserId(passwordResetToken.userId())
+                            .ifPresent(user -> emailService.sendPasswordResetSuccessEmail(
+                                    user.getEmail(),
+                                    user.getUsername()));
+                });
+    }
+
+    private void validatePasswordResetToken(String token) {
         if (token == null || token.isBlank()) {
             throw new BadCredentialsException("Reset password token is invalid");
         }
@@ -78,33 +92,5 @@ public class PasswordResetService {
                 }, () -> {
                     throw new BadCredentialsException("Reset password token is invalid");
                 });
-    }
-
-    public void resetPassword(PasswordResetConfirmationRequest resetConfirmationRequest) {
-        //validate the token
-        validatePasswordResetToken(resetConfirmationRequest.token());
-
-        //validate/hash the updated password
-        PasswordValidator.validatePassword(resetConfirmationRequest.newPassword());
-        String hashedPassword = passwordEncoder.encode(resetConfirmationRequest.newPassword());
-
-        //update the password in db and delete the password reset token record after so subsequent requests will fail
-        String hashedToken = StringUtils.hashToken(resetConfirmationRequest.token());
-
-        passwordResetRepository.findToken(hashedToken)
-                .ifPresent(passwordResetToken -> {
-                    userRepository.updatePassword(passwordResetToken.userId(), hashedPassword);
-                    passwordResetRepository.deleteToken(hashedToken);
-
-                    // send confirmation email
-                    sendConfirmationEmail(passwordResetToken.userId());
-                });
-    }
-
-    private void sendConfirmationEmail(Integer userId) {
-        userRepository.findUserByUserId(userId)
-                .ifPresent(user -> emailService.sendPasswordResetSuccessEmail(
-                        user.getEmail(),
-                        user.getUsername()));
     }
 }

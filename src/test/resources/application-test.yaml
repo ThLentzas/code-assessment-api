@@ -13,6 +13,3 @@ spring:
     port: 3025
     username: test
     password: test
-
-jwt:
-  secretKey: f0U4kSjbQNHU8Zu3Aa5Z4SR0kH3ZmyO9MR3D9fRJqBw=

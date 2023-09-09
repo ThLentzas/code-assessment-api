@@ -2,14 +2,8 @@ package gr.aegean.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
 import gr.aegean.service.user.UserService;
 import gr.aegean.model.dto.user.UserHistory;
@@ -25,13 +19,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 
-@RestController
+/*
+    We can't use @RestController at a class level because it's a combination of @Controller + @ResponseBody which will
+    send a json response, but we are expecting view resolver to redirect url, specifically after the user clicks the
+    email update verification link.
+ */
+@Controller
 @RequestMapping("api/v1/user")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
     @GetMapping("/profile")
+    @ResponseBody
     public ResponseEntity<UserProfile> getProfile(HttpServletRequest request) {
         UserProfile profile = userService.getProfile(request);
 
@@ -39,6 +39,7 @@ public class UserController {
     }
 
     @PutMapping("/profile")
+    @ResponseBody
     public ResponseEntity<Void> updateProfile(@RequestBody UserProfileUpdateRequest profileUpdateRequest,
                                               HttpServletRequest request) {
         userService.updateProfile(request, profileUpdateRequest);
@@ -47,6 +48,7 @@ public class UserController {
     }
 
     @PostMapping("/settings/email")
+    @ResponseBody
     public ResponseEntity<Void> updateEmail(@Valid @RequestBody UserEmailUpdateRequest emailUpdateRequest,
                                             HttpServletRequest request) {
         userService.createEmailUpdateToken(request, emailUpdateRequest);
@@ -54,14 +56,15 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
-    @GetMapping("/settings/email")
-    public ResponseEntity<Void> updateEmail(@PathParam("token") String token) {
+    @GetMapping("/email")
+    public String updateEmail(@PathParam("token") String token) {
         userService.updateEmail(token);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return "redirect:http://localhost:4200/profile";
     }
 
     @PutMapping("/settings/password")
+    @ResponseBody
     public ResponseEntity<Void> updatePassword(@Valid @RequestBody UserPasswordUpdateRequest passwordUpdateRequest,
                                                HttpServletRequest request) {
         userService.updatePassword(request, passwordUpdateRequest);
@@ -70,6 +73,7 @@ public class UserController {
     }
 
     @GetMapping("/history")
+    @ResponseBody
     public ResponseEntity<UserHistory> getHistory(@PathParam("from") String from,
                                                   @PathParam("to") String to,
                                                   HttpServletRequest request) {
@@ -79,6 +83,7 @@ public class UserController {
     }
 
     @DeleteMapping("history/analysis/{analysisId}")
+    @ResponseBody
     public ResponseEntity<Void> deleteAnalysis(@PathVariable Integer analysisId,
                                                HttpServletRequest request) {
         userService.deleteAnalysis(analysisId, request);
@@ -87,6 +92,7 @@ public class UserController {
     }
 
     @DeleteMapping("/settings/account")
+    @ResponseBody
     public ResponseEntity<Void> deleteAccount(HttpServletRequest request) {
         userService.deleteAccount(request);
 

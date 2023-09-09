@@ -202,7 +202,6 @@ class AuthIT extends AbstractIntegrationTest {
                 }
                 """;
 
-        // Sending the email containing the password reset token on the body.
         webTestClient.post()
                 .uri(AUTH_PATH + "/password_reset")
                 .accept(MediaType.APPLICATION_JSON)
@@ -217,7 +216,7 @@ class AuthIT extends AbstractIntegrationTest {
         /*
           Extracting the token from the send email to be used in the GET request. The url part is encoded since we
           can't click it so our browser can do the decoding we have to extract the token from the encoded url for
-          testing only. This process is down by our browser.
+          testing only. The decoding process is down by our browser when we click the email link.
          */
         MimeMessage[] messages = greenMail.getReceivedMessages();
         MimeMessage message = messages[0];
@@ -225,7 +224,7 @@ class AuthIT extends AbstractIntegrationTest {
 
         // Remove encoded line breaks before extracting URL
         body = body.replace("=\r\n", "");
-        Pattern pattern = Pattern.compile("http://localhost:8080/api/v1/auth/password_reset[^\"]*");
+        Pattern pattern = Pattern.compile("http://localhost:4200/password_reset/confirm[^\"]*");
         Matcher matcher = pattern.matcher(body);
         String token = null;
 
@@ -245,12 +244,6 @@ class AuthIT extends AbstractIntegrationTest {
         assertThat(message.getAllRecipients()).hasSize(1);
         assertThat(message.getAllRecipients()[0]).hasToString("test@example.com");
         assertThat(message.getSubject()).isEqualTo("Reset your Jarvis password");
-
-        // The user if the password reset token is valid will be redirected by the front end
-        webTestClient.get()
-                .uri(AUTH_PATH + "/password_reset?token={token}", token)
-                .exchange()
-                .expectStatus().isOk();
 
         requestBody = String.format("""
                 {

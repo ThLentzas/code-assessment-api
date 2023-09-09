@@ -37,10 +37,6 @@ sonar:
   token: squ_9419ed961f6410e3bd558cafb7c9fb0eb72a5a61
   baseUrl: http://localhost:9000/api
 
-#256 bits/32 bytes key
-jwt:
-  secretKey: LbNnDHG8LJRrdE9vXo1s9hRTFn4al6l7zkCvBU0jHak=
-
 #spring:
 #  config:
-#    import: location to a properties.yaml file
+#    import: location to an application.yaml file
