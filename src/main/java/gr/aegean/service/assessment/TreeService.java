@@ -8,7 +8,7 @@ import java.util.List;
 
 
 @Service
-public class TreeBuildingService {
+public class TreeService {
 
     public TreeNode buildTree() {
         TreeNode root = new TreeNode("Rank");
@@ -22,8 +22,8 @@ public class TreeBuildingService {
         TreeNode commentRate = new TreeNode("COMMENT_RATE");
         TreeNode methodSize = new TreeNode("METHOD_SIZE");
         TreeNode duplication = new TreeNode("DUPLICATION");
-        TreeNode bugSeverity = new TreeNode("BUG_SEVERITY");
         TreeNode technicalDebtRatio = new TreeNode("TECHNICAL_DEBT_RATIO");
+        TreeNode bugSeverity = new TreeNode("BUG_SEVERITY");
         TreeNode reliabilityRemediationEffort = new TreeNode("RELIABILITY_REMEDIATION_EFFORT");
         TreeNode cyclomaticComplexity = new TreeNode("CYCLOMATIC_COMPLEXITY");
         TreeNode cognitiveComplexity = new TreeNode("COGNITIVE_COMPLEXITY");
@@ -32,7 +32,7 @@ public class TreeBuildingService {
         TreeNode securityRemediationEffort = new TreeNode("SECURITY_REMEDIATION_EFFORT");
 
         addChildren(root, List.of(quality, security));
-        addChildren(quality, List.of(comprehension, maintainability, reliability, complexity));
+        addChildren(quality, List.of(comprehension, simplicity, maintainability, reliability, complexity));
         addChildren(security, List.of(vulnerabilitySeverity, hotSpotPriority, securityRemediationEffort));
         addChildren(comprehension, List.of(commentRate));
         addChildren(simplicity, List.of(methodSize));

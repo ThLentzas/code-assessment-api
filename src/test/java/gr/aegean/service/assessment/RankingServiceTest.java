@@ -22,8 +22,8 @@ class RankingServiceTest {
 
     @BeforeEach
     void setup() {
-        TreeBuildingService treeBuildingService = new TreeBuildingService();
-        underTest = new RankingService(treeBuildingService);
+        TreeService treeService = new TreeService();
+        underTest = new RankingService(treeService);
     }
 
     @Test

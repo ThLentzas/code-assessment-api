@@ -7,6 +7,7 @@ import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.mapper.dto.AnalysisReportDTOMapper;
+import gr.aegean.model.analysis.sonarqube.HotspotsReport;
 import gr.aegean.model.analysis.sonarqube.IssuesReport;
 import gr.aegean.model.dto.analysis.AnalysisReportDTO;
 import gr.aegean.model.dto.analysis.AnalysisResponse;
@@ -81,6 +82,14 @@ public class AnalysisService {
         for(IssuesReport.IssueDetails issue: analysisReport.getIssuesReport().getIssues()) {
             String component = issue.getComponent().split(":")[1];
             issue.setComponent(component);
+        }
+
+        /*
+            Converting 476af562-93da-47e4-a553-08c3173be0ac:graph.py -> graph.py
+         */
+        for(HotspotsReport.HotspotDetails hotspot: analysisReport.getHotspotsReport().getHotspots()) {
+            String component = hotspot.getComponent().split(":")[1];
+            hotspot.setComponent(component);
         }
 
         Map<QualityMetric, Double> updatedQualityMetricsReport = metricService.applyUtf(
@@ -220,6 +229,10 @@ public class AnalysisService {
         });
     }
 
+    /*
+        We are saving the constraints only if they are not null and not empty. In the case when we try to
+        retrieve constraints for an analysis that the relevant request had no constraints we will return an empty list.
+     */
     private void saveConstraints(Integer analysisId, List<Constraint> constraints) {
         if (constraints != null && !constraints.isEmpty()) {
             constraints.forEach(constraint -> {
@@ -229,6 +242,10 @@ public class AnalysisService {
         }
     }
 
+    /*
+        We are saving the preferences only if they are not null and not empty. In the case when we try to
+        retrieve preferences for an analysis that the relevant request had no preferences we will return an empty list.
+     */
     private void savePreferences(Integer analysisId, List<Preference> preferences) {
         if (preferences != null && !preferences.isEmpty()) {
             preferences.forEach(preference -> {
@@ -243,6 +260,9 @@ public class AnalysisService {
                 new ResourceNotFoundException("No analysis was found for analysis id: " + analysisId));
     }
 
+    /*
+        If no constraints were provided during the request, we return an empty list.
+    */
     private List<AnalysisReport> findAnalysisReportsByAnalysisId(Integer analysisId) {
         return analysisRepository.findAnalysisReportsByAnalysisId(analysisId).orElseThrow(() ->
                 new ResourceNotFoundException("Analysis reports were not found for analysis with id: " + analysisId));
@@ -253,6 +273,9 @@ public class AnalysisService {
                 Collections.emptyList());
     }
 
+    /*
+        If no preferences were provided during the request, we return an empty list.
+     */
     private List<Preference> findAnalysisPreferencesByAnalysisId(Integer analysisId) {
         return analysisRepository.findAnalysisPreferencesByAnalysisId(analysisId).orElse(
                 Collections.emptyList());

@@ -17,10 +17,13 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class RankingService {
-    private final TreeBuildingService treeBuildingService;
+    private final TreeService treeService;
 
+    /*
+        If any empty list of preferences is provided, the weights are equally distributed among the child nodes.
+     */
     public double rankTree(Map<QualityMetric, Double> qualityMetricsReport, List<Preference> preferences) {
-        TreeNode root = treeBuildingService.buildTree();
+        TreeNode root = treeService.buildTree();
 
         assignWeight(root, preferences);
         assignLeafNodeValue(root, qualityMetricsReport);
@@ -30,9 +33,6 @@ public class RankingService {
     }
 
     private void assignWeight(TreeNode node, List<Preference> preferences) {
-        /*
-            Leaf node
-         */
         if (isLeafNode(node)) {
             return;
         }
