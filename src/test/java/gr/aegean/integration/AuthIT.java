@@ -17,8 +17,10 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.is;
 
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -217,7 +219,11 @@ class AuthIT extends AbstractIntegrationTest {
           Extracting the token from the send email to be used in the GET request. The url part is encoded since we
           can't click it so our browser can do the decoding we have to extract the token from the encoded url for
           testing only. The decoding process is down by our browser when we click the email link.
+
+          Sending the email is done async, so we have to use awaitility.
          */
+        await().atMost(5, TimeUnit.SECONDS).until(() -> greenMail.getReceivedMessages().length == 1);
+
         MimeMessage[] messages = greenMail.getReceivedMessages();
         MimeMessage message = messages[0];
         String body = GreenMailUtil.getBody(message);
@@ -248,7 +254,7 @@ class AuthIT extends AbstractIntegrationTest {
         requestBody = String.format("""
                 {
                     "token": "%s",
-                    "newPassword": "3frMH4v!20d4"
+                    "password": "3frMH4v!20d4"
                 }""", token);
 
         webTestClient.put()

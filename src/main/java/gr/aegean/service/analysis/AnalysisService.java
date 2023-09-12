@@ -260,14 +260,15 @@ public class AnalysisService {
                 new ResourceNotFoundException("No analysis was found for analysis id: " + analysisId));
     }
 
-    /*
-        If no constraints were provided during the request, we return an empty list.
-    */
+
     private List<AnalysisReport> findAnalysisReportsByAnalysisId(Integer analysisId) {
         return analysisRepository.findAnalysisReportsByAnalysisId(analysisId).orElseThrow(() ->
                 new ResourceNotFoundException("Analysis reports were not found for analysis with id: " + analysisId));
     }
 
+    /*
+        If no constraints were provided during the request, we return an empty list.
+    */
     private List<Constraint> findAnalysisConstraintsByAnalysisId(Integer analysisId) {
         return analysisRepository.findAnalysisConstraintsByAnalysisId(analysisId).orElse(
                 Collections.emptyList());

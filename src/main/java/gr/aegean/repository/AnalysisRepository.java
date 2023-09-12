@@ -167,11 +167,15 @@ public class AnalysisRepository {
         return Optional.of(constraints);
     }
 
+    /*
+       If there are multiple rows with the same created_date, the one with the higher id will appear first in the
+       result set.
+     */
     public Optional<List<Analysis>> getHistory(Integer userId) {
         final String sql = "SELECT " +
                 "id, " +
                 "user_id, " +
-                "created_date FROM analysis WHERE user_id = ? ORDER BY created_date DESC";
+                "created_date FROM analysis WHERE user_id = ? ORDER BY created_date DESC, id DESC";
         List<Analysis> analyses = jdbcTemplate.query(sql, analysisRowMapper, userId);
 
         return Optional.of(analyses);

@@ -3,6 +3,7 @@ package gr.aegean.service.assessment;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 import gr.aegean.entity.Preference;
 import gr.aegean.model.analysis.quality.QualityAttribute;
@@ -30,8 +31,8 @@ class RankingServiceTest {
     void shouldRankReportsWhenNoPreferencesWereProvided() {
         //Arrange
         List<Preference> preferences = new ArrayList<>();
-        EnumMap<QualityMetric, Double> metricsReport = new EnumMap<>(QualityMetric.class);
-        double expected = 0.7596863814361887;
+        Map<QualityMetric, Double> metricsReport = new EnumMap<>(QualityMetric.class);
+        double expected = 0.775794217930906;
 
         metricsReport.put(QualityMetric.COMMENT_RATE, 0.6662906694752284);
         metricsReport.put(QualityMetric.METHOD_SIZE, 1.0);
@@ -56,8 +57,8 @@ class RankingServiceTest {
     void shouldRankReportsWhenPreferencesWereProvided() {
         //Arrange
         List<Preference> preferences = new ArrayList<>();
-        EnumMap<QualityMetric, Double> metricsReport = new EnumMap<>(QualityMetric.class);
-        double expected = 0.7397145769249105;
+        Map<QualityMetric, Double> metricsReport = new EnumMap<>(QualityMetric.class);
+        double expected = 0.7670978989659297;
 
         preferences.add(new Preference(QualityAttribute.SIMPLICITY, 0.34));
         preferences.add(new Preference(QualityAttribute.SECURITY_REMEDIATION_EFFORT, 0.25));

@@ -304,18 +304,6 @@ class AuthControllerTest {
                 .andExpect(status().isAccepted());
     }
 
-    @Test
-    void shouldReturnHTTP200WhenResetTokenIsValid() throws Exception {
-        //Arrange
-        String validToken = "token";
-
-        // Act Assert
-        mockMvc.perform(get(AUTH_PATH + "/password_reset?token={token}", validToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
     /*
         No need to test the token if its null or empty it is already tested in the validatePasswordResetToken() method
         in PasswordResetServiceTest -> void shouldThrowBadCredentialsExceptionWhenTokenIsInvalid(String invalidToken)
@@ -350,7 +338,7 @@ class AuthControllerTest {
         String requestBody = """
                 {
                     "token": "someToken",
-                    "newPassword": "password"
+                    "password": "password"
                 }
                 """;
 

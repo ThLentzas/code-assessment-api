@@ -1,6 +1,5 @@
 package gr.aegean.integration;
 
-import gr.aegean.model.dto.auth.AuthResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,9 @@ import com.icegreen.greenmail.util.ServerSetupTest;
 
 import gr.aegean.AbstractIntegrationTest;
 import gr.aegean.model.dto.user.UserProfile;
+import gr.aegean.model.dto.auth.AuthResponse;
 
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,7 +26,8 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpHeaders.*;
+import static org.awaitility.Awaitility.await;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 
 @AutoConfigureWebTestClient
@@ -168,6 +170,8 @@ class UserIT extends AbstractIntegrationTest {
                 .bodyValue(requestBody)
                 .exchange()
                 .expectStatus().isAccepted();
+
+        await().atMost(5, TimeUnit.SECONDS).until(() -> greenMail.getReceivedMessages().length == 1);
 
         MimeMessage[] messages = greenMail.getReceivedMessages();
         MimeMessage message = messages[0];

@@ -46,21 +46,21 @@ public class MetricService {
                 case SECURITY_REMEDIATION_EFFORT -> updatedMetricsReport.put(
                         metric,
                         applySecurityRemediationEffortUtf(value, linesOfCode));
+                /*
+                    For those 3 metrics, we didn't fetch any values from Sonarqube, so the initial value is 0. We
+                    calculate the value based on the issues details and hotspot details.
+                 */
+                case BUG_SEVERITY -> updatedMetricsReport.put(
+                        metric,
+                        applyMetricsUtf(issuesReport.getIssues(), "BUG"));
+                case VULNERABILITY_SEVERITY -> updatedMetricsReport.put(
+                        metric,
+                        applyMetricsUtf(issuesReport.getIssues(), "VULNERABILITY"));
+                case HOTSPOT_PRIORITY -> updatedMetricsReport.put(
+                        metric,
+                        applyHotSpotPriorityUtf(hotspotsReport.getHotspots()));
             }
         });
-
-        /*
-            For those 3 metrics, we didn't fetch any values from Sonarqube, so they are not part of the metrics
-            report map. We calculate the value based on the issues details and hotspot details.
-         */
-        double value = applyMetricsUtf(issuesReport.getIssues(), "BUG");
-        updatedMetricsReport.put(QualityMetric.BUG_SEVERITY, value);
-
-        value = applyMetricsUtf(issuesReport.getIssues(), "VULNERABILITY");
-        updatedMetricsReport.put(QualityMetric.VULNERABILITY_SEVERITY, value);
-
-        value = applyHotSpotPriorityUtf(hotspotsReport.getHotspots());
-        updatedMetricsReport.put(QualityMetric.HOTSPOT_PRIORITY, value);
 
         return updatedMetricsReport;
     }

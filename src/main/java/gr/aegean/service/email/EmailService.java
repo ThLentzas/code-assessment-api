@@ -2,6 +2,7 @@ package gr.aegean.service.email;
 
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.internet.MimeMessage;
@@ -19,6 +20,7 @@ public class EmailService {
     private final ThymeleafService thymeleafService;
     private static final String SENDER = "jarvis.email.from@gmail.com";
 
+    @Async
     public void sendPasswordResetEmail(String recipient, String token) {
         final String resetLink = "http://localhost:4200/password_reset/confirm?token=" + token;
         String emailContent = thymeleafService.setPasswordResetEmailContent(resetLink);
@@ -33,6 +35,7 @@ public class EmailService {
         sendEmail(recipient, "Your password was reset", emailContent);
     }
 
+    @Async
     public void sendEmailVerification(String recipient, String username, String token) {
         final String verifyLink = "http://localhost:8080/api/v1/user/email?token=" + token;
         String emailContent = thymeleafService.setEmailVerificationContent(username, verifyLink);

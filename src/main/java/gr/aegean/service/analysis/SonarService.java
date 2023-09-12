@@ -104,7 +104,7 @@ public class SonarService {
         IssuesReport issuesReport = fetchIssues(restTemplate, entity, projectKey);
         HotspotsReport hotspotsReport = fetchHotspots(restTemplate, entity, projectKey);
         Map<String, Rule> rulesDetails = mapRuleToRuleDetails(restTemplate, entity, issuesReport, hotspotsReport);
-        EnumMap<QualityMetric, Double> qualityMetricReport = getQualityMetrics(
+        Map<QualityMetric, Double> qualityMetricReport = getQualityMetrics(
                 restTemplate,
                 entity,
                 projectKey);
@@ -259,46 +259,39 @@ public class SonarService {
         return rulesDetails;
     }
 
-    private EnumMap<QualityMetric, Double> getQualityMetrics(RestTemplate restTemplate,
+    private Map<QualityMetric, Double> getQualityMetrics(RestTemplate restTemplate,
                                                              HttpEntity<String> entity,
                                                              String projectKey) {
-        EnumMap<QualityMetric, Double> metricsReport = new EnumMap<>(QualityMetric.class);
+        Map<QualityMetric, Double> metricsReport = new EnumMap<>(QualityMetric.class);
 
-        double linesOfCodeValue = fetchLinesOfCode(restTemplate, entity, projectKey);
-        metricsReport.put(QualityMetric.LINES_OF_CODE, linesOfCodeValue);
-
-
-        //Comprehension
-        double commentRateValue = fetchCommentRate(restTemplate, entity, projectKey);
-        metricsReport.put(QualityMetric.COMMENT_RATE, commentRateValue);
-
-        //Simplicity
-        double methodSizeValue = fetchMethodSize(restTemplate, entity, projectKey);
-        metricsReport.put(QualityMetric.METHOD_SIZE, methodSizeValue);
-
-        //Maintainability
-        double duplicationValue = fetchDuplication(restTemplate, entity, projectKey);
-        metricsReport.put(QualityMetric.DUPLICATION, duplicationValue);
-
-        double technicalDebtRatioValue = fetchTechnicalDebtRatio(restTemplate, entity, projectKey);
-        metricsReport.put(QualityMetric.TECHNICAL_DEBT_RATIO, technicalDebtRatioValue);
-
-        //Reliability
-        double reliabilityRemediationEffortValue = fetchReliabilityRemediationEffort(restTemplate, entity, projectKey);
-        metricsReport.put(QualityMetric.RELIABILITY_REMEDIATION_EFFORT, reliabilityRemediationEffortValue);
-
-        //Complexity
-        double cognitiveComplexityValue = fetchCognitiveComplexity(restTemplate, entity, projectKey);
-        metricsReport.put(QualityMetric.COGNITIVE_COMPLEXITY, cognitiveComplexityValue);
-
-        double cyclomaticComplexityValue = fetchCyclomaticComplexity(restTemplate, entity, projectKey);
-        metricsReport.put(QualityMetric.CYCLOMATIC_COMPLEXITY, cyclomaticComplexityValue);
-
-        //Security
-        double securityRemediationEffortValue = fetchSecurityRemediationEffort(restTemplate, entity, projectKey);
-        metricsReport.put(QualityMetric.SECURITY_REMEDIATION_EFFORT, securityRemediationEffortValue);
+        for(QualityMetric metric: QualityMetric.values()) {
+            double value = fetchQualityMetricValue(restTemplate, entity, projectKey, metric);
+            metricsReport.put(metric, value);
+        }
 
         return metricsReport;
+    }
+
+    /*
+        For BUG_SEVERITY, VULNERABILITY_SEVERITY, HOTSPOT_PRIORITY the initial value will be 0 because we don't fetch
+        any value from Sonarqube and will get the actual value when we apply the relative utf.
+     */
+    private double fetchQualityMetricValue(RestTemplate restTemplate,
+                                           HttpEntity<String> entity,
+                                           String projectKey,
+                                           QualityMetric metric) {
+        return switch (metric) {
+            case LINES_OF_CODE -> fetchLinesOfCode(restTemplate, entity, projectKey);
+            case COMMENT_RATE -> fetchCommentRate(restTemplate, entity, projectKey);
+            case METHOD_SIZE -> fetchMethodSize(restTemplate, entity, projectKey);
+            case DUPLICATION -> fetchDuplication(restTemplate, entity, projectKey);
+            case TECHNICAL_DEBT_RATIO -> fetchTechnicalDebtRatio(restTemplate, entity, projectKey);
+            case RELIABILITY_REMEDIATION_EFFORT -> fetchReliabilityRemediationEffort(restTemplate, entity, projectKey);
+            case COGNITIVE_COMPLEXITY -> fetchCognitiveComplexity(restTemplate, entity, projectKey);
+            case CYCLOMATIC_COMPLEXITY -> fetchCyclomaticComplexity(restTemplate, entity, projectKey);
+            case SECURITY_REMEDIATION_EFFORT -> fetchSecurityRemediationEffort(restTemplate, entity, projectKey);
+            case BUG_SEVERITY, VULNERABILITY_SEVERITY, HOTSPOT_PRIORITY -> 0.0;
+        };
     }
 
     private double fetchCommentRate(RestTemplate restTemplate, HttpEntity<String> entity, String projectKey) {
@@ -312,9 +305,6 @@ public class SonarService {
 
         QualityMetricReport qualityMetricReport = response.getBody();
 
-        /*
-            We are getting a percentage back.
-         */
         return qualityMetricReport.getMeasures().get(0).getValue();
     }
 
