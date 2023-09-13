@@ -33,19 +33,10 @@ public class AuthController {
     private final PasswordResetService passwordResetService;
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterRequest request,
-                                             UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
         AuthResponse authResponse = authService.registerUser(request);
 
-        URI location = uriBuilder
-                .path("/api/v1/users/{userID}")
-                .buildAndExpand(authResponse.userId())
-                .toUri();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(location);
-
-        return new ResponseEntity<>(authResponse, headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")

@@ -4,6 +4,7 @@ import gr.aegean.config.security.AuthConfig;
 import gr.aegean.config.security.JwtConfig;
 import gr.aegean.config.security.SecurityConfig;
 import gr.aegean.exception.DuplicateResourceException;
+import gr.aegean.model.dto.user.UserDTO;
 import gr.aegean.model.dto.user.UserEmailUpdateRequest;
 import gr.aegean.model.dto.user.UserProfile;
 import gr.aegean.model.dto.user.UserProfileUpdateRequest;
@@ -52,6 +53,43 @@ class UserControllerTest {
     @MockBean
     private UserRepository userRepository;
     private static final String USER_PATH = "/api/v1/user";
+
+    @Test
+    @WithMockUser(username = "test")
+    void shouldReturnUserAndHTTP200ForAuthenticatedUser() throws Exception {
+        UserDTO actual = new UserDTO(
+                1,
+                "Test",
+                "Test",
+                "TestT",
+                "test@example.com",
+                "I have a real passion for teaching",
+                "Cleveland, OH",
+                "Code Monkey, LLC"
+        );
+
+        when(userService.findUser(any(HttpServletRequest.class))).thenReturn(actual);
+
+        mockMvc.perform(get(USER_PATH))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(actual.id())))
+                .andExpect(jsonPath("$.firstname", is(actual.firstname())))
+                .andExpect(jsonPath("$.lastname", is(actual.lastname())))
+                .andExpect(jsonPath("$.username", is(actual.username())))
+                .andExpect(jsonPath("$.email", is(actual.email())))
+                .andExpect(jsonPath("$.bio", is(actual.bio())))
+                .andExpect(jsonPath("$.location", is(actual.location())))
+                .andExpect(jsonPath("$.company", is(actual.company())));
+    }
+
+    @Test
+    void shouldReturnHTTP401WhenGetUserIsCalledByUnauthenticatedUser() throws Exception {
+        mockMvc.perform(get(USER_PATH))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(userService);
+    }
+
 
     @Test
     @WithMockUser(username = "test")
@@ -132,7 +170,6 @@ class UserControllerTest {
                 """;
 
         mockMvc.perform(put(USER_PATH + "/settings/password")
-                        .servletPath(USER_PATH + "/settings/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
@@ -202,7 +239,7 @@ class UserControllerTest {
 
     @Test
     @WithMockUser(username = "test")
-    void shouldReturnProfileAndHTTP200WhenUserIsAuthenticated() throws Exception {
+    void shouldReturnProfileAndHTTP200ForAuthenticatedUser() throws Exception {
         //Arrange
         UserProfile profile = new UserProfile(
                 "Foo",
@@ -229,8 +266,7 @@ class UserControllerTest {
 
     @Test
     void shouldReturnHTTP401WhenGetProfileIsCalledByUnauthenticatedUser() throws Exception {
-        mockMvc.perform(get(USER_PATH + "/profile")
-                        .servletPath(USER_PATH + "/profile"))
+        mockMvc.perform(get(USER_PATH + "/profile"))
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(userService);
@@ -357,8 +393,7 @@ class UserControllerTest {
 
     @Test
     void shouldReturnHTTP401WhenGetHistoryIsCalledByUnauthenticatedUser() throws Exception {
-        mockMvc.perform(post(USER_PATH + "/history")
-                        .servletPath(USER_PATH + "/history"))
+        mockMvc.perform(post(USER_PATH + "/history"))
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(userService);

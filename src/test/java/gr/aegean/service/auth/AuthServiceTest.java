@@ -66,17 +66,15 @@ class AuthServiceTest {
                 .build();
 
         String jwtToken = "jwtToken";
-        Integer generatedID = 1;
 
         when(passwordEncoder.encode(user.getPassword())).thenReturn("hashedPassword");
-        when(userService.registerUser(any(User.class))).thenReturn(generatedID);
         when(jwtService.assignToken(any(UserDTO.class))).thenReturn(jwtToken);
 
         //Act
         AuthResponse authResponse = underTest.registerUser(request);
 
         //Assert
-        assertThat(authResponse.userId()).isEqualTo(generatedID);
+
         assertThat(authResponse.token()).isEqualTo(jwtToken);
 
         verify(passwordEncoder, times(1)).encode(user.getPassword());

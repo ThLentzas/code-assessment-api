@@ -61,7 +61,7 @@ class AuthControllerTest {
                     "password": "CyN549^*o2Cr"
                 }
                 """;
-        AuthResponse authResponse = new AuthResponse(1, "jwtToken");
+        AuthResponse authResponse = new AuthResponse("jwtToken");
 
         when(authService.registerUser(any(RegisterRequest.class))).thenReturn(authResponse);
 
@@ -72,8 +72,6 @@ class AuthControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", Matchers.containsString(
-                        "api/v1/users/" + authResponse.userId())))
                 .andExpect(jsonPath("$.token", is(authResponse.token())));
     }
 
@@ -209,7 +207,7 @@ class AuthControllerTest {
                     "password": "CyN549^*o2Cr"
                 }
                 """;
-        AuthResponse authResponse = new AuthResponse(1, "jwtToken");
+        AuthResponse authResponse = new AuthResponse("jwtToken");
 
         when(authService.loginUser(any(LoginRequest.class))).thenReturn(authResponse);
 

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import gr.aegean.exception.ResourceNotFoundException;
+import gr.aegean.model.dto.user.UserDTO;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -27,10 +28,7 @@ public class UserRepository {
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 
-    /**
-     * @return the ID of the newly created user that will be used for the URI.
-     */
-    public Integer registerUser(User user) {
+    public void registerUser(User user) {
         final String sql = "INSERT INTO app_user (" +
                 "first_name, " +
                 "last_name, " +
@@ -62,8 +60,6 @@ public class UserRepository {
                 user.setId((Integer) keys.get("id"));
             }
         }
-
-        return user.getId();
     }
 
     /*

@@ -104,12 +104,12 @@ class PasswordResetServiceTest extends AbstractTestContainers {
     void shouldThrowBadCredentialsExceptionWhenPasswordResetTokenExpired() {
         //Arrange
         User user = generateUser();
-        Integer userId = userRepository.registerUser(user);
+        userRepository.registerUser(user);
 
         String hashedToken = StringUtils.hashToken("expiredToken");
         LocalDateTime expiryDate = LocalDateTime.now().minusHours(1);
         PasswordResetToken passwordResetToken = new PasswordResetToken(
-                userId,
+                user.getId(),
                 hashedToken,
                 expiryDate);
         PasswordResetConfirmationRequest passwordResetConfirmationRequest = new PasswordResetConfirmationRequest(
@@ -128,12 +128,12 @@ class PasswordResetServiceTest extends AbstractTestContainers {
     void shouldInvalidateAllPreviousTokensWhenNewResetTokenIsGenerated() {
         //Arrange
         User user = generateUser();
-        Integer userId = userRepository.registerUser(user);
+        userRepository.registerUser(user);
 
         String hashedToken = StringUtils.hashToken("token");
         LocalDateTime expiryDate = LocalDateTime.now().plusHours(3);
         PasswordResetToken passwordResetToken = new PasswordResetToken(
-                userId,
+                user.getId(),
                 hashedToken,
                 expiryDate);
 
@@ -157,12 +157,12 @@ class PasswordResetServiceTest extends AbstractTestContainers {
     void shouldResetPassword() {
         //Arrange
         User user = generateUser();
-        Integer userId = userRepository.registerUser(user);
+        userRepository.registerUser(user);
 
         String hashedToken = StringUtils.hashToken("token");
         LocalDateTime expiryDate = LocalDateTime.now().plusHours(3);
         PasswordResetToken passwordResetToken = new PasswordResetToken(
-                userId,
+                user.getId(),
                 hashedToken,
                 expiryDate);
 

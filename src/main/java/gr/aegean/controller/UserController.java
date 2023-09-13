@@ -1,16 +1,12 @@
 package gr.aegean.controller;
 
+import gr.aegean.model.dto.user.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import gr.aegean.service.user.UserService;
-import gr.aegean.model.dto.user.UserHistory;
-import gr.aegean.model.dto.user.UserProfile;
-import gr.aegean.model.dto.user.UserProfileUpdateRequest;
-import gr.aegean.model.dto.user.UserEmailUpdateRequest;
-import gr.aegean.model.dto.user.UserPasswordUpdateRequest;
 
 import jakarta.websocket.server.PathParam;
 import jakarta.validation.Valid;
@@ -29,6 +25,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+
+    @GetMapping
+    @ResponseBody
+    public ResponseEntity<UserDTO> getUser(HttpServletRequest request) {
+        UserDTO userDTO = userService.findUser(request);
+
+        return new ResponseEntity<>(userDTO, HttpStatus.OK);
+    }
 
     @GetMapping("/profile")
     @ResponseBody

@@ -101,7 +101,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
     void shouldSaveAnalysisProcess() throws IOException {
         //Arrange
         User user = generateUser();
-        Integer userId = userService.registerUser(user);
+        userService.registerUser(user);
 
         List<Constraint> constraints = new ArrayList<>();
         constraints.add(new Constraint(QualityMetric.TECHNICAL_DEBT_RATIO, QualityMetricOperator.GT, 0.95));
@@ -117,7 +117,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 
         //Act
-        Integer actual = underTest.saveAnalysisProcess(userId, reports, constraints, preferences);
+        Integer actual = underTest.saveAnalysisProcess(user.getId(), reports, constraints, preferences);
 
         //Assert
         assertThat(actual).isNotNull().isPositive();
@@ -127,7 +127,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
     void shouldFindAnalysesByUserId() throws IOException {
         //Arrange
         User user = generateUser();
-        Integer userId = userService.registerUser(user);
+        userService.registerUser(user);
 
         List<Constraint> constraints = new ArrayList<>();
         constraints.add(new Constraint(QualityMetric.TECHNICAL_DEBT_RATIO, QualityMetricOperator.GT, 0.95));
@@ -141,10 +141,10 @@ class AnalysisServiceTest extends AbstractTestContainers {
         String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
-        underTest.saveAnalysisProcess(userId, reports, constraints, preferences);
+        underTest.saveAnalysisProcess(user.getId(), reports, constraints, preferences);
 
         //Act
-        List<Analysis> actual = underTest.getHistory(userId);
+        List<Analysis> actual = underTest.getHistory(user.getId());
 
         //Assert
         assertThat(actual).hasSize(1);
@@ -154,7 +154,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
     void shouldDeleteAnalysis() throws IOException {
         //Arrange
         User user = generateUser();
-        Integer userId = userService.registerUser(user);
+        userService.registerUser(user);
 
         List<Constraint> constraints = new ArrayList<>();
         constraints.add(new Constraint(QualityMetric.TECHNICAL_DEBT_RATIO, QualityMetricOperator.GT, 0.95));
@@ -168,10 +168,10 @@ class AnalysisServiceTest extends AbstractTestContainers {
         String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
-        Integer analysisId = underTest.saveAnalysisProcess(userId, reports, constraints, preferences);
+        Integer analysisId = underTest.saveAnalysisProcess(user.getId(), reports, constraints, preferences);
 
         //Act
-        underTest.deleteAnalysis(analysisId, userId);
+        underTest.deleteAnalysis(analysisId, user.getId());
 
         //Assert
         assertThatThrownBy(() -> underTest.findAnalysisResultByAnalysisId(analysisId))

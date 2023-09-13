@@ -39,11 +39,11 @@ public class AuthService {
         userService.validateUser(user);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        Integer userId = userService.registerUser(user);
+        userService.registerUser(user);
         UserDTO userDTO = userDTOMapper.apply(user);
         String jwtToken = jwtService.assignToken(userDTO);
 
-        return new AuthResponse(userId, jwtToken);
+        return new AuthResponse(jwtToken);
     }
 
     public AuthResponse loginUser(LoginRequest request) {
@@ -60,6 +60,6 @@ public class AuthService {
         UserDTO userDTO = userDTOMapper.apply(principal);
         String jwtToken = jwtService.assignToken(userDTO);
 
-        return new AuthResponse(principal.getId(), jwtToken);
+        return new AuthResponse(jwtToken);
     }
 }

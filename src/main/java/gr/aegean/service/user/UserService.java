@@ -5,12 +5,9 @@ import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.entity.EmailUpdateToken;
 import gr.aegean.entity.User;
+import gr.aegean.mapper.dto.UserDTOMapper;
 import gr.aegean.model.dto.analysis.AnalysisResponse;
-import gr.aegean.model.dto.user.UserHistory;
-import gr.aegean.model.dto.user.UserProfile;
-import gr.aegean.model.dto.user.UserProfileUpdateRequest;
-import gr.aegean.model.dto.user.UserEmailUpdateRequest;
-import gr.aegean.model.dto.user.UserPasswordUpdateRequest;
+import gr.aegean.model.dto.user.*;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
@@ -43,12 +40,9 @@ public class UserService {
     private final EmailService emailService;
     private final AnalysisService analysisService;
     private final PasswordEncoder passwordEncoder;
+    private final UserDTOMapper userDTOMapper = new UserDTOMapper();
 
-
-    /**
-     * @return the ID of the newly registered user for the URI
-     */
-    public Integer registerUser(User user) {
+    public void registerUser(User user) {
         if (userRepository.existsUserWithEmail(user.getEmail())) {
             throw new DuplicateResourceException("Email already in use");
         }
@@ -57,7 +51,7 @@ public class UserService {
             throw new DuplicateResourceException("The provided username already exists");
         }
 
-        return userRepository.registerUser(user);
+        userRepository.registerUser(user);
     }
 
     public UserProfile getProfile(HttpServletRequest request) {
@@ -72,6 +66,14 @@ public class UserService {
                         user.getLocation(),
                         user.getCompany()))
                 .orElseThrow(() -> new ResourceNotFoundException("User with id: " + userId + " not found"));
+    }
+
+    public UserDTO findUser(HttpServletRequest request) {
+        int userId = Integer.parseInt(jwtService.getSubject(request));
+        User user = userRepository.findUserByUserId(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User with id: " + userId + " not found"));
+
+        return userDTOMapper.apply(user);
     }
 
     public void updateProfile(HttpServletRequest request, UserProfileUpdateRequest profileUpdateRequest) {
@@ -322,4 +324,6 @@ public class UserService {
             updater.accept(property);
         }
     }
+
+
 }

@@ -10,8 +10,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.stereotype.Service;
 
-import gr.aegean.exception.ServerErrorException;
-
 
 @Service
 public class GitHubService {
@@ -45,6 +43,10 @@ public class GitHubService {
                 .call();
     }
 
+    /*
+        Will throw URISyntaxException when it fails to parse the provided url. All cases where non url strings are
+        provided.
+     */
     private boolean isValidGitHubUrl(String url) {
         if (url == null || url.isBlank()) {
             return false;
@@ -56,8 +58,7 @@ public class GitHubService {
 
             return host.equals("github.com");
         } catch (Exception e) {
-            throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
-                    "request. Please try again later.");
+            return false;
         }
     }
 }
