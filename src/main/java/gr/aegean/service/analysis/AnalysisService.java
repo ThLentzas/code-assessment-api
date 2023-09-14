@@ -10,6 +10,7 @@ import gr.aegean.mapper.dto.AnalysisReportDTOMapper;
 import gr.aegean.model.analysis.sonarqube.HotspotsReport;
 import gr.aegean.model.analysis.sonarqube.IssuesReport;
 import gr.aegean.model.dto.analysis.AnalysisReportDTO;
+import gr.aegean.model.dto.analysis.AnalysisRequest;
 import gr.aegean.model.dto.analysis.AnalysisResponse;
 import gr.aegean.model.dto.analysis.RefreshRequest;
 import gr.aegean.model.analysis.quality.QualityMetric;
@@ -27,6 +28,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import gr.aegean.service.auth.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +45,7 @@ public class AnalysisService {
     private final AssessmentService assessmentService;
     private final DockerService dockerService;
     private final AnalysisRepository analysisRepository;
+    private final JwtService jwtService;
     private final AnalysisReportDTOMapper mapper = new AnalysisReportDTOMapper();
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
@@ -118,7 +122,6 @@ public class AnalysisService {
 
     public AnalysisResponse findAnalysisResultByAnalysisId(Integer analysisId) {
         Analysis analysis = findAnalysisByAnalysisId(analysisId);
-
         List<AnalysisReport> reports = findAnalysisReportsByAnalysisId(analysisId);
 
         /*
@@ -138,13 +141,6 @@ public class AnalysisService {
                 .toList();
 
         return new AnalysisResponse(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
-    }
-
-    public AnalysisReportDTO findAnalysisReportById(Integer reportId) {
-        AnalysisReport report = analysisRepository.findAnalysisReportByReportId(reportId).orElseThrow(() ->
-                new ResourceNotFoundException("Analysis report was not found for analysis with id" + reportId));
-
-        return mapper.apply(report);
     }
 
     public AnalysisResponse refreshAnalysisResult(Integer analysisId, RefreshRequest request) {
@@ -180,22 +176,35 @@ public class AnalysisService {
         return new AnalysisResponse(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
     }
 
-    /*
-        Returns the entire user's history
+    /**
+     * @return The entire user's history. Will return an empty list if no history is found.
      */
     public List<Analysis> getHistory(Integer userId) {
         return analysisRepository.getHistory(userId).orElse(Collections.emptyList());
     }
 
-    /*
-        Returns the user's history in a date range.
+    /**
+     * @return The user's history in a given date range. Will return an empty list if no history is found.
      */
     public List<Analysis> getHistoryInDateRange(Integer userId, Date from, Date to) {
         return analysisRepository.getHistoryInDateRange(userId, from, to).orElse(Collections.emptyList());
     }
 
+    public AnalysisRequest findAnalysisRequestByAnalysisId(Integer analysisId) {
+        List<AnalysisReport> reports = findAnalysisReportsByAnalysisId(analysisId);
+        List<Constraint> constraints = findAnalysisConstraintsByAnalysisId(analysisId);
+        List<Preference> preferences = findAnalysisPreferencesByAnalysisId(analysisId);
 
-    public void deleteAnalysis(Integer analysisId, Integer userId) {
+        List<String> projectUrls = reports.stream()
+                .map(report -> report.getProjectUrl().getHref())
+                .toList();
+
+        return new AnalysisRequest(projectUrls, constraints, preferences);
+    }
+
+    public void deleteAnalysis(Integer analysisId, HttpServletRequest request) {
+        int userId = Integer.parseInt(jwtService.getSubject(request));
+
         analysisRepository.deleteAnalysis(analysisId, userId);
     }
 
@@ -259,7 +268,6 @@ public class AnalysisService {
         return analysisRepository.findAnalysisByAnalysisId(analysisId).orElseThrow(() ->
                 new ResourceNotFoundException("No analysis was found for analysis id: " + analysisId));
     }
-
 
     private List<AnalysisReport> findAnalysisReportsByAnalysisId(Integer analysisId) {
         return analysisRepository.findAnalysisReportsByAnalysisId(analysisId).orElseThrow(() ->

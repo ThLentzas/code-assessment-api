@@ -7,6 +7,7 @@ import gr.aegean.entity.Constraint;
 import gr.aegean.entity.Preference;
 import gr.aegean.entity.User;
 import gr.aegean.exception.ResourceNotFoundException;
+import gr.aegean.model.dto.analysis.AnalysisRequest;
 import gr.aegean.model.dto.analysis.RefreshRequest;
 import gr.aegean.model.analysis.quality.QualityAttribute;
 import gr.aegean.model.analysis.quality.QualityMetric;
@@ -19,6 +20,7 @@ import gr.aegean.service.auth.JwtService;
 import gr.aegean.service.email.EmailService;
 import gr.aegean.service.user.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +40,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -74,7 +79,8 @@ class AnalysisServiceTest extends AbstractTestContainers {
                 metricService,
                 assessmentService,
                 dockerService,
-                analysisRepository);
+                analysisRepository,
+                jwtService);
 
         UserRepository userRepository = new UserRepository(getJdbcTemplate());
         userService = new UserService(
@@ -169,14 +175,50 @@ class AnalysisServiceTest extends AbstractTestContainers {
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
         Integer analysisId = underTest.saveAnalysisProcess(user.getId(), reports, constraints, preferences);
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
 
         //Act
-        underTest.deleteAnalysis(analysisId, user.getId());
+        underTest.deleteAnalysis(analysisId, mockRequest);
 
         //Assert
         assertThatThrownBy(() -> underTest.findAnalysisResultByAnalysisId(analysisId))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("No analysis was found for analysis id: " + analysisId);
+    }
+
+    @Test
+    void shouldGetAnalysisRequest() throws IOException {
+        //Arrange
+        User user = generateUser();
+        userService.registerUser(user);
+
+        List<Constraint> constraints = new ArrayList<>();
+        constraints.add(new Constraint(QualityMetric.TECHNICAL_DEBT_RATIO, QualityMetricOperator.GT, 0.95));
+        constraints.add(new Constraint(QualityMetric.VULNERABILITY_SEVERITY, QualityMetricOperator.GT, 0.5));
+
+        List<Preference> preferences = new ArrayList<>();
+        preferences.add(new Preference(QualityAttribute.SIMPLICITY, 0.34));
+        preferences.add(new Preference(QualityAttribute.SECURITY_REMEDIATION_EFFORT, 0.25));
+
+        ObjectMapper mapper = new ObjectMapper();
+        String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
+        JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
+        List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
+        Integer analysisId = underTest.saveAnalysisProcess(user.getId(), reports, constraints, preferences);
+
+        List<String> projectUrls = reports.stream()
+                .map(report -> report.getProjectUrl().getHref())
+                .toList();
+        AnalysisRequest expected = new AnalysisRequest(projectUrls, constraints, preferences);
+
+        //Act
+        AnalysisRequest actual = underTest.findAnalysisRequestByAnalysisId(analysisId);
+
+        //Assert
+        assertThat(actual).isEqualTo(expected);
+
     }
 
     @ParameterizedTest

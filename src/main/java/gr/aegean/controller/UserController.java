@@ -86,15 +86,6 @@ public class UserController {
         return new ResponseEntity<>(history, HttpStatus.OK);
     }
 
-    @DeleteMapping("history/analysis/{analysisId}")
-    @ResponseBody
-    public ResponseEntity<Void> deleteAnalysis(@PathVariable Integer analysisId,
-                                               HttpServletRequest request) {
-        userService.deleteAnalysis(analysisId, request);
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
     @DeleteMapping("/settings/account")
     @ResponseBody
     public ResponseEntity<Void> deleteAccount(HttpServletRequest request) {

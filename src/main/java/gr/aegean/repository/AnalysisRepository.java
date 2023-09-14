@@ -131,17 +131,6 @@ public class AnalysisRepository {
         return Optional.of(reports);
     }
 
-    public Optional<AnalysisReport> findAnalysisReportByReportId(Integer reportId) {
-        final String sql = "SELECT id, report FROM analysis_report WHERE id = ?";
-        List<AnalysisReport> reports = jdbcTemplate.query(sql, reportRowMapper, reportId);
-
-        return reports.stream().findFirst();
-    }
-    /*
-        Returns an empty list if not found. We don't have to return an optional here. An empty list means no preferences
-         were provided.
-     */
-
     public Optional<List<Preference>> findAnalysisPreferencesByAnalysisId(Integer analysisId) {
         final String sql = "SELECT " +
                 "analysis_id, " +
@@ -151,10 +140,6 @@ public class AnalysisRepository {
 
         return Optional.of(preferences);
     }
-    /*
-        Returns an empty list if not found. We don't have to return an optional here. An empty list means no constraints
-         were provided.
-     */
 
     public Optional<List<Constraint>> findAnalysisConstraintsByAnalysisId(Integer analysisId) {
         final String sql = "SELECT " +
@@ -190,7 +175,6 @@ public class AnalysisRepository {
 
         return Optional.of(analyses);
     }
-
 
     public void deleteAnalysis(Integer analysisId, Integer userId) {
         final String sql = "DELETE FROM analysis WHERE id = ? AND user_id = ?";

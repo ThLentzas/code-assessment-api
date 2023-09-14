@@ -208,12 +208,6 @@ public class UserService {
         return new UserHistory(history);
     }
 
-    public void deleteAnalysis(Integer analysisId, HttpServletRequest request) {
-        int userId = Integer.parseInt(jwtService.getSubject(request));
-
-        analysisService.deleteAnalysis(analysisId, userId);
-    }
-
     public void deleteAccount(HttpServletRequest request) {
         int userId = Integer.parseInt(jwtService.getSubject(request));
 

@@ -1,9 +1,6 @@
 package gr.aegean.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.quality.QualityMetricOperator;
@@ -11,6 +8,7 @@ import gr.aegean.model.analysis.quality.QualityMetricOperator;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 public class Constraint {
@@ -36,3 +34,4 @@ public class Constraint {
         };
     }
 }
+

@@ -11,8 +11,7 @@ import jakarta.validation.constraints.NotNull;
 public class CorsConfig {
 
     /*
-        We have to expose the Location header to the FE, so that they can have access to the location header of the
-        newly created resource.
+        We have to expose the Location header to the FE, so that they can have access of the newly created resource.
      */
     @Bean
     public WebMvcConfigurer corsConfigurer() {

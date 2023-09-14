@@ -2,7 +2,6 @@ package gr.aegean.controller;
 
 import gr.aegean.service.analysis.AnalysisService;
 import gr.aegean.service.analysis.AsyncService;
-import gr.aegean.model.dto.analysis.AnalysisReportDTO;
 import gr.aegean.model.dto.analysis.AnalysisRequest;
 import gr.aegean.model.dto.analysis.AnalysisResponse;
 import gr.aegean.model.dto.analysis.RefreshRequest;
@@ -28,11 +27,6 @@ public class AnalysisController {
     private final AsyncService asyncService;
     private final AnalysisService analysisService;
 
-    /*
-        Have a message saying that if in the analysis result they don't see a repository from those they
-        provided, it wasn't a valid GitHub repository URL, or it was a private one, or the language was not
-        supported.
-     */
     @PostMapping
     public ResponseEntity<Void> analyze(@Valid @RequestBody AnalysisRequest analysisRequest,
                                         HttpServletRequest httpServletRequest,
@@ -64,13 +58,18 @@ public class AnalysisController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    /*
-        Returns the analysis report for a specific repository.
-     */
-    @GetMapping("/reports/{reportId}")
-    public ResponseEntity<AnalysisReportDTO> getAnalysisReport(@PathVariable Integer reportId) {
-        AnalysisReportDTO report = analysisService.findAnalysisReportById(reportId);
+    @DeleteMapping("/{analysisId}")
+    public ResponseEntity<Void> deleteAnalysis(@PathVariable Integer analysisId,
+                                               HttpServletRequest request) {
+        analysisService.deleteAnalysis(analysisId, request);
 
-        return new ResponseEntity<>(report, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{analysisId}/request")
+    public ResponseEntity<AnalysisRequest> getAnalysisRequest(@PathVariable Integer analysisId) {
+       AnalysisRequest request = analysisService.findAnalysisRequestByAnalysisId(analysisId);
+
+       return new ResponseEntity<>(request, HttpStatus.OK);
     }
 }
