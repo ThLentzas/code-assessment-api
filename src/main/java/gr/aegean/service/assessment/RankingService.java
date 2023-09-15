@@ -33,7 +33,7 @@ public class RankingService {
     }
 
     private void assignWeight(TreeNode node, List<Preference> preferences) {
-        if (isLeafNode(node)) {
+        if (treeService.isLeafNode(node)) {
             return;
         }
 
@@ -46,11 +46,12 @@ public class RankingService {
             return;
         }
 
-        List<TreeNode> nodesWithoutWeight = new ArrayList<>();
+        List<TreeNode> childNodesWithoutWeight = new ArrayList<>();
         double sum = 1.0;
+        Optional<Preference> matchingPreference;
 
         for (TreeNode child : node.getChildren()) {
-            Optional<Preference> matchingPreference = preferences.stream()
+            matchingPreference = preferences.stream()
                     .filter(preference -> preference.getQualityAttribute().name().equals(child.getName()))
                     .findFirst();
 
@@ -62,16 +63,12 @@ public class RankingService {
                 child.setWeight(matchingPreference.get().getWeight());
                 sum -= child.getWeight();
             } else {
-                nodesWithoutWeight.add(child);
+                childNodesWithoutWeight.add(child);
             }
         }
 
-        if (sum < 0.0) {
-            throw new IllegalArgumentException("The sum of the weight of all children should not be greater than 1");
-        }
-
-        double weightToDistribute = sum / nodesWithoutWeight.size();
-        nodesWithoutWeight.forEach(nodeWithoutWeight -> nodeWithoutWeight.setWeight(weightToDistribute));
+        double weightToDistribute = sum / childNodesWithoutWeight.size();
+        childNodesWithoutWeight.forEach(nodeWithoutWeight -> nodeWithoutWeight.setWeight(weightToDistribute));
 
         for (TreeNode child : node.getChildren()) {
             assignWeight(child, preferences);
@@ -82,7 +79,7 @@ public class RankingService {
         Assigning the values to the leaf nodes(metrics), to calculate the value of the parent node.
      */
     private void assignLeafNodeValue(TreeNode node, Map<QualityMetric, Double> qualityMetricsReport) {
-        if (isLeafNode(node)) {
+        if (treeService.isLeafNode(node)) {
             node.setValue(qualityMetricsReport.get(QualityMetric.valueOf(node.getName())));
 
             return;
@@ -94,7 +91,7 @@ public class RankingService {
     }
 
     private void assignParentNodeValue(TreeNode node) {
-        if (isLeafNode(node)) {
+        if (treeService.isLeafNode(node)) {
             return;
         }
 
@@ -107,7 +104,4 @@ public class RankingService {
         node.setValue(parentValue);
     }
 
-    private boolean isLeafNode(TreeNode node) {
-        return node.getChildren().isEmpty();
-    }
 }

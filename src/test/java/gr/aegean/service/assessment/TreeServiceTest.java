@@ -1,11 +1,17 @@
 package gr.aegean.service.assessment;
 
+import gr.aegean.model.analysis.quality.TreeNode;
+import gr.aegean.entity.Preference;
+import gr.aegean.model.analysis.quality.QualityAttribute;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import gr.aegean.model.analysis.quality.TreeNode;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 class TreeServiceTest {
@@ -66,5 +72,33 @@ class TreeServiceTest {
         assertThat(complexity.getChildren())
                 .extracting(TreeNode::getName)
                 .containsExactly("CYCLOMATIC_COMPLEXITY", "COGNITIVE_COMPLEXITY");
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentExceptionWhenTheSumOfTheWeightsOfChildNodesIsGreaterThanOne() {
+        //Arrange
+        TreeNode root = underTest.buildTree();
+        List<Preference> preferences = new ArrayList<>();
+        preferences.add(new Preference(QualityAttribute.QUALITY, 0.4));
+        preferences.add(new Preference(QualityAttribute.SECURITY, 0.7));
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.validateChildNodesWeightsSum(root, preferences))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("The combined weights of Security node's child nodes must not exceed 1");
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentExceptionWhenTheSumOfTheWeightsForAllChildNodesIsLessThanOne() {
+        //Arrange
+        TreeNode root = underTest.buildTree();
+        List<Preference> preferences = new ArrayList<>();
+        preferences.add(new Preference(QualityAttribute.QUALITY, 0.4));
+        preferences.add(new Preference(QualityAttribute.SECURITY, 0.3));
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.validateChildNodesWeightsSum(root, preferences))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("The combined weights of all Security node's child nodes must not be less than 1");
     }
 }

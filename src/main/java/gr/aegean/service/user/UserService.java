@@ -208,10 +208,18 @@ public class UserService {
         return new UserHistory(history);
     }
 
-    public void deleteAccount(HttpServletRequest request) {
+    public void deleteAccount(HttpServletRequest request, UserAccountDeleteRequest accountDeleteRequest) {
         int userId = Integer.parseInt(jwtService.getSubject(request));
 
-        userRepository.deleteAccount(userId);
+        userRepository.findUserByUserId(userId)
+                .ifPresentOrElse(user -> {
+                    if (!passwordEncoder.matches(accountDeleteRequest.password(), user.getPassword())) {
+                        throw new BadCredentialsException("Password is incorrect");
+                    }
+                    userRepository.deleteAccount(userId);
+                    }, () -> {
+                    throw new ResourceNotFoundException("User with id: " + userId + " not found");
+                });
     }
 
     public void validateUser(User user) {

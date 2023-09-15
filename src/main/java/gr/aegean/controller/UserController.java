@@ -43,7 +43,6 @@ public class UserController {
     }
 
     @PutMapping("/profile")
-    @ResponseBody
     public ResponseEntity<Void> updateProfile(@RequestBody UserProfileUpdateRequest profileUpdateRequest,
                                               HttpServletRequest request) {
         userService.updateProfile(request, profileUpdateRequest);
@@ -52,7 +51,6 @@ public class UserController {
     }
 
     @PostMapping("/settings/email")
-    @ResponseBody
     public ResponseEntity<Void> updateEmail(@Valid @RequestBody UserEmailUpdateRequest emailUpdateRequest,
                                             HttpServletRequest request) {
         userService.createEmailUpdateToken(request, emailUpdateRequest);
@@ -68,7 +66,6 @@ public class UserController {
     }
 
     @PutMapping("/settings/password")
-    @ResponseBody
     public ResponseEntity<Void> updatePassword(@Valid @RequestBody UserPasswordUpdateRequest passwordUpdateRequest,
                                                HttpServletRequest request) {
         userService.updatePassword(request, passwordUpdateRequest);
@@ -86,10 +83,13 @@ public class UserController {
         return new ResponseEntity<>(history, HttpStatus.OK);
     }
 
-    @DeleteMapping("/settings/account")
-    @ResponseBody
-    public ResponseEntity<Void> deleteAccount(HttpServletRequest request) {
-        userService.deleteAccount(request);
+    /*
+        DELETE request is allowed to have a body, but it is not recommended.
+     */
+    @PutMapping("/settings/account")
+    public ResponseEntity<Void> deleteAccount(@Valid @RequestBody UserAccountDeleteRequest accountDeleteRequest,
+                                              HttpServletRequest request) {
+        userService.deleteAccount(request, accountDeleteRequest);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

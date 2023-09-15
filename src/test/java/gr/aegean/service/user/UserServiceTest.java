@@ -575,6 +575,7 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldUpdateEmail() {
         //Arrange
         User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
 
         String hashedToken = StringUtils.hashToken("token");
@@ -599,6 +600,7 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowIllegalArgumentExceptionWhenOnlyFromDateIsProvided(String from) {
         //Arrange
         User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
 
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
@@ -617,6 +619,7 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowIllegalArgumentExceptionWhenOnlyToDateIsProvided(String to) {
         //Arrange
         User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
 
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
@@ -634,14 +637,16 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldDeleteAccount() {
         //Arrange
         User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
 
+        UserAccountDeleteRequest accountDeleteRequest = new UserAccountDeleteRequest("Test2Ex@mple");
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
         when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
 
         //Act
-        underTest.deleteAccount(mockRequest);
+        underTest.deleteAccount(mockRequest, accountDeleteRequest);
 
         //Assert
         assertThatThrownBy(() -> underTest.getProfile(mockRequest))
@@ -652,14 +657,15 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowResourceNotFoundExceptionWhenAccountDoesNotExist() {
         //Arrange
+        UserAccountDeleteRequest accountDeleteRequest = new UserAccountDeleteRequest("Test2Ex@mple");
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
         when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(String.valueOf(1));
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.deleteAccount(mockRequest))
+        assertThatThrownBy(() -> underTest.deleteAccount(mockRequest, accountDeleteRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("No account was found with the provided: " + 1);
+                .hasMessage("User with id: " + 1 + " not found");
     }
 
     private User generateUser() {

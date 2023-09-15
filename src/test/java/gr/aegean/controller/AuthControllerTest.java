@@ -50,7 +50,7 @@ class AuthControllerTest {
     private static final String AUTH_PATH = "/api/v1/auth";
 
     @Test
-    void shouldReturnJwtTokenWhenUserIsRegisteredSuccessfully() throws Exception {
+    void shouldReturnJwtTokenAndHTTP201WhenUserIsRegisteredSuccessfully() throws Exception {
         //Arrange
         String requestBody = """
                 {
@@ -199,7 +199,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void shouldReturnJwtTokenWhenUserIsAuthenticatedSuccessfully() throws Exception {
+    void shouldReturnJwtTokenAndHTTP200WhenUserIsAuthenticatedSuccessfully() throws Exception {
         //Arrange
         String requestBody = """
                 {

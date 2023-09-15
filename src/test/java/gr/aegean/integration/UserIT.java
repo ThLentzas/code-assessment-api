@@ -284,10 +284,17 @@ class UserIT extends AbstractIntegrationTest {
 
         String jwtToken = result.getResponseBody().token();
 
-        webTestClient.delete()
+        requestBody = """
+                {
+                    "password": "CyN549^*o2Cr"
+                }""";
+
+        webTestClient.put()
                 .uri(USER_PATH + "/settings/account")
-                .accept(MediaType.APPLICATION_JSON)
                 .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
                 .exchange()
                 .expectStatus().isNoContent();
     }
