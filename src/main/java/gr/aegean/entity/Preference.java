@@ -1,6 +1,10 @@
 package gr.aegean.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import gr.aegean.model.analysis.quality.QualityAttribute;
 

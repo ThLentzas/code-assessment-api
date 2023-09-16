@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class DefaultExceptionHandler {
 
+    /*
+        Thrown by the @Valid annotation
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     private ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ma) {
         String errorMessage = ma.getBindingResult()

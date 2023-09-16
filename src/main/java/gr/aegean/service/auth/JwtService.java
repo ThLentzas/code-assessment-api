@@ -1,7 +1,9 @@
 package gr.aegean.service.auth;
 
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -16,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtService {
     private final JwtEncoder jwtEncoder;
-    private final JwtDecoder jwtDecoder;
 
     /**
      * The claims of the JwtToken are: issuer, when it is issued at, when it expires at, subject(user's email).
@@ -36,16 +37,17 @@ public class JwtService {
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    public String getSubject(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        String bearerToken = null;
+    /*
+        https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html
 
-        if (!token.isBlank() && token.startsWith("Bearer ")) {
-            bearerToken = token.substring(7);
-        }
+        The resulting Authentication#getPrincipal, by default, is a Spring Security Jwt object, and
+        Authentication#getName maps to the JWT’s sub property, if one is present.
 
-        Jwt jwt = jwtDecoder.decode(bearerToken);
-
-        return jwt.getSubject();
+        Alternative approach:
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        jwt.getSubject();
+     */
+    public String getSubject() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 }

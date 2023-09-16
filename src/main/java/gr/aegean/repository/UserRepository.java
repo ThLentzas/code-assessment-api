@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import gr.aegean.exception.ResourceNotFoundException;
-import gr.aegean.model.dto.user.UserDTO;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -16,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import gr.aegean.entity.User;
 import gr.aegean.mapper.row.UserRowMapper;
 import gr.aegean.exception.ServerErrorException;
+import gr.aegean.exception.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -70,7 +69,6 @@ public class UserRepository {
         final String sql = "UPDATE app_user SET first_name = ? WHERE id = ?";
 
         int update = jdbcTemplate.update(sql, firstname, userId);
-
         if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
@@ -80,7 +78,6 @@ public class UserRepository {
         final String sql = "UPDATE app_user SET last_name = ? WHERE id = ?";
 
         int update = jdbcTemplate.update(sql, lastname, userId);
-
         if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
@@ -90,7 +87,6 @@ public class UserRepository {
         final String sql = "UPDATE app_user SET bio = ? WHERE id = ?";
 
         int update = jdbcTemplate.update(sql, bio, userId);
-
         if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
@@ -100,7 +96,6 @@ public class UserRepository {
         final String sql = "UPDATE app_user SET location = ? WHERE id = ?";
 
         int update = jdbcTemplate.update(sql, location, userId);
-
         if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
@@ -110,7 +105,6 @@ public class UserRepository {
         final String sql = "UPDATE app_user SET company = ? WHERE id = ?";
 
         int update = jdbcTemplate.update(sql, company, userId);
-
         if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
@@ -120,7 +114,6 @@ public class UserRepository {
         final String sql = "UPDATE app_user SET username = ? WHERE id = ?";
 
         int update = jdbcTemplate.update(sql, username, userId);
-
         if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
@@ -130,7 +123,6 @@ public class UserRepository {
         final String sql = "UPDATE app_user SET email = ? WHERE id = ?";
 
         int update = jdbcTemplate.update(sql, email, userId);
-
         if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
@@ -140,7 +132,6 @@ public class UserRepository {
         final String sql = "UPDATE app_user SET password = ? WHERE id = ?";
 
         int update = jdbcTemplate.update(sql, password, userId);
-
         if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
@@ -216,6 +207,6 @@ public class UserRepository {
     public void deleteAllUsers() {
         final String sql = "DELETE FROM app_user";
 
-       jdbcTemplate.update(sql);
+        jdbcTemplate.update(sql);
     }
 }

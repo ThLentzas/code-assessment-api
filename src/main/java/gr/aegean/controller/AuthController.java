@@ -46,8 +46,7 @@ public class AuthController {
         Best implementation for a password reset feature needs rate limiting to avoid username enumerations.
      */
     @PostMapping("/password_reset")
-    public ResponseEntity<Void> resetPassword(@Valid @RequestBody
-                                                               PasswordResetRequest passwordResetRequest) {
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
         passwordResetService.createPasswordResetToken(passwordResetRequest);
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);

@@ -7,6 +7,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import jakarta.validation.constraints.NotNull;
 
+
 @Configuration
 public class CorsConfig {
 

@@ -21,7 +21,6 @@ public enum QualityAttribute {
     HOTSPOT_PRIORITY("Hotspot Priority"),
     SECURITY_REMEDIATION_EFFORT("Security Remediation Effort");
 
-
     private final String display;
 
     QualityAttribute(String display) {

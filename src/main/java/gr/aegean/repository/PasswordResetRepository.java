@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-
 import lombok.RequiredArgsConstructor;
 
 
@@ -34,7 +33,6 @@ public class PasswordResetRepository {
                 passwordResetToken.userId(),
                 passwordResetToken.token(),
                 passwordResetToken.expiryDate());
-
         if (insert != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
@@ -64,11 +62,5 @@ public class PasswordResetRepository {
         final String sql = "DELETE FROM password_reset_token WHERE user_id = ?";
 
         jdbcTemplate.update(sql, userId);
-    }
-
-    public void deleteAllTokens() {
-        final String sql = "DELETE FROM password_reset_token";
-
-        jdbcTemplate.update(sql);
     }
 }

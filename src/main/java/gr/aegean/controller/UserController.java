@@ -1,11 +1,22 @@
 package gr.aegean.controller;
 
-import gr.aegean.model.dto.user.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
 
+import gr.aegean.model.dto.user.UserAccountDeleteRequest;
+import gr.aegean.model.dto.user.UserDTO;
+import gr.aegean.model.dto.user.UserEmailUpdateRequest;
+import gr.aegean.model.dto.user.UserHistory;
+import gr.aegean.model.dto.user.UserPasswordUpdateRequest;
+import gr.aegean.model.dto.user.UserProfile;
+import gr.aegean.model.dto.user.UserProfileUpdateRequest;
 import gr.aegean.service.user.UserService;
 
 import jakarta.websocket.server.PathParam;
@@ -28,32 +39,30 @@ public class UserController {
 
     @GetMapping
     @ResponseBody
-    public ResponseEntity<UserDTO> getUser(HttpServletRequest request) {
-        UserDTO userDTO = userService.findUser(request);
+    public ResponseEntity<UserDTO> getUser() {
+        UserDTO userDTO = userService.findUser();
 
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
     @GetMapping("/profile")
     @ResponseBody
-    public ResponseEntity<UserProfile> getProfile(HttpServletRequest request) {
-        UserProfile profile = userService.getProfile(request);
+    public ResponseEntity<UserProfile> getProfile() {
+        UserProfile profile = userService.getProfile();
 
         return new ResponseEntity<>(profile, HttpStatus.OK);
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<Void> updateProfile(@RequestBody UserProfileUpdateRequest profileUpdateRequest,
-                                              HttpServletRequest request) {
-        userService.updateProfile(request, profileUpdateRequest);
+    public ResponseEntity<Void> updateProfile(@RequestBody UserProfileUpdateRequest profileUpdateRequest) {
+        userService.updateProfile(profileUpdateRequest);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("/settings/email")
-    public ResponseEntity<Void> updateEmail(@Valid @RequestBody UserEmailUpdateRequest emailUpdateRequest,
-                                            HttpServletRequest request) {
-        userService.createEmailUpdateToken(request, emailUpdateRequest);
+    public ResponseEntity<Void> updateEmail(@Valid @RequestBody UserEmailUpdateRequest emailUpdateRequest) {
+        userService.createEmailUpdateToken(emailUpdateRequest);
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
@@ -66,9 +75,8 @@ public class UserController {
     }
 
     @PutMapping("/settings/password")
-    public ResponseEntity<Void> updatePassword(@Valid @RequestBody UserPasswordUpdateRequest passwordUpdateRequest,
-                                               HttpServletRequest request) {
-        userService.updatePassword(request, passwordUpdateRequest);
+    public ResponseEntity<Void> updatePassword(@Valid @RequestBody UserPasswordUpdateRequest passwordUpdateRequest) {
+        userService.updatePassword(passwordUpdateRequest);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -76,9 +84,8 @@ public class UserController {
     @GetMapping("/history")
     @ResponseBody
     public ResponseEntity<UserHistory> getHistory(@PathParam("from") String from,
-                                                  @PathParam("to") String to,
-                                                  HttpServletRequest request) {
-        UserHistory history = userService.getHistory(request, from, to);
+                                                  @PathParam("to") String to) {
+        UserHistory history = userService.getHistory(from, to);
 
         return new ResponseEntity<>(history, HttpStatus.OK);
     }
@@ -87,9 +94,8 @@ public class UserController {
         DELETE request is allowed to have a body, but it is not recommended.
      */
     @PutMapping("/settings/account")
-    public ResponseEntity<Void> deleteAccount(@Valid @RequestBody UserAccountDeleteRequest accountDeleteRequest,
-                                              HttpServletRequest request) {
-        userService.deleteAccount(request, accountDeleteRequest);
+    public ResponseEntity<Void> deleteAccount(@Valid @RequestBody UserAccountDeleteRequest accountDeleteRequest) {
+        userService.deleteAccount(accountDeleteRequest);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

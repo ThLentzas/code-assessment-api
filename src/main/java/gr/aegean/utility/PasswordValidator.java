@@ -7,6 +7,7 @@ import org.passay.PasswordData;
 import org.passay.RuleResult;
 import org.springframework.security.authentication.BadCredentialsException;
 
+
 public final class PasswordValidator {
 
     private PasswordValidator() {

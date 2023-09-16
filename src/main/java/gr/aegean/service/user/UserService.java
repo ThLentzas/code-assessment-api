@@ -54,8 +54,8 @@ public class UserService {
         userRepository.registerUser(user);
     }
 
-    public UserProfile getProfile(HttpServletRequest request) {
-        int userId = Integer.parseInt(jwtService.getSubject(request));
+    public UserProfile getProfile() {
+        int userId = Integer.parseInt(jwtService.getSubject());
 
         return userRepository.findUserByUserId(userId)
                 .map(user -> new UserProfile(
@@ -68,16 +68,17 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User with id: " + userId + " not found"));
     }
 
-    public UserDTO findUser(HttpServletRequest request) {
-        int userId = Integer.parseInt(jwtService.getSubject(request));
+    public UserDTO findUser() {
+        int userId = Integer.parseInt(jwtService.getSubject());
         User user = userRepository.findUserByUserId(userId).orElseThrow(
                 () -> new ResourceNotFoundException("User with id: " + userId + " not found"));
 
         return userDTOMapper.apply(user);
     }
 
-    public void updateProfile(HttpServletRequest request, UserProfileUpdateRequest profileUpdateRequest) {
-        int userId = Integer.parseInt(jwtService.getSubject(request));
+    public void updateProfile(UserProfileUpdateRequest profileUpdateRequest) {
+        int userId = Integer.parseInt(jwtService.getSubject());
+        System.out.println(userId + "from");
 
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> updateProfileProperties(user, profileUpdateRequest),
@@ -86,8 +87,8 @@ public class UserService {
                         });
     }
 
-    public void createEmailUpdateToken(HttpServletRequest request, UserEmailUpdateRequest emailUpdateRequest) {
-        int userId = Integer.parseInt(jwtService.getSubject(request));
+    public void createEmailUpdateToken(UserEmailUpdateRequest emailUpdateRequest) {
+        int userId = Integer.parseInt(jwtService.getSubject());
 
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
@@ -147,8 +148,8 @@ public class UserService {
                 });
     }
 
-    public void updatePassword(HttpServletRequest request, UserPasswordUpdateRequest passwordUpdateRequest) {
-        int userId = Integer.parseInt(jwtService.getSubject(request));
+    public void updatePassword(UserPasswordUpdateRequest passwordUpdateRequest) {
+        int userId = Integer.parseInt(jwtService.getSubject());
 
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
@@ -165,8 +166,8 @@ public class UserService {
                 });
     }
 
-    public UserHistory getHistory(HttpServletRequest request, String from, String to) {
-        int userId = Integer.parseInt(jwtService.getSubject(request));
+    public UserHistory getHistory(String from, String to) {
+        int userId = Integer.parseInt(jwtService.getSubject());
 
         List<AnalysisResponse> history = new ArrayList<>();
         List<Analysis> analyses = null;
@@ -208,8 +209,8 @@ public class UserService {
         return new UserHistory(history);
     }
 
-    public void deleteAccount(HttpServletRequest request, UserAccountDeleteRequest accountDeleteRequest) {
-        int userId = Integer.parseInt(jwtService.getSubject(request));
+    public void deleteAccount(UserAccountDeleteRequest accountDeleteRequest) {
+        int userId = Integer.parseInt(jwtService.getSubject());
 
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> {
@@ -326,6 +327,4 @@ public class UserService {
             updater.accept(property);
         }
     }
-
-
 }

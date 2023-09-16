@@ -119,6 +119,7 @@ public class AnalysisRepository {
 
     public Optional<Analysis> findAnalysisByAnalysisId(Integer analysisId) {
         final String sql = "SELECT id, user_id, created_date FROM analysis WHERE id = ?";
+
         List<Analysis> analyses = jdbcTemplate.query(sql, analysisRowMapper, analysisId);
 
         return analyses.stream().findFirst();
@@ -126,6 +127,7 @@ public class AnalysisRepository {
 
     public Optional<List<AnalysisReport>> findAnalysisReportsByAnalysisId(Integer analysisId) {
         final String sql = "SELECT id, report FROM analysis_report WHERE analysis_id = ?";
+
         List<AnalysisReport> reports = jdbcTemplate.query(sql, reportRowMapper, analysisId);
 
         return Optional.of(reports);
@@ -136,6 +138,7 @@ public class AnalysisRepository {
                 "analysis_id, " +
                 "quality_attribute, " +
                 "weight FROM analysis_preference WHERE analysis_id = ?";
+
         List<Preference> preferences = jdbcTemplate.query(sql, preferenceRowMapper, analysisId);
 
         return Optional.of(preferences);
@@ -147,6 +150,7 @@ public class AnalysisRepository {
                 "quality_metric, " +
                 "operator, " +
                 "threshold FROM analysis_constraint WHERE analysis_id = ?";
+
         List<Constraint> constraints = jdbcTemplate.query(sql, constraintRowMapper, analysisId);
 
         return Optional.of(constraints);
@@ -161,16 +165,19 @@ public class AnalysisRepository {
                 "id, " +
                 "user_id, " +
                 "created_date FROM analysis WHERE user_id = ? ORDER BY created_date DESC, id DESC";
+
         List<Analysis> analyses = jdbcTemplate.query(sql, analysisRowMapper, userId);
 
         return Optional.of(analyses);
     }
+
     public Optional<List<Analysis>> getHistoryInDateRange(Integer userId, Date from, Date to) {
         final String sql = "SELECT " +
                 "id, " +
                 "user_id, " +
                 "created_date FROM analysis WHERE user_id = ? AND " +
                 "created_date BETWEEN ? AND ? ORDER BY created_date DESC";
+
         List<Analysis> analyses = jdbcTemplate.query(sql, analysisRowMapper, userId, from, to);
 
         return Optional.of(analyses);
@@ -196,6 +203,7 @@ public class AnalysisRepository {
 
     public void deletePreferenceByAnalysisId(Integer analysisId) {
         final String sql = "DELETE FROM analysis_preference WHERE analysis_id = ?";
+
         jdbcTemplate.update(sql, analysisId);
     }
 }

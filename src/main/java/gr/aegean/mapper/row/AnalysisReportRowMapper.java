@@ -2,12 +2,14 @@ package gr.aegean.mapper.row;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.exception.ServerErrorException;
-import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import org.springframework.jdbc.core.RowMapper;
 
 
 public class AnalysisReportRowMapper implements RowMapper<AnalysisReport> {

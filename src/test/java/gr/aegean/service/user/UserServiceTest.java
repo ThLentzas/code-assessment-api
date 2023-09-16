@@ -13,7 +13,6 @@ import gr.aegean.service.analysis.AnalysisService;
 import gr.aegean.service.auth.JwtService;
 import gr.aegean.service.email.EmailService;
 import gr.aegean.utility.StringUtils;
-import jakarta.servlet.http.HttpServletRequest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -82,12 +80,11 @@ class UserServiceTest extends AbstractTestContainers {
 
         //Act
         underTest.registerUser(user);
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
         //Assert
-        assertThat(underTest.findUser(mockRequest)).isNotNull();
+        assertThat(underTest.findUser()).isNotNull();
     }
 
     @Test
@@ -249,12 +246,11 @@ class UserServiceTest extends AbstractTestContainers {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
         UserDTO expected = userDTOMapper.apply(user);
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
         //Act
-        UserDTO actual = underTest.findUser(mockRequest);
+        UserDTO actual = underTest.findUser();
 
         //Assert
         assertThat(actual).isEqualTo(expected);
@@ -263,12 +259,10 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowResourceNotFoundExceptionWhenUserIsNotFound() {
         //Arrange
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
-
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(String.valueOf(1));
+        when(jwtService.getSubject()).thenReturn(String.valueOf(1));
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.findUser(mockRequest))
+        assertThatThrownBy(() -> underTest.findUser())
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User with id: " + 1 + " not found");
     }
@@ -287,12 +281,11 @@ class UserServiceTest extends AbstractTestContainers {
                 "Miami, OH",
                 "VM, LLC"
         );
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
         //Act
-        underTest.updateProfile(mockRequest, profileUpdateRequest);
+        underTest.updateProfile(profileUpdateRequest);
 
         //Assert
         userRepository.findUserByUserId(user.getId())
@@ -317,12 +310,11 @@ class UserServiceTest extends AbstractTestContainers {
                 "Miami, OH",
                 "VM, LLC"
         );
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(String.valueOf(1));
+        when(jwtService.getSubject()).thenReturn(String.valueOf(1));
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.updateProfile(mockRequest, profileUpdateRequest))
+        assertThatThrownBy(() -> underTest.updateProfile(profileUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User with id: " + 1 + " not found");
     }
@@ -338,12 +330,10 @@ class UserServiceTest extends AbstractTestContainers {
         userRepository.registerUser(user);
         UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("Test2Ex@mple", "CyN549^*o2Cr");
 
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
-
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
         //Act
-        underTest.updatePassword(mockRequest, passwordUpdateRequest);
+        underTest.updatePassword(passwordUpdateRequest);
 
         //Assert
         userRepository.findUserByUserId(user.getId())
@@ -356,13 +346,12 @@ class UserServiceTest extends AbstractTestContainers {
         User user = generateUser();
         userRepository.registerUser(user);
         UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("foo", "CyN549^*o2Cr");
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.updatePassword(mockRequest, passwordUpdateRequest))
+        assertThatThrownBy(() -> underTest.updatePassword(passwordUpdateRequest))
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("Old password is incorrect");
     }
@@ -371,12 +360,11 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdatePassword() {
         //Arrange
         UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("foo", "CyN549^*o2Cr");
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(String.valueOf(1));
+        when(jwtService.getSubject()).thenReturn(String.valueOf(1));
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.updatePassword(mockRequest, passwordUpdateRequest))
+        assertThatThrownBy(() -> underTest.updatePassword(passwordUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User with id: " + 1 + " not found");
     }
@@ -397,12 +385,11 @@ class UserServiceTest extends AbstractTestContainers {
                 "Cleveland, OH",
                 "Code Monkey, LLC"
         );
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
         //Act
-        UserProfile actual = underTest.getProfile(mockRequest);
+        UserProfile actual = underTest.getProfile();
 
         //Assert
         assertThat(actual).isEqualTo(expected);
@@ -411,12 +398,10 @@ class UserServiceTest extends AbstractTestContainers {
     @Test
     void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToGetProfile() {
         //Arrange
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
-
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(String.valueOf(1));
+        when(jwtService.getSubject()).thenReturn(String.valueOf(1));
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.getProfile(mockRequest))
+        assertThatThrownBy(() -> underTest.getProfile())
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User with id: " + 1 + " not found");
     }
@@ -432,12 +417,11 @@ class UserServiceTest extends AbstractTestContainers {
                 "foo@example.com",
                 "Test2Ex@mple"
         );
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
         //Act
-        underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest);
+        underTest.createEmailUpdateToken(emailUpdateRequest);
 
         //Assert
         verify(emailService, times(1)).sendEmailVerification(
@@ -454,12 +438,10 @@ class UserServiceTest extends AbstractTestContainers {
                 "test"
         );
 
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
-
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(String.valueOf(1));
+        when(jwtService.getSubject()).thenReturn(String.valueOf(1));
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest))
+        assertThatThrownBy(() -> underTest.createEmailUpdateToken(emailUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User with id: " + 1 + " not found");
     }
@@ -474,12 +456,11 @@ class UserServiceTest extends AbstractTestContainers {
                 "foo@example.com",
                 "foo"
         );
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest))
+        assertThatThrownBy(() -> underTest.createEmailUpdateToken(emailUpdateRequest))
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("Wrong password");
     }
@@ -496,12 +477,11 @@ class UserServiceTest extends AbstractTestContainers {
                 "test@example.com",
                 "Test2Ex@mple"
         );
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest))
+        assertThatThrownBy(() -> underTest.createEmailUpdateToken(emailUpdateRequest))
                 .isInstanceOf(DuplicateResourceException.class)
                 .hasMessage("Email already in use");
     }
@@ -560,12 +540,11 @@ class UserServiceTest extends AbstractTestContainers {
                 "foo@example.com",
                 "Test2Ex@mple"
         );
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
         //Act
-        underTest.createEmailUpdateToken(mockRequest, emailUpdateRequest);
+        underTest.createEmailUpdateToken(emailUpdateRequest);
 
         //Assert
         assertThat(emailUpdateRepository.findToken(hashedToken)).isNotPresent();
@@ -602,14 +581,12 @@ class UserServiceTest extends AbstractTestContainers {
         User user = generateUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
-
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
         String to = "2020-04-22";
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.getHistory(mockRequest, from, to))
+        assertThatThrownBy(() -> underTest.getHistory(from, to))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Both from and to dates must be provided");
     }
@@ -621,14 +598,12 @@ class UserServiceTest extends AbstractTestContainers {
         User user = generateUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
-
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
         String from = "2020-04-22";
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.getHistory(mockRequest, from, to))
+        assertThatThrownBy(() -> underTest.getHistory(from, to))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Both from and to dates must be provided");
     }
@@ -641,15 +616,14 @@ class UserServiceTest extends AbstractTestContainers {
         userRepository.registerUser(user);
 
         UserAccountDeleteRequest accountDeleteRequest = new UserAccountDeleteRequest("Test2Ex@mple");
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
         //Act
-        underTest.deleteAccount(mockRequest, accountDeleteRequest);
+        underTest.deleteAccount( accountDeleteRequest);
 
         //Assert
-        assertThatThrownBy(() -> underTest.getProfile(mockRequest))
+        assertThatThrownBy(() -> underTest.getProfile())
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User with id: " + user.getId() + " not found");
     }
@@ -658,12 +632,11 @@ class UserServiceTest extends AbstractTestContainers {
     void shouldThrowResourceNotFoundExceptionWhenAccountDoesNotExist() {
         //Arrange
         UserAccountDeleteRequest accountDeleteRequest = new UserAccountDeleteRequest("Test2Ex@mple");
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(String.valueOf(1));
+        when(jwtService.getSubject()).thenReturn(String.valueOf(1));
 
         //Act Assert
-        assertThatThrownBy(() -> underTest.deleteAccount(mockRequest, accountDeleteRequest))
+        assertThatThrownBy(() -> underTest.deleteAccount(accountDeleteRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User with id: " + 1 + " not found");
     }

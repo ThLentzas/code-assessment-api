@@ -1,18 +1,24 @@
 package gr.aegean.controller;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import gr.aegean.service.analysis.AnalysisService;
 import gr.aegean.service.analysis.AsyncService;
 import gr.aegean.model.dto.analysis.AnalysisRequest;
 import gr.aegean.model.dto.analysis.AnalysisResponse;
 import gr.aegean.model.dto.analysis.RefreshRequest;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
@@ -29,9 +35,8 @@ public class AnalysisController {
 
     @PostMapping
     public ResponseEntity<Void> analyze(@Valid @RequestBody AnalysisRequest analysisRequest,
-                                        HttpServletRequest httpServletRequest,
                                         UriComponentsBuilder uriBuilder) {
-        Integer analysisId = asyncService.processProject(analysisRequest, httpServletRequest).join();
+        Integer analysisId = asyncService.processProject(analysisRequest).join();
         URI location = uriBuilder
                 .path("/api/v1/analysis/{analysisId}")
                 .buildAndExpand(analysisId)
@@ -59,9 +64,8 @@ public class AnalysisController {
     }
 
     @DeleteMapping("/{analysisId}")
-    public ResponseEntity<Void> deleteAnalysis(@PathVariable Integer analysisId,
-                                               HttpServletRequest request) {
-        analysisService.deleteAnalysis(analysisId, request);
+    public ResponseEntity<Void> deleteAnalysis(@PathVariable Integer analysisId) {
+        analysisService.deleteAnalysis(analysisId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

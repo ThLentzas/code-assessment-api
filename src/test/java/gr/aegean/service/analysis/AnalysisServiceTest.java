@@ -16,11 +16,11 @@ import gr.aegean.repository.AnalysisRepository;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.assessment.AssessmentService;
+import gr.aegean.service.assessment.TreeService;
 import gr.aegean.service.auth.JwtService;
 import gr.aegean.service.email.EmailService;
 import gr.aegean.service.user.UserService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,8 +40,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
@@ -64,6 +62,8 @@ class AnalysisServiceTest extends AbstractTestContainers {
     @Mock
     private JwtService jwtService;
     @Mock
+    private TreeService treeService;
+    @Mock
     private EmailUpdateRepository emailUpdateRepository;
     private UserService userService;
     private AnalysisService underTest;
@@ -79,8 +79,10 @@ class AnalysisServiceTest extends AbstractTestContainers {
                 metricService,
                 assessmentService,
                 dockerService,
-                analysisRepository,
-                jwtService);
+                jwtService,
+                treeService,
+                analysisRepository
+        );
 
         UserRepository userRepository = new UserRepository(getJdbcTemplate());
         userService = new UserService(
@@ -175,12 +177,11 @@ class AnalysisServiceTest extends AbstractTestContainers {
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
         Integer analysisId = underTest.saveAnalysisProcess(user.getId(), reports, constraints, preferences);
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        when(jwtService.getSubject(any(HttpServletRequest.class))).thenReturn(user.getId().toString());
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
         //Act
-        underTest.deleteAnalysis(analysisId, mockRequest);
+        underTest.deleteAnalysis(analysisId);
 
         //Assert
         assertThatThrownBy(() -> underTest.findAnalysisResultByAnalysisId(analysisId))

@@ -7,6 +7,8 @@ import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.mapper.dto.AnalysisReportDTOMapper;
+import gr.aegean.model.analysis.quality.QualityAttribute;
+import gr.aegean.model.analysis.quality.TreeNode;
 import gr.aegean.model.analysis.sonarqube.HotspotsReport;
 import gr.aegean.model.analysis.sonarqube.IssuesReport;
 import gr.aegean.model.dto.analysis.AnalysisReportDTO;
@@ -16,6 +18,8 @@ import gr.aegean.model.dto.analysis.RefreshRequest;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.repository.AnalysisRepository;
 import gr.aegean.service.assessment.AssessmentService;
+import gr.aegean.service.assessment.TreeService;
+import gr.aegean.service.auth.JwtService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,11 +30,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import gr.aegean.service.auth.JwtService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.hateoas.Link;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -44,14 +49,15 @@ public class AnalysisService {
     private final MetricService metricService;
     private final AssessmentService assessmentService;
     private final DockerService dockerService;
-    private final AnalysisRepository analysisRepository;
     private final JwtService jwtService;
+    private final TreeService treeService;
+    private final AnalysisRepository analysisRepository;
     private final AnalysisReportDTOMapper mapper = new AnalysisReportDTOMapper();
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later.";
 
 
-    public Optional<AnalysisReport> analyzeProject(Path projectPath, String projectUrl) {
+    public Optional<AnalysisReport> analyze(Path projectPath, String projectUrl) {
         AnalysisReport analysisReport;
 
         /*
@@ -79,31 +85,7 @@ public class AnalysisService {
         }
 
         analysisReport = sonarService.fetchAnalysisReport(projectKey);
-
-        /*
-            Converting 476af562-93da-47e4-a553-08c3173be0ac:graph.py -> graph.py
-         */
-        for(IssuesReport.IssueDetails issue: analysisReport.getIssuesReport().getIssues()) {
-            String component = issue.getComponent().split(":")[1];
-            issue.setComponent(component);
-        }
-
-        /*
-            Converting 476af562-93da-47e4-a553-08c3173be0ac:graph.py -> graph.py
-         */
-        for(HotspotsReport.HotspotDetails hotspot: analysisReport.getHotspotsReport().getHotspots()) {
-            String component = hotspot.getComponent().split(":")[1];
-            hotspot.setComponent(component);
-        }
-
-        Map<QualityMetric, Double> updatedQualityMetricsReport = metricService.applyUtf(
-                analysisReport.getQualityMetricsReport(),
-                analysisReport.getIssuesReport(),
-                analysisReport.getHotspotsReport());
-
-        analysisReport.setLanguages(detectedLanguages);
-        analysisReport.setQualityMetricsReport(updatedQualityMetricsReport);
-        analysisReport.setProjectUrl(Link.of(projectUrl));
+        processAnalysisReport(analysisReport, detectedLanguages, projectUrl);
 
         return Optional.of(analysisReport);
     }
@@ -154,7 +136,6 @@ public class AnalysisService {
          */
         List<Constraint> constraints = request.constraints();
         List<Preference> preferences = request.preferences();
-
         List<List<AnalysisReport>> rankedReports = assessmentService.assessAnalysisResult(
                 reports, constraints, preferences);
 
@@ -202,10 +183,103 @@ public class AnalysisService {
         return new AnalysisRequest(projectUrls, constraints, preferences);
     }
 
-    public void deleteAnalysis(Integer analysisId, HttpServletRequest request) {
-        int userId = Integer.parseInt(jwtService.getSubject(request));
+    public void deleteAnalysis(Integer analysisId) {
+        int userId = Integer.parseInt(jwtService.getSubject());
 
         analysisRepository.deleteAnalysis(analysisId, userId);
+    }
+
+    /*
+        We don't have to check if we have invalid quality metric values, it will be handled by the deserializer during
+        the deserialization.
+     */
+    public void validateConstraints(List<Constraint> constraints) {
+        if (constraints == null || constraints.isEmpty()) {
+            return;
+        }
+
+        Set<QualityMetric> qualityMetrics = constraints.stream()
+                .map(Constraint::getQualityMetric)
+                .collect(Collectors.toSet());
+
+        /*
+            Case: Duplicate quality metric was provided.
+         */
+        if (qualityMetrics.size() != constraints.size()) {
+            throw new IllegalArgumentException("Invalid constraint values. Avoid duplicates");
+        }
+
+        /*
+            All threshold values must be in the range of [0.0 - 1.0]
+         */
+        boolean isValidThreshold = constraints.stream()
+                .allMatch(constraint -> constraint.getThreshold() <= 1.0 && constraint.getThreshold() >= 0);
+        if (!isValidThreshold) {
+            throw new IllegalArgumentException("Threshold values must be in the range of [0.0 - 1.0]");
+        }
+    }
+
+    /*
+        We don't have to check if we have invalid quality attribute values, it will be handled by the deserializer
+        during the deserialization.
+     */
+    public void validatePreferences(List<Preference> preferences) {
+        if (preferences == null || preferences.isEmpty()) {
+            return;
+        }
+
+        Set<QualityAttribute> qualityAttributes = preferences.stream()
+                .map(Preference::getQualityAttribute)
+                .collect(Collectors.toSet());
+
+        /*
+            Case: Duplicate quality attribute was provided.
+         */
+        if (qualityAttributes.size() != preferences.size()) {
+            throw new IllegalArgumentException("Invalid preference values. Avoid duplicates");
+        }
+
+        /*
+            All weight values must be in the range of [0.0 - 1.0]
+         */
+        boolean isValidWeight = preferences.stream()
+                .allMatch(preference -> preference.getWeight() <= 1.0 && preference.getWeight() >= 0);
+        if (!isValidWeight) {
+            throw new IllegalArgumentException("Weight values must be in the range of [0.0 - 1.0]");
+        }
+
+        TreeNode root = treeService.buildTree();
+        treeService.validateChildNodesWeightsSum(root, preferences);
+    }
+
+
+    private void processAnalysisReport(AnalysisReport analysisReport,
+                                       Map<String, Double> detectedLanguages,
+                                       String projectUrl) {
+        /*
+            Converting 476af562-93da-47e4-a553-08c3173be0ac:graph.py -> graph.py
+         */
+        for (IssuesReport.IssueDetails issue : analysisReport.getIssuesReport().getIssues()) {
+            String component = issue.getComponent().split(":")[1];
+            issue.setComponent(component);
+        }
+
+        /*
+            Converting 476af562-93da-47e4-a553-08c3173be0ac:graph.py -> graph.py
+         */
+        for (HotspotsReport.HotspotDetails hotspot : analysisReport.getHotspotsReport().getHotspots()) {
+            String component = hotspot.getComponent().split(":")[1];
+            hotspot.setComponent(component);
+        }
+
+        Map<QualityMetric, Double> updatedQualityMetricsReport = metricService.applyUtf(
+                analysisReport.getQualityMetricsReport(),
+                analysisReport.getIssuesReport(),
+                analysisReport.getHotspotsReport());
+
+        analysisReport.setLanguages(detectedLanguages);
+        analysisReport.setQualityMetricsReport(updatedQualityMetricsReport);
+        analysisReport.setProjectUrl(Link.of(projectUrl));
     }
 
     private boolean isMavenProject(Path project) {
@@ -294,6 +368,9 @@ public class AnalysisService {
         if (request == null) {
             throw new IllegalArgumentException("No refresh request was provided.");
         }
+
+        validateConstraints(request.constraints());
+        validatePreferences(request.preferences());
     }
 }
 

@@ -68,7 +68,7 @@ class UserControllerTest {
                 "Code Monkey, LLC"
         );
 
-        when(userService.findUser(any(HttpServletRequest.class))).thenReturn(actual);
+        when(userService.findUser()).thenReturn(actual);
 
         mockMvc.perform(get(USER_PATH))
                 .andExpect(status().isOk())
@@ -127,7 +127,7 @@ class UserControllerTest {
                 """;
 
         doThrow(new DuplicateResourceException("The provided username already exists"))
-                .when(userService).updateProfile(any(HttpServletRequest.class), any(UserProfileUpdateRequest.class));
+                .when(userService).updateProfile(any(UserProfileUpdateRequest.class));
 
 
         mockMvc.perform(put(USER_PATH + "/profile")
@@ -251,7 +251,7 @@ class UserControllerTest {
         );
 
         //Act
-        when(userService.getProfile(any(HttpServletRequest.class))).thenReturn(profile);
+        when(userService.getProfile()).thenReturn(profile);
 
         //Assert
         mockMvc.perform(get(USER_PATH + "/profile"))
@@ -318,7 +318,7 @@ class UserControllerTest {
                 """;
 
         doThrow(new BadCredentialsException("Wrong password"))
-                .when(userService).createEmailUpdateToken(any(HttpServletRequest.class), any(UserEmailUpdateRequest.class));
+                .when(userService).createEmailUpdateToken(any(UserEmailUpdateRequest.class));
 
         mockMvc.perform(post(USER_PATH + "/settings/email")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -338,9 +338,7 @@ class UserControllerTest {
                 """;
 
         doThrow(new DuplicateResourceException("Email already is use"))
-                .when(userService).createEmailUpdateToken(
-                        any(HttpServletRequest.class),
-                        any(UserEmailUpdateRequest.class));
+                .when(userService).createEmailUpdateToken(any(UserEmailUpdateRequest.class));
 
         mockMvc.perform(post(USER_PATH + "/settings/email")
                         .contentType(MediaType.APPLICATION_JSON)

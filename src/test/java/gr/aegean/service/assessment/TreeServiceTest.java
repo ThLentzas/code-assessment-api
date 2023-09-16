@@ -74,6 +74,9 @@ class TreeServiceTest {
                 .containsExactly("CYCLOMATIC_COMPLEXITY", "COGNITIVE_COMPLEXITY");
     }
 
+    /*
+        isLeafNode() is also tested indirectly.
+     */
     @Test
     void shouldThrowIllegalArgumentExceptionWhenTheSumOfTheWeightsOfChildNodesIsGreaterThanOne() {
         //Arrange

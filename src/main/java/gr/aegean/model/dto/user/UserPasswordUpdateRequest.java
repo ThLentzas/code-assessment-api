@@ -11,5 +11,4 @@ public record UserPasswordUpdateRequest(
          */
         @NotBlank(message = "New password is required")
         String newPassword) {
-
 }

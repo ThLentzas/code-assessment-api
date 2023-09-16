@@ -6,9 +6,6 @@ import gr.aegean.model.dto.analysis.AnalysisReportDTO;
 import java.util.function.Function;
 
 
-/*
-    Will be tested with an IT test.
- */
 public class AnalysisReportDTOMapper implements Function<AnalysisReport, AnalysisReportDTO> {
     @Override
     public AnalysisReportDTO apply(AnalysisReport report) {

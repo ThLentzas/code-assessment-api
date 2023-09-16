@@ -4,10 +4,10 @@ import gr.aegean.entity.Constraint;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.quality.QualityMetricOperator;
 
-import org.springframework.jdbc.core.RowMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import org.springframework.jdbc.core.RowMapper;
 
 
 public class ConstraintRowMapper implements RowMapper<Constraint> {
