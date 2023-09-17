@@ -16,6 +16,9 @@ public final class PasswordValidator {
         throw new UnsupportedOperationException("StringUtils is a utility class and cannot be instantiated.");
     }
 
+    /*
+        Avoiding regex because it's error-prone, and you can miss edge cases.
+     */
     public static void validatePassword(String password) {
         org.passay.PasswordValidator validator = new org.passay.PasswordValidator(
                 new LengthRule(12, 128),

@@ -57,7 +57,7 @@ public class EmailService {
             mailSender.send(mimeMessage);
         } catch (MessagingException me) {
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
-                    "request. Please try again later.");
+                    "request. Please try again later");
         }
     }
 }

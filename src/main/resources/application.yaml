@@ -37,6 +37,10 @@ sonar:
   token: squ_9419ed961f6410e3bd558cafb7c9fb0eb72a5a61
   baseUrl: http://localhost:9000/api
 
+thread:
+  corePoolSize: 3
+  maxPoolSize: 3
+
 #spring:
 #  config:
 #    import: location to an application.yaml file

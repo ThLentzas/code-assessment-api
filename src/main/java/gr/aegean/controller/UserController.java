@@ -21,7 +21,6 @@ import gr.aegean.service.user.UserService;
 
 import jakarta.websocket.server.PathParam;
 import jakarta.validation.Valid;
-import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
 
@@ -83,8 +82,7 @@ public class UserController {
 
     @GetMapping("/history")
     @ResponseBody
-    public ResponseEntity<UserHistory> getHistory(@PathParam("from") String from,
-                                                  @PathParam("to") String to) {
+    public ResponseEntity<UserHistory> getHistory(@PathParam("from") String from, @PathParam("to") String to) {
         UserHistory history = userService.getHistory(from, to);
 
         return new ResponseEntity<>(history, HttpStatus.OK);

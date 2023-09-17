@@ -19,7 +19,6 @@ public class AnalysisRowMapper implements RowMapper<Analysis> {
         return new Analysis(
                 resultSet.getInt("id"),
                 resultSet.getInt("user_id"),
-                createdDate
-        );
+                createdDate);
     }
 }

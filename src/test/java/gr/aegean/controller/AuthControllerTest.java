@@ -1,5 +1,16 @@
 package gr.aegean.controller;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
 import gr.aegean.config.security.JwtConfig;
 import gr.aegean.config.security.SecurityConfig;
 import gr.aegean.config.security.AuthConfig;
@@ -13,25 +24,11 @@ import gr.aegean.repository.UserRepository;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
 
 @WebMvcTest(AuthController.class)
@@ -97,7 +94,7 @@ class AuthControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The First Name field is required.")));
+                .andExpect(jsonPath("$.message", is("The First Name field is required")));
     }
 
     @ParameterizedTest
@@ -121,7 +118,7 @@ class AuthControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Last Name field is required.")));
+                .andExpect(jsonPath("$.message", is("The Last Name field is required")));
     }
 
     @ParameterizedTest
@@ -146,7 +143,7 @@ class AuthControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Username field is required.")));
+                .andExpect(jsonPath("$.message", is("The Username field is required")));
     }
 
     @ParameterizedTest
@@ -171,7 +168,7 @@ class AuthControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Email field is required.")));
+                .andExpect(jsonPath("$.message", is("The Email field is required")));
     }
 
     @ParameterizedTest
@@ -195,7 +192,7 @@ class AuthControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Password field is required.")));
+                .andExpect(jsonPath("$.message", is("The Password field is required")));
     }
 
     @Test
@@ -240,7 +237,7 @@ class AuthControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("All fields are necessary.")));
+                .andExpect(jsonPath("$.message", is("The Email field is necessary")));
     }
 
     @ParameterizedTest
@@ -262,7 +259,7 @@ class AuthControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("All fields are necessary.")));
+                .andExpect(jsonPath("$.message", is("The Password field is necessary")));
     }
 
     @ParameterizedTest
@@ -282,7 +279,7 @@ class AuthControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Email field is required.")));
+                .andExpect(jsonPath("$.message", is("The Email field is required")));
     }
 
     @Test
@@ -327,7 +324,7 @@ class AuthControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Password field is required.")));
+                .andExpect(jsonPath("$.message", is("The Password field is required")));
     }
 
     @Test

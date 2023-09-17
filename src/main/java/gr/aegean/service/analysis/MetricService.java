@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 public class MetricService {
     private static final double LINE_COST = 0.06;
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
-            "complete your request. Please try again later.";
+            "complete your request. Please try again later";
 
     /*
         For every quality metric, the relative utility function(utf) is applied.
@@ -66,11 +66,11 @@ public class MetricService {
     }
 
     private double applyCommentRateUtf(double commentRate) {
-        if(commentRate == 30.0) {
+        if (commentRate == 30.0) {
             return 1.0;
         }
 
-        if(commentRate > 30.0) {
+        if (commentRate > 30.0) {
             return (100 - commentRate) / 70;
         }
 

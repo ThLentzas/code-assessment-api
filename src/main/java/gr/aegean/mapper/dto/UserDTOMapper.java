@@ -18,7 +18,6 @@ public class UserDTOMapper implements Function<User, UserDTO> {
                 user.getEmail(),
                 user.getBio(),
                 user.getLocation(),
-                user.getCompany()
-        );
+                user.getCompany());
     }
 }

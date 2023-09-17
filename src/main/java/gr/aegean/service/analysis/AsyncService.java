@@ -59,7 +59,8 @@ public class AsyncService {
         not happen.
      */
     public CompletableFuture<Integer> processProject(AnalysisRequest analysisRequest) {
-        validateAnalysisRequest(analysisRequest);
+        analysisService.validateConstraints(analysisRequest.constraints());
+        analysisService.validatePreferences(analysisRequest.preferences());
 
         File requestFolder = new File(baseDirectory + File.separator + UUID.randomUUID());
         if (!requestFolder.mkdir()) {
@@ -89,7 +90,7 @@ public class AsyncService {
              */
             if (reports.isEmpty()) {
                 throw new IllegalArgumentException("We could not run the analysis. Please ensure that at least one " +
-                        "repository is public and uses a supported language.");
+                        "repository is public and uses a supported language");
             }
 
             Integer userId = Integer.parseInt(jwtService.getSubject());
@@ -130,13 +131,5 @@ public class AsyncService {
                 reports,
                 analysisRequest.constraints(),
                 analysisRequest.preferences());
-    }
-
-    private void validateAnalysisRequest(AnalysisRequest request) {
-        if(request == null) {
-            throw new IllegalArgumentException("No analysis request was provided");
-        }
-        analysisService.validateConstraints(request.constraints());
-        analysisService.validatePreferences(request.preferences());
     }
 }

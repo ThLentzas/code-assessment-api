@@ -72,8 +72,8 @@ public class AnalysisController {
 
     @GetMapping("/{analysisId}/request")
     public ResponseEntity<AnalysisRequest> getAnalysisRequest(@PathVariable Integer analysisId) {
-       AnalysisRequest request = analysisService.findAnalysisRequestByAnalysisId(analysisId);
+        AnalysisRequest request = analysisService.findAnalysisRequestByAnalysisId(analysisId);
 
-       return new ResponseEntity<>(request, HttpStatus.OK);
+        return new ResponseEntity<>(request, HttpStatus.OK);
     }
 }

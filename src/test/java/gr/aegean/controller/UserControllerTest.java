@@ -1,16 +1,19 @@
 package gr.aegean.controller;
 
+
 import gr.aegean.config.security.AuthConfig;
 import gr.aegean.config.security.JwtConfig;
 import gr.aegean.config.security.SecurityConfig;
 import gr.aegean.exception.DuplicateResourceException;
-import gr.aegean.model.dto.user.UserDTO;
-import gr.aegean.model.dto.user.UserEmailUpdateRequest;
-import gr.aegean.model.dto.user.UserProfile;
-import gr.aegean.model.dto.user.UserProfileUpdateRequest;
+import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.user.UserService;
 import gr.aegean.service.auth.JwtService;
+import gr.aegean.model.dto.user.UserDTO;
+import gr.aegean.model.dto.user.UserEmailUpdateRequest;
+import gr.aegean.model.dto.user.UserPasswordUpdateRequest;
+import gr.aegean.model.dto.user.UserProfile;
+import gr.aegean.model.dto.user.UserProfileUpdateRequest;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -36,9 +39,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.is;
 
-import jakarta.servlet.http.HttpServletRequest;
 
 
+/*
+    The @Valid annotation is used, so we write tests for invalid inputs(null, empty, other) in the Controller and not
+    the Service, that's why we call verifyNoInteractions(userService); in every BadRequest test.
+ */
 @WebMvcTest(UserController.class)
 @Import({SecurityConfig.class,
         AuthConfig.class,
@@ -56,7 +62,7 @@ class UserControllerTest {
 
     @Test
     @WithMockUser(username = "test")
-    void shouldReturnUserAndHTTP200ForAuthenticatedUser() throws Exception {
+    void shouldReturnUserAndHTTP200() throws Exception {
         UserDTO actual = new UserDTO(
                 1,
                 "Test",
@@ -83,6 +89,16 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "test")
+    void shouldReturnHTTP404WhenUserIsNotFound() throws Exception {
+        when(userService.findUser()).thenThrow(new ResourceNotFoundException("User not found with id: " + 1));
+
+        mockMvc.perform(get(USER_PATH))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is("User not found with id: " + 1)));
+    }
+
+    @Test
     void shouldReturnHTTP401WhenGetUserIsCalledByUnauthenticatedUser() throws Exception {
         mockMvc.perform(get(USER_PATH))
                 .andExpect(status().isUnauthorized());
@@ -90,10 +106,9 @@ class UserControllerTest {
         verifyNoInteractions(userService);
     }
 
-
     @Test
     @WithMockUser(username = "test")
-    void shouldReturnHTTP204WhenProfileIsUpdatedForAuthenticatedUser() throws Exception {
+    void shouldReturnHTTP204WhenProfileIsUpdated() throws Exception {
         String requestBody = """
                 {
                     "firstname": "Foo",
@@ -134,7 +149,33 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message", is("The provided username already exists")));
+    }
+
+    @Test
+    @WithMockUser(username = "test")
+    void shouldReturnHTTP404WhenUserIsNotFoundToUpdateProfile() throws Exception {
+        String requestBody = """
+                {
+                    "firstname": "Foo",
+                    "lastname": "Foo",
+                    "username": "FooBar",
+                    "bio": "I like Java",
+                    "location": "Miami, OH",
+                    "company": "VM, LLC"
+                }
+                """;
+
+        doThrow(new ResourceNotFoundException("User not found with id: " + 1))
+                .when(userService).updateProfile(any(UserProfileUpdateRequest.class));
+
+        mockMvc.perform(put(USER_PATH + "/profile")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is("User not found with id: " + 1)));
     }
 
     @Test
@@ -161,7 +202,7 @@ class UserControllerTest {
 
     @Test
     @WithMockUser(username = "test")
-    void shouldReturnHTTP204WhenPasswordIsUpdatedForAuthenticatedUser() throws Exception {
+    void shouldReturnHTTP204WhenPasswordIsUpdated() throws Exception {
         String requestBody = """
                 {
                     "oldPassword": "3frMH4v!20d4",
@@ -174,6 +215,27 @@ class UserControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockUser(username = "test")
+    void shouldReturnHTTP404WhenUserIsNotFoundToUpdatePassword() throws Exception {
+        String requestBody = """
+                {
+                    "oldPassword": "3frMH4v!20d4",
+                    "newPassword": "CyN549^*o2Cr"
+                }
+                """;
+
+        doThrow(new ResourceNotFoundException("User not found with id: " + 1))
+                .when(userService).updatePassword(any(UserPasswordUpdateRequest.class));
+
+        mockMvc.perform(put(USER_PATH + "/settings/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is("User not found with id: " + 1)));
     }
 
     @Test
@@ -203,9 +265,8 @@ class UserControllerTest {
         String requestBody = String.format("""
                 {
                     "oldPassword": %s,
-                    "updatedPassword": "CyN549^*o2Cr"
+                    "newPassword": "CyN549^*o2Cr"
                 }
-
                 """, passwordValue);
 
         //Act Assert
@@ -213,7 +274,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Old password is required")));
+
+        verifyNoInteractions(userService);
     }
 
     @ParameterizedTest
@@ -224,8 +288,8 @@ class UserControllerTest {
         String passwordValue = password == null ? "null" : "\"" + password + "\"";
         String requestBody = String.format("""
                 {
-                    "oldPassword": %s,
-                    "updatedPassword": "CyN549^*o2Cr"
+                    "oldPassword": "CyN549^*o2Cr",
+                    "newPassword": %s
                 }
                 """, passwordValue);
 
@@ -234,12 +298,15 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("New password is required")));
+
+        verifyNoInteractions(userService);
     }
 
     @Test
     @WithMockUser(username = "test")
-    void shouldReturnProfileAndHTTP200ForAuthenticatedUser() throws Exception {
+    void shouldReturnProfileAndHTTP200() throws Exception {
         //Arrange
         UserProfile profile = new UserProfile(
                 "Foo",
@@ -265,7 +332,19 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "test")
+    void shouldReturnHTTP404WhenUserIsNotFoundToGetProfile() throws Exception {
+        //Arrange
+        when(userService.getProfile()).thenThrow(new ResourceNotFoundException("User not found with id: " + 1));
+
+        //Act Assert
+        mockMvc.perform(get(USER_PATH + "/profile"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void shouldReturnHTTP401WhenGetProfileIsCalledByUnauthenticatedUser() throws Exception {
+        //Arrange Act Assert
         mockMvc.perform(get(USER_PATH + "/profile"))
                 .andExpect(status().isUnauthorized());
 
@@ -274,7 +353,7 @@ class UserControllerTest {
 
     @Test
     @WithMockUser(username = "test")
-    void shouldReturnHTTP202WhenEmailIsUpdatedForAuthenticated() throws Exception {
+    void shouldReturnHTTP202WhenEmailTokenIsCreated() throws Exception {
         String requestBody = """
                 {
                     "email": "test@example.com",
@@ -287,6 +366,27 @@ class UserControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isAccepted());
+    }
+
+    @Test
+    @WithMockUser(username = "test")
+    void shouldReturnHTTP404WhenUserIsNotFoundToUpdateEmail() throws Exception {
+        String requestBody = """
+                {
+                    "email": "test@example.com",
+                    "password": "CyN549^*o2Cr"
+                }
+                """;
+
+        doThrow(new ResourceNotFoundException("User not found with id: " + 1))
+                .when(userService).createEmailUpdateToken(any(UserEmailUpdateRequest.class));
+
+        mockMvc.perform(post(USER_PATH + "/settings/email")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is("User not found with id: " + 1)));
     }
 
     @Test
@@ -324,7 +424,8 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Wrong password")));
     }
 
     @Test
@@ -344,13 +445,14 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message", is("Email already is use")));
     }
 
     @ParameterizedTest
     @NullAndEmptySource
     @WithMockUser(username = "test")
-    void shouldReturnHTTP400WhenPasswordProvidedIsNullOrEmptyForEmailUpdate(String password) throws Exception {
+    void shouldReturnHTTP400WhenPasswordIsNullOrEmptyForEmailUpdate(String password) throws Exception {
         String passwordValue = password == null ? "null" : "\"" + password + "\"";
         String requestBody = String.format("""
                 {
@@ -363,7 +465,8 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("The Password field is required")));
 
         verifyNoInteractions(userService);
     }
@@ -371,7 +474,7 @@ class UserControllerTest {
     @ParameterizedTest
     @NullAndEmptySource
     @WithMockUser(username = "test")
-    void shouldReturnHTTP400WhenEmailProvidedIsNullOrEmptyForEmailUpdate(String email) throws Exception {
+    void shouldReturnHTTP400WhenEmailIsNullOrEmptyForEmailUpdate(String email) throws Exception {
         String emailValue = email == null ? "null" : "\"" + email + "\"";
         String requestBody = String.format("""
                 {
@@ -384,7 +487,8 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("The Email field is required")));
 
         verifyNoInteractions(userService);
     }
@@ -392,6 +496,51 @@ class UserControllerTest {
     @Test
     void shouldReturnHTTP401WhenGetHistoryIsCalledByUnauthenticatedUser() throws Exception {
         mockMvc.perform(post(USER_PATH + "/history"))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(userService);
+    }
+
+    @Test
+    @WithMockUser(username = "test")
+    void shouldReturnHTTP204WhenAccountIsDeleted() throws Exception{
+        String requestBody = """
+                {
+                    "password": "CyN549^*o2Cr"
+                }
+                """;
+
+        mockMvc.perform(put(USER_PATH + "/settings/account")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @WithMockUser(username = "test")
+    void shouldReturnHTTP400WhenPasswordIsNullOrEmptyForDeletingAccount(String password) throws Exception{
+        String passwordValue = password == null ? "null" : "\"" + password + "\"";
+        String requestBody = String.format("""
+                {
+                    "password": %s
+                }
+                """, passwordValue);
+
+        mockMvc.perform(put(USER_PATH + "/settings/account")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("The Password field is required")));
+
+        verifyNoInteractions(userService);
+    }
+
+    @Test
+    void shouldReturnHTTP401WhenDeleteAccountIsCalledByUnauthenticatedUser() throws Exception {
+        mockMvc.perform(put(USER_PATH + "/settings/account"))
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(userService);

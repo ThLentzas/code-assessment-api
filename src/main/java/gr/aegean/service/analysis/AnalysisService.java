@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.hateoas.Link;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -54,7 +53,7 @@ public class AnalysisService {
     private final AnalysisRepository analysisRepository;
     private final AnalysisReportDTOMapper mapper = new AnalysisReportDTOMapper();
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
-            "complete your request. Please try again later.";
+            "complete your request. Please try again later";
 
 
     public Optional<AnalysisReport> analyze(Path projectPath, String projectUrl) {
@@ -126,7 +125,8 @@ public class AnalysisService {
     }
 
     public AnalysisResponse refreshAnalysisResult(Integer analysisId, RefreshRequest request) {
-        validateRefreshRequest(request);
+        validateConstraints(request.constraints());
+        validatePreferences(request.preferences());
 
         Analysis analysis = findAnalysisByAnalysisId(analysisId);
         List<AnalysisReport> reports = findAnalysisReportsByAnalysisId(analysisId);
@@ -191,7 +191,8 @@ public class AnalysisService {
 
     /*
         We don't have to check if we have invalid quality metric values, it will be handled by the deserializer during
-        the deserialization.
+        the deserialization. Null/Empty constraints means user didn't provide any constraints, so they will be no
+        filtering.
      */
     public void validateConstraints(List<Constraint> constraints) {
         if (constraints == null || constraints.isEmpty()) {
@@ -208,20 +209,12 @@ public class AnalysisService {
         if (qualityMetrics.size() != constraints.size()) {
             throw new IllegalArgumentException("Invalid constraint values. Avoid duplicates");
         }
-
-        /*
-            All threshold values must be in the range of [0.0 - 1.0]
-         */
-        boolean isValidThreshold = constraints.stream()
-                .allMatch(constraint -> constraint.getThreshold() <= 1.0 && constraint.getThreshold() >= 0);
-        if (!isValidThreshold) {
-            throw new IllegalArgumentException("Threshold values must be in the range of [0.0 - 1.0]");
-        }
     }
 
     /*
         We don't have to check if we have invalid quality attribute values, it will be handled by the deserializer
-        during the deserialization.
+        during the deserialization. Null/Empty preferences means user didn't provide any weights, so they will be
+        dynamically assigned.
      */
     public void validatePreferences(List<Preference> preferences) {
         if (preferences == null || preferences.isEmpty()) {
@@ -237,15 +230,6 @@ public class AnalysisService {
          */
         if (qualityAttributes.size() != preferences.size()) {
             throw new IllegalArgumentException("Invalid preference values. Avoid duplicates");
-        }
-
-        /*
-            All weight values must be in the range of [0.0 - 1.0]
-         */
-        boolean isValidWeight = preferences.stream()
-                .allMatch(preference -> preference.getWeight() <= 1.0 && preference.getWeight() >= 0);
-        if (!isValidWeight) {
-            throw new IllegalArgumentException("Weight values must be in the range of [0.0 - 1.0]");
         }
 
         TreeNode root = treeService.buildTree();
@@ -362,15 +346,6 @@ public class AnalysisService {
     private List<Preference> findAnalysisPreferencesByAnalysisId(Integer analysisId) {
         return analysisRepository.findAnalysisPreferencesByAnalysisId(analysisId).orElse(
                 Collections.emptyList());
-    }
-
-    private void validateRefreshRequest(RefreshRequest request) {
-        if (request == null) {
-            throw new IllegalArgumentException("No refresh request was provided.");
-        }
-
-        validateConstraints(request.constraints());
-        validatePreferences(request.preferences());
     }
 }
 

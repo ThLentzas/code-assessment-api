@@ -42,7 +42,7 @@ public class SonarService {
     @Value("${sonar.baseUrl}")
     private String baseUrl;
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
-            "complete your request. Please try again later.";
+            "complete your request. Please try again later";
 
     public void analyzeProject(String projectKey, String projectDirectory) {
         ProcessBuilder processBuilder = new ProcessBuilder();

@@ -264,7 +264,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.findUser())
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User with id: " + 1 + " not found");
+                .hasMessage("User not found with id: " + 1);
     }
 
     @Test
@@ -316,7 +316,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.updateProfile(profileUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User with id: " + 1 + " not found");
+                .hasMessage("User not found with id: " + 1);
     }
 
     /*
@@ -366,7 +366,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.updatePassword(passwordUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User with id: " + 1 + " not found");
+                .hasMessage("User not found with id: " + 1);
     }
 
     /*
@@ -403,7 +403,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.getProfile())
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User with id: " + 1 + " not found");
+                .hasMessage("User not found with id: " + 1);
     }
 
     @Test
@@ -443,7 +443,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.createEmailUpdateToken(emailUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User with id: " + 1 + " not found");
+                .hasMessage("User not found with id: " + 1);
     }
 
     @Test
@@ -516,7 +516,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Assert
         assertThatThrownBy(() -> underTest.updateEmail("expiredToken"))
                 .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("The email verification link has expired. Please request a new one.");
+                .hasMessage("The email verification link has expired. Please request a new one");
     }
 
     @Test
@@ -625,7 +625,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Assert
         assertThatThrownBy(() -> underTest.getProfile())
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User with id: " + user.getId() + " not found");
+                .hasMessage("User not found with id: " + user.getId());
     }
 
     @Test
@@ -638,7 +638,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.deleteAccount(accountDeleteRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User with id: " + 1 + " not found");
+                .hasMessage("User not found with id: " + 1);
     }
 
     private User generateUser() {

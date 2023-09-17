@@ -19,6 +19,5 @@ public record AnalysisReportDTO(
         HotspotsReport hotspotsReport,
         Map<String, Rule> ruleDetails,
         Map<QualityMetric, Double> qualityMetricsReport,
-        Double rank
-) {
+        Double rank) {
 }

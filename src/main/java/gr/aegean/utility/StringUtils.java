@@ -19,7 +19,7 @@ public final class StringUtils {
     private StringUtils() {
 
         // prevent instantiation
-        throw new UnsupportedOperationException("StringUtils is a utility class and cannot be instantiated.");
+        throw new UnsupportedOperationException("StringUtils is a utility class and cannot be instantiated");
     }
 
     public static String generateToken() {
@@ -42,7 +42,7 @@ public final class StringUtils {
             hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
         } catch (NoSuchAlgorithmException sae) {
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
-                    "request. Please try again later.");
+                    "request. Please try again later");
         }
 
         return new String(Hex.encode(hash));

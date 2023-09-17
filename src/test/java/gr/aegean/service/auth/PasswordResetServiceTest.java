@@ -121,7 +121,7 @@ class PasswordResetServiceTest extends AbstractTestContainers {
         //Assert
         assertThatThrownBy(() -> underTest.resetPassword(passwordResetConfirmationRequest))
                 .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("The password reset link has expired. Please request a new one.");
+                .hasMessage("The password reset link has expired. Please request a new one");
     }
 
     @Test

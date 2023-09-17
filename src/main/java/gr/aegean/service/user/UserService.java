@@ -26,8 +26,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import lombok.RequiredArgsConstructor;
 
 
@@ -65,25 +63,24 @@ public class UserService {
                         user.getBio(),
                         user.getLocation(),
                         user.getCompany()))
-                .orElseThrow(() -> new ResourceNotFoundException("User with id: " + userId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
     }
 
     public UserDTO findUser() {
         int userId = Integer.parseInt(jwtService.getSubject());
         User user = userRepository.findUserByUserId(userId).orElseThrow(
-                () -> new ResourceNotFoundException("User with id: " + userId + " not found"));
+                () -> new ResourceNotFoundException("User not found with id: " + userId));
 
         return userDTOMapper.apply(user);
     }
 
     public void updateProfile(UserProfileUpdateRequest profileUpdateRequest) {
         int userId = Integer.parseInt(jwtService.getSubject());
-        System.out.println(userId + "from");
 
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> updateProfileProperties(user, profileUpdateRequest),
                         () -> {
-                            throw new ResourceNotFoundException("User with id: " + userId + " not found");
+                            throw new ResourceNotFoundException("User not found with id: " + userId);
                         });
     }
 
@@ -120,7 +117,7 @@ public class UserService {
 
                     emailService.sendEmailVerification(emailUpdateRequest.email(), user.getUsername(), token);
                 }, () -> {
-                    throw new ResourceNotFoundException("User with id: " + userId + " not found");
+                    throw new ResourceNotFoundException("User not found with id: " + userId);
                 });
     }
 
@@ -135,7 +132,7 @@ public class UserService {
                 .ifPresentOrElse(emailUpdateToken -> {
                     if (emailUpdateToken.expiryDate().isBefore(LocalDateTime.now())) {
                         throw new BadCredentialsException("The email verification link has expired. " +
-                                "Please request a new one.");
+                                "Please request a new one");
                     }
 
                     /*
@@ -162,7 +159,7 @@ public class UserService {
                             userId,
                             passwordEncoder.encode(passwordUpdateRequest.newPassword()));
                 }, () -> {
-                    throw new ResourceNotFoundException("User with id: " + userId + " not found");
+                    throw new ResourceNotFoundException("User not found with id: " + userId);
                 });
     }
 
@@ -219,7 +216,7 @@ public class UserService {
                     }
                     userRepository.deleteAccount(userId);
                     }, () -> {
-                    throw new ResourceNotFoundException("User with id: " + userId + " not found");
+                    throw new ResourceNotFoundException("User not found with id: " + userId);
                 });
     }
 
@@ -286,6 +283,10 @@ public class UserService {
     }
 
     private void updateProfileProperties(User user, UserProfileUpdateRequest profileUpdateRequest) {
+        if(profileUpdateRequest == null) {
+            throw new IllegalArgumentException("No profile request was provided");
+        }
+
         updatePropertyIfNonNull(
                 profileUpdateRequest.firstname(),
                 this::validateFirstname,

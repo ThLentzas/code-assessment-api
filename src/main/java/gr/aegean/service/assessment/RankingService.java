@@ -90,6 +90,9 @@ public class RankingService {
         }
     }
 
+    /*
+        The value of a parent node is the sum of the products of each child node's weight and value
+     */
     private void assignParentNodeValue(TreeNode node) {
         if (treeService.isLeafNode(node)) {
             return;

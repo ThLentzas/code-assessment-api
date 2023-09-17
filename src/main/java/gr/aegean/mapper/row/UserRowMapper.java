@@ -27,7 +27,6 @@ public class UserRowMapper implements RowMapper<User> {
                 resultSet.getString("password"),
                 resultSet.getString("bio"),
                 resultSet.getString("location"),
-                resultSet.getString("company")
-        );
+                resultSet.getString("company"));
     }
 }

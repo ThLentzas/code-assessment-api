@@ -69,6 +69,10 @@ class AnalysisServiceTest extends AbstractTestContainers {
     private AnalysisService underTest;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    /*
+        The idea is for the below tests is that since the analysis json is big, and it's difficult to set up the scenario
+        for each test case we read from the relative files and map them to our objects.
+     */
     @BeforeEach
     void setup() {
         AnalysisRepository analysisRepository = new AnalysisRepository(
@@ -149,6 +153,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
         String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
+
         underTest.saveAnalysisProcess(user.getId(), reports, constraints, preferences);
 
         //Act
@@ -176,6 +181,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
         String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
+
         Integer analysisId = underTest.saveAnalysisProcess(user.getId(), reports, constraints, preferences);
 
         when(jwtService.getSubject()).thenReturn(user.getId().toString());
@@ -207,6 +213,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
         String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
+
         Integer analysisId = underTest.saveAnalysisProcess(user.getId(), reports, constraints, preferences);
 
         List<String> projectUrls = reports.stream()
@@ -222,15 +229,6 @@ class AnalysisServiceTest extends AbstractTestContainers {
 
     }
 
-    @ParameterizedTest
-    @NullSource
-    void shouldThrowIllegalArgumentExceptionWhenRefreshRequestIsNull(RefreshRequest request) {
-        //Arrange Act Assert
-        assertThatThrownBy(() -> underTest.refreshAnalysisResult(1, request))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("No refresh request was provided.");
-    }
-
     private User generateUser() {
         return User.builder()
                 .firstname("Test")
@@ -243,5 +241,4 @@ class AnalysisServiceTest extends AbstractTestContainers {
                 .company("Code Monkey, LLC")
                 .build();
     }
-
 }

@@ -44,7 +44,7 @@ public class DockerService {
             }
         } catch (IOException ioe) {
             throw new ServerErrorException("The server encountered an internal error and was unable to complete your " +
-                    "request. Please try again later.");
+                    "request. Please try again later");
         }
 
         return reportBuilder.toString();
