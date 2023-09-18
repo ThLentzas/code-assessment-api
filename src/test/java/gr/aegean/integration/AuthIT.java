@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -13,9 +12,6 @@ import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.is;
@@ -23,6 +19,9 @@ import static org.hamcrest.Matchers.is;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 
 import gr.aegean.AbstractIntegrationTest;
 import gr.aegean.model.dto.auth.AuthResponse;
@@ -46,7 +45,8 @@ class AuthIT extends AbstractIntegrationTest {
                     "username": "Test",
                     "email": "test@example.com",
                     "password": "CyN549^*o2Cr"
-                }""";
+                }
+                """;
 
         String jwtToken = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
@@ -66,7 +66,8 @@ class AuthIT extends AbstractIntegrationTest {
                 {
                     "email": "test@example.com",
                     "password": "CyN549^*o2Cr"
-                }""";
+                }
+                """;
 
         jwtToken = webTestClient.post()
                 .uri(AUTH_PATH + "/login")
@@ -92,7 +93,8 @@ class AuthIT extends AbstractIntegrationTest {
                     "username": "Test",
                     "email": "test@example.com",
                     "password": "CyN549^*o2Cr"
-                }""";
+                }
+                """;
 
         String jwtToken = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
@@ -112,7 +114,8 @@ class AuthIT extends AbstractIntegrationTest {
                 {
                     "email": "test@example.com",
                     "password": "wrongPassword"
-                }""";
+                }
+                """;
 
         webTestClient.post()
                 .uri(AUTH_PATH + "/login")
@@ -134,7 +137,8 @@ class AuthIT extends AbstractIntegrationTest {
                     "username": "Test",
                     "email": "test@example.com",
                     "password": "CyN549^*o2Cr"
-                }""";
+                }
+                """;
 
         String jwtToken = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
@@ -155,7 +159,8 @@ class AuthIT extends AbstractIntegrationTest {
                 {
                     "email": "wrongemail@example.com",
                     "password": "password"
-                }""";
+                }
+                """;
 
         webTestClient.post()
                 .uri(AUTH_PATH + "/login")
@@ -178,7 +183,8 @@ class AuthIT extends AbstractIntegrationTest {
                     "username": "Test",
                     "email": "test@example.com",
                     "password": "CyN549^*o2Cr"
-                }""";
+                }
+                """;
 
         String jwtToken = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
@@ -251,7 +257,8 @@ class AuthIT extends AbstractIntegrationTest {
                 {
                     "token": "%s",
                     "password": "3frMH4v!20d4"
-                }""", token);
+                }
+                """, token);
 
         webTestClient.put()
                 .uri(AUTH_PATH + "/password_reset/confirm")
@@ -260,6 +267,12 @@ class AuthIT extends AbstractIntegrationTest {
                 .bodyValue(requestBody)
                 .exchange()
                 .expectStatus().isNoContent();
+
+        /*
+            Sending the email is done async, so we have to use awaitility. The length of the received messages is 2
+            because we already sent the password reset link email, and now we sent the confirmation one.
+         */
+        await().atMost(5, TimeUnit.SECONDS).until(() -> greenMail.getReceivedMessages().length == 2);
 
         messages = greenMail.getReceivedMessages();
         message = messages[1];
@@ -280,7 +293,8 @@ class AuthIT extends AbstractIntegrationTest {
                     "username": "Test",
                     "email": "greenmail@example.com",
                     "password": "CyN549^*o2Cr"
-                }""";
+                }
+                """;
 
         String jwtToken = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")

@@ -24,7 +24,7 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
 
     /*
-        Our permit all endpoints are user login/signup and password reset. We have to allow the GET request that will
+        Our permitAll() endpoints are user login/signup and password reset. We have to allow the GET request that will
         be sent when the user wants to update their email and click on the link we have sent in their new email. Same
         logic applies for the password reset email link, but it's covered from the 1st case.
 

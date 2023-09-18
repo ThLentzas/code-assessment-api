@@ -16,7 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import gr.aegean.service.analysis.AnalysisService;
 import gr.aegean.service.analysis.AsyncService;
 import gr.aegean.model.dto.analysis.AnalysisRequest;
-import gr.aegean.model.dto.analysis.AnalysisResponse;
+import gr.aegean.model.dto.analysis.AnalysisResult;
 import gr.aegean.model.dto.analysis.RefreshRequest;
 
 import jakarta.validation.Valid;
@@ -49,16 +49,16 @@ public class AnalysisController {
     }
 
     @GetMapping("/{analysisId}")
-    public ResponseEntity<AnalysisResponse> getAnalysisResult(@PathVariable Integer analysisId) {
-        AnalysisResponse result = analysisService.findAnalysisResultByAnalysisId(analysisId);
+    public ResponseEntity<AnalysisResult> getAnalysisResult(@PathVariable Integer analysisId) {
+        AnalysisResult result = analysisService.findAnalysisResultByAnalysisId(analysisId);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PutMapping("/{analysisId}")
-    public ResponseEntity<AnalysisResponse> refreshAnalysisResult(@RequestBody RefreshRequest refreshRequest,
-                                                                  @PathVariable Integer analysisId) {
-        AnalysisResponse result = analysisService.refreshAnalysisResult(analysisId, refreshRequest);
+    public ResponseEntity<AnalysisResult> refreshAnalysisResult(@RequestBody RefreshRequest refreshRequest,
+                                                                @PathVariable Integer analysisId) {
+        AnalysisResult result = analysisService.refreshAnalysisResult(analysisId, refreshRequest);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

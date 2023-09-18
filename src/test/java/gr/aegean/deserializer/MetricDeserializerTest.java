@@ -72,10 +72,9 @@ class MetricDeserializerTest {
         JsonParser parser = mock(JsonParser.class);
         DeserializationContext context = mock(DeserializationContext.class);
 
-        // Act
         when(parser.getValueAsString()).thenReturn(metric);
 
-        // Assert
+        //Act Assert
         assertThatThrownBy(() -> underTest.deserialize(parser, context))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid quality metric: " + metric.toUpperCase());

@@ -29,7 +29,7 @@ class AnalysisReportRowMapperTest {
 
     @Test
     void shouldMapRowToAnalysisReport() throws SQLException, JsonProcessingException {
-        try(ResultSet resultSet = mock(ResultSet.class)) {
+        try (ResultSet resultSet = mock(ResultSet.class)) {
             //Arrange
             Map<String, Double> languages = new HashMap<>();
             AnalysisReport expected = new AnalysisReport();

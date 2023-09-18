@@ -129,7 +129,7 @@ class AnalysisControllerTest {
      */
     @Test
     @WithMockUser(username = "test")
-    void shouldReturnHTTP400WhenConstraintQualityMetricIsNull() throws Exception{
+    void shouldReturnHTTP400WhenConstraintQualityMetricIsNull() throws Exception {
         String requestBody = """ 
                 {
                     "projectUrls": [
@@ -162,6 +162,8 @@ class AnalysisControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", is("Quality metric is required")));
+
+        verifyNoInteractions(asyncService);
     }
 
     /*
@@ -170,7 +172,7 @@ class AnalysisControllerTest {
      */
     @Test
     @WithMockUser(username = "test")
-    void shouldReturnHTTP400WhenConstraintQualityMetricOperatorIsNull() throws Exception{
+    void shouldReturnHTTP400WhenConstraintQualityMetricOperatorIsNull() throws Exception {
         String requestBody = """ 
                 {
                     "projectUrls": [
@@ -196,6 +198,8 @@ class AnalysisControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", is("Quality metric operator is required")));
+
+        verifyNoInteractions(asyncService);
     }
 
     /*
@@ -203,7 +207,7 @@ class AnalysisControllerTest {
      */
     @Test
     @WithMockUser(username = "test")
-    void shouldReturnHTTP400WhenConstraintThresholdIsNull() throws Exception{
+    void shouldReturnHTTP400WhenConstraintThresholdIsNull() throws Exception {
         String requestBody = """ 
                 {
                     "projectUrls": [
@@ -229,6 +233,8 @@ class AnalysisControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", is("Threshold is required")));
+
+        verifyNoInteractions(asyncService);
     }
 
     /*
@@ -256,7 +262,7 @@ class AnalysisControllerTest {
                         }
                     ]
                 }
-                    """, threshold);
+                """, threshold);
 
         mockMvc.perform(post("/api/v1/analysis")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -265,6 +271,8 @@ class AnalysisControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", is(
                         "Threshold value must be in the range of [0.0 - 1.0]")));
+
+        verifyNoInteractions(asyncService);
     }
 
     /*
@@ -273,7 +281,7 @@ class AnalysisControllerTest {
      */
     @Test
     @WithMockUser(username = "test")
-    void shouldReturnHTTP400WhenPreferenceQualityAttributeIsNull() throws Exception{
+    void shouldReturnHTTP400WhenPreferenceQualityAttributeIsNull() throws Exception {
         String requestBody = """ 
                 {
                     "projectUrls": [
@@ -299,6 +307,8 @@ class AnalysisControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", is("Quality attribute is required")));
+
+        verifyNoInteractions(asyncService);
     }
 
     /*
@@ -306,7 +316,7 @@ class AnalysisControllerTest {
      */
     @Test
     @WithMockUser(username = "test")
-    void shouldReturnHTTP400WhenPreferenceWeightIsNull() throws Exception{
+    void shouldReturnHTTP400WhenPreferenceWeightIsNull() throws Exception {
         String requestBody = """ 
                 {
                     "projectUrls": [
@@ -332,6 +342,8 @@ class AnalysisControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", is("Weight is required")));
+
+        verifyNoInteractions(asyncService);
     }
 
     /*
@@ -342,7 +354,7 @@ class AnalysisControllerTest {
     @WithMockUser(username = "test")
     void shouldReturnHTTP400WhenPreferenceWeightIsInvalid(Double weightValue) throws Exception {
         String weight = weightValue.toString();
-        String requestBody  = String.format("""
+        String requestBody = String.format("""
                 {
                     "projectUrls": [
                         "https://github.com/user/test"
@@ -359,7 +371,7 @@ class AnalysisControllerTest {
                         }
                     ]
                 }
-                    """, weight);
+                """, weight);
 
         mockMvc.perform(post("/api/v1/analysis")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -368,6 +380,8 @@ class AnalysisControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", is(
                         "Weight value must be in the range of [0.0 - 1.0]")));
+
+        verifyNoInteractions(asyncService);
     }
 
 

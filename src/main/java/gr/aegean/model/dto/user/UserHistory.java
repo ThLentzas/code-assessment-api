@@ -1,9 +1,9 @@
 package gr.aegean.model.dto.user;
 
-import gr.aegean.model.dto.analysis.AnalysisResponse;
+import gr.aegean.model.dto.analysis.AnalysisResult;
 
 import java.util.List;
 
 
-public record UserHistory(List<AnalysisResponse> analyses) {
+public record UserHistory(List<AnalysisResult> analyses) {
 }

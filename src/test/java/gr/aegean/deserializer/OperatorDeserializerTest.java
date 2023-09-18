@@ -56,10 +56,9 @@ class OperatorDeserializerTest {
         JsonParser parser = mock(JsonParser.class);
         DeserializationContext context = mock(DeserializationContext.class);
 
-        // Act
         when(parser.getValueAsString()).thenReturn(symbol);
 
-        // Assert
+        // Act Assert
         assertThatThrownBy(() -> underTest.deserialize(parser, context))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid operator symbol: " + symbol);

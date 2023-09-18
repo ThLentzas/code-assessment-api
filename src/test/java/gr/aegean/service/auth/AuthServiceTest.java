@@ -74,7 +74,6 @@ class AuthServiceTest {
         AuthResponse authResponse = underTest.registerUser(request);
 
         //Assert
-
         assertThat(authResponse.token()).isEqualTo(jwtToken);
 
         verify(passwordEncoder, times(1)).encode(user.getPassword());

@@ -32,7 +32,7 @@ class MetricServiceTest {
         String hotspotsReportPath = "src/test/resources/reports/hotspots-report.json";
         String metricsReportPath = "src/test/resources/reports/metrics-report.json";
 
-        IssuesReport issuesReport= mapper.readValue(new File(issuesReportPath), IssuesReport.class);
+        IssuesReport issuesReport = mapper.readValue(new File(issuesReportPath), IssuesReport.class);
         HotspotsReport hotspotsReport = mapper.readValue(new File(hotspotsReportPath), HotspotsReport.class);
         JavaType type = mapper.getTypeFactory().constructMapType(Map.class, QualityMetric.class, Double.class);
         Map<QualityMetric, Double> metricsReport = mapper.readValue(new File(metricsReportPath), type);

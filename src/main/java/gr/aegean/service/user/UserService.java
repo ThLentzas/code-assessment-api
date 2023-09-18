@@ -6,8 +6,14 @@ import gr.aegean.exception.ResourceNotFoundException;
 import gr.aegean.entity.EmailUpdateToken;
 import gr.aegean.entity.User;
 import gr.aegean.mapper.dto.UserDTOMapper;
-import gr.aegean.model.dto.analysis.AnalysisResponse;
-import gr.aegean.model.dto.user.*;
+import gr.aegean.model.dto.analysis.AnalysisResult;
+import gr.aegean.model.dto.user.UserAccountDeleteRequest;
+import gr.aegean.model.dto.user.UserDTO;
+import gr.aegean.model.dto.user.UserEmailUpdateRequest;
+import gr.aegean.model.dto.user.UserHistory;
+import gr.aegean.model.dto.user.UserPasswordUpdateRequest;
+import gr.aegean.model.dto.user.UserProfile;
+import gr.aegean.model.dto.user.UserProfileUpdateRequest;
 import gr.aegean.repository.EmailUpdateRepository;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
@@ -38,6 +44,7 @@ public class UserService {
     private final EmailService emailService;
     private final AnalysisService analysisService;
     private final PasswordEncoder passwordEncoder;
+    private static final String USER_NOT_FOUND_ERROR_MSG = "User not found with id: ";
     private final UserDTOMapper userDTOMapper = new UserDTOMapper();
 
     public void registerUser(User user) {
@@ -63,13 +70,13 @@ public class UserService {
                         user.getBio(),
                         user.getLocation(),
                         user.getCompany()))
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_ERROR_MSG + userId));
     }
 
     public UserDTO findUser() {
         int userId = Integer.parseInt(jwtService.getSubject());
         User user = userRepository.findUserByUserId(userId).orElseThrow(
-                () -> new ResourceNotFoundException("User not found with id: " + userId));
+                () -> new ResourceNotFoundException(USER_NOT_FOUND_ERROR_MSG + userId));
 
         return userDTOMapper.apply(user);
     }
@@ -80,7 +87,7 @@ public class UserService {
         userRepository.findUserByUserId(userId)
                 .ifPresentOrElse(user -> updateProfileProperties(user, profileUpdateRequest),
                         () -> {
-                            throw new ResourceNotFoundException("User not found with id: " + userId);
+                            throw new ResourceNotFoundException(USER_NOT_FOUND_ERROR_MSG + userId);
                         });
     }
 
@@ -117,7 +124,7 @@ public class UserService {
 
                     emailService.sendEmailVerification(emailUpdateRequest.email(), user.getUsername(), token);
                 }, () -> {
-                    throw new ResourceNotFoundException("User not found with id: " + userId);
+                    throw new ResourceNotFoundException(USER_NOT_FOUND_ERROR_MSG + userId);
                 });
     }
 
@@ -159,16 +166,16 @@ public class UserService {
                             userId,
                             passwordEncoder.encode(passwordUpdateRequest.newPassword()));
                 }, () -> {
-                    throw new ResourceNotFoundException("User not found with id: " + userId);
+                    throw new ResourceNotFoundException(USER_NOT_FOUND_ERROR_MSG + userId);
                 });
     }
 
     public UserHistory getHistory(String from, String to) {
         int userId = Integer.parseInt(jwtService.getSubject());
 
-        List<AnalysisResponse> history = new ArrayList<>();
+        List<AnalysisResult> history = new ArrayList<>();
         List<Analysis> analyses = null;
-        AnalysisResponse analysisResponse;
+        AnalysisResult analysisResult;
 
         /*
             One of the two dates is null or empty.
@@ -199,8 +206,8 @@ public class UserService {
         }
 
         for (Analysis analysis : analyses) {
-            analysisResponse = analysisService.findAnalysisResultByAnalysisId(analysis.getId());
-            history.add(analysisResponse);
+            analysisResult = analysisService.findAnalysisResultByAnalysisId(analysis.getId());
+            history.add(analysisResult);
         }
 
         return new UserHistory(history);
@@ -216,7 +223,7 @@ public class UserService {
                     }
                     userRepository.deleteAccount(userId);
                     }, () -> {
-                    throw new ResourceNotFoundException("User not found with id: " + userId);
+                    throw new ResourceNotFoundException(USER_NOT_FOUND_ERROR_MSG + userId);
                 });
     }
 
@@ -283,10 +290,6 @@ public class UserService {
     }
 
     private void updateProfileProperties(User user, UserProfileUpdateRequest profileUpdateRequest) {
-        if(profileUpdateRequest == null) {
-            throw new IllegalArgumentException("No profile request was provided");
-        }
-
         updatePropertyIfNonNull(
                 profileUpdateRequest.firstname(),
                 this::validateFirstname,

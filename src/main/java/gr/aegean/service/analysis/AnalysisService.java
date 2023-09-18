@@ -13,7 +13,7 @@ import gr.aegean.model.analysis.sonarqube.HotspotsReport;
 import gr.aegean.model.analysis.sonarqube.IssuesReport;
 import gr.aegean.model.dto.analysis.AnalysisReportDTO;
 import gr.aegean.model.dto.analysis.AnalysisRequest;
-import gr.aegean.model.dto.analysis.AnalysisResponse;
+import gr.aegean.model.dto.analysis.AnalysisResult;
 import gr.aegean.model.dto.analysis.RefreshRequest;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.repository.AnalysisRepository;
@@ -101,7 +101,7 @@ public class AnalysisService {
         return analysisId;
     }
 
-    public AnalysisResponse findAnalysisResultByAnalysisId(Integer analysisId) {
+    public AnalysisResult findAnalysisResultByAnalysisId(Integer analysisId) {
         Analysis analysis = findAnalysisByAnalysisId(analysisId);
         List<AnalysisReport> reports = findAnalysisReportsByAnalysisId(analysisId);
 
@@ -121,10 +121,10 @@ public class AnalysisService {
                         .toList())
                 .toList();
 
-        return new AnalysisResponse(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
+        return new AnalysisResult(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
     }
 
-    public AnalysisResponse refreshAnalysisResult(Integer analysisId, RefreshRequest request) {
+    public AnalysisResult refreshAnalysisResult(Integer analysisId, RefreshRequest request) {
         validateConstraints(request.constraints());
         validatePreferences(request.preferences());
 
@@ -154,7 +154,7 @@ public class AnalysisService {
                         .toList())
                 .toList();
 
-        return new AnalysisResponse(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
+        return new AnalysisResult(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
     }
 
     /**

@@ -620,7 +620,7 @@ class UserServiceTest extends AbstractTestContainers {
         when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
         //Act
-        underTest.deleteAccount( accountDeleteRequest);
+        underTest.deleteAccount(accountDeleteRequest);
 
         //Assert
         assertThatThrownBy(() -> underTest.getProfile())

@@ -1,12 +1,9 @@
 package gr.aegean.integration;
 
-import gr.aegean.mapper.dto.UserDTOMapper;
-import gr.aegean.model.dto.user.UserDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -19,17 +16,18 @@ import com.icegreen.greenmail.util.ServerSetupTest;
 import gr.aegean.AbstractIntegrationTest;
 import gr.aegean.model.dto.user.UserProfile;
 import gr.aegean.model.dto.auth.AuthResponse;
+import gr.aegean.model.dto.user.UserDTO;
 
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 
 
 @AutoConfigureWebTestClient
@@ -51,7 +49,8 @@ class UserIT extends AbstractIntegrationTest {
                     "username": "TestT",
                     "email": "test@example.com",
                     "password": "CyN549^*o2Cr"
-                }""";
+                }
+                """;
 
         EntityExchangeResult<AuthResponse> result = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
@@ -106,7 +105,8 @@ class UserIT extends AbstractIntegrationTest {
                     "username": "TestT",
                     "email": "test@example.com",
                     "password": "CyN549^*o2Cr"
-                }""";
+                }
+                """;
 
         EntityExchangeResult<AuthResponse> result = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
@@ -151,7 +151,8 @@ class UserIT extends AbstractIntegrationTest {
                     "username": "TestT",
                     "email": "test@example.com",
                     "password": "CyN549^*o2Cr"
-                }""";
+                }
+                """;
 
         EntityExchangeResult<AuthResponse> result = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
@@ -173,8 +174,8 @@ class UserIT extends AbstractIntegrationTest {
                      "bio": "I like Java",
                      "location": "Miami, OH",
                      "company": "VM, LLC"
-                 }
-                 """;
+                }
+                """;
 
         webTestClient.put()
                 .uri(USER_PATH + "/profile")
@@ -195,7 +196,8 @@ class UserIT extends AbstractIntegrationTest {
                     "username": "TestT",
                     "email": "test@example.com",
                     "password": "CyN549^*o2Cr"
-                }""";
+                }
+                """;
 
         EntityExchangeResult<AuthResponse> result = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
@@ -270,7 +272,8 @@ class UserIT extends AbstractIntegrationTest {
                     "username": "TestT",
                     "email": "test@example.com",
                     "password": "CyN549^*o2Cr"
-                }""";
+                }
+                """;
 
         EntityExchangeResult<AuthResponse> result = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
@@ -287,7 +290,8 @@ class UserIT extends AbstractIntegrationTest {
         requestBody = """
                 {
                     "password": "CyN549^*o2Cr"
-                }""";
+                }
+                """;
 
         webTestClient.put()
                 .uri(USER_PATH + "/settings/account")

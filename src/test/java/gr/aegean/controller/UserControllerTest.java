@@ -1,6 +1,5 @@
 package gr.aegean.controller;
 
-
 import gr.aegean.config.security.AuthConfig;
 import gr.aegean.config.security.JwtConfig;
 import gr.aegean.config.security.SecurityConfig;
