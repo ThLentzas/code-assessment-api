@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gr.aegean.exception.ServerErrorException;
 import gr.aegean.entity.AnalysisReport;
@@ -41,6 +43,7 @@ public class SonarService {
     private String authToken;
     @Value("${sonar.baseUrl}")
     private String baseUrl;
+    private static final Logger LOG = LoggerFactory.getLogger(SonarService.class);
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later";
 
@@ -69,7 +72,7 @@ public class SonarService {
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+                LOG.info(line);
             }
             /*
                 Waiting for the analysis to end, not to upload the analysis to the server.

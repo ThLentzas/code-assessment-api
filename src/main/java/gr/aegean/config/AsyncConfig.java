@@ -10,7 +10,8 @@ import java.util.concurrent.Executor;
 
 
 /*
-    Having those properties would help us in the future for more threads when we have better hardware
+    Having those properties would help us in the future for more threads when we have better hardware, we can adjust
+    accordingly
  */
 @Configuration
 @EnableAsync

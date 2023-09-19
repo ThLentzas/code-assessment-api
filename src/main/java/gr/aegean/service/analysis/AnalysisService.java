@@ -124,6 +124,10 @@ public class AnalysisService {
         return new AnalysisResult(analysis.getId(), rankedReportsDTO, analysis.getCreatedDate());
     }
 
+    /*
+        Checking if the request is null and throwing a relative error won't work, we will get a warning
+        request body is missing.
+     */
     public AnalysisResult refreshAnalysisResult(Integer analysisId, RefreshRequest request) {
         validateConstraints(request.constraints());
         validatePreferences(request.preferences());

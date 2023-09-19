@@ -14,9 +14,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import lombok.RequiredArgsConstructor;
 
 
-/*
- * The authentication is handled by an AuthenticationProvider, and JWT tokens are used.
- */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor

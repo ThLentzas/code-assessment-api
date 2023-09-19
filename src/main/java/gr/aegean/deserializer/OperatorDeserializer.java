@@ -8,7 +8,9 @@ import gr.aegean.model.analysis.quality.QualityMetricOperator;
 
 import java.io.IOException;
 
-
+/*
+    Receives an equality symbol and maps it to an Enum value. Valid symbols are: >, >=, <, <=, ==, <>.
+ */
 public class OperatorDeserializer extends JsonDeserializer<QualityMetricOperator> {
 
     @Override

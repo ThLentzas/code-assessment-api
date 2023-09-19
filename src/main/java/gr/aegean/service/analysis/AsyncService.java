@@ -56,7 +56,8 @@ public class AsyncService {
         We have to validate constraints and preferences at the start of the request because an invalid
         constraint/preference means that the analysis will not happen. Validating the project urls happens later.
         Even if all the project urls are valid, they can still be private repos which also means that the analysis will
-        not happen.
+        not happen. Checking if the request is null and throwing a relative error won't work, we will get a warning
+        request body is missing.
      */
     public CompletableFuture<Integer> processProject(AnalysisRequest analysisRequest) {
         analysisService.validateConstraints(analysisRequest.constraints());

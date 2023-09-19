@@ -39,7 +39,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.hamcrest.Matchers.is;
 
 
-
 /*
     The @Valid annotation is used, so we write tests for invalid inputs(null, empty, other) in the Controller and not
     the Service, that's why we call verifyNoInteractions(userService); in every BadRequest test.

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 /*
     In this class the treeBuildingService is also tested indirectly for the creation of the tree. The values in these
     tests are actual values from reports.
