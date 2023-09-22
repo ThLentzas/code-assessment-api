@@ -53,14 +53,14 @@ public class AsyncService {
     }
 
     /*
-        We have to validate constraints and preferences at the start of the request because an invalid
-        constraint/preference means that the analysis will not happen. Validating the project urls happens later.
-        Even if all the project urls are valid, they can still be private repos which also means that the analysis will
-        not happen. Checking if the request is null and throwing a relative error won't work, we will get a warning
-        request body is missing.
+        We have to validate preferences at the start of the request because an invalid preference means that the
+        analysis will not happen. Part of it happens in the Controllers with @Valid.
+        Validating the project urls happens later. Even if all the project urls are valid, they can still be private
+        repos which also means that the analysis will not happen. Checking if the request is null and throwing a
+        relative error won't work, we will get a warning request body is missing.
+        We allow duplication in constrains for the following case: complexity >= 0.2 && complexity <=0.5
      */
     public CompletableFuture<Integer> processProject(AnalysisRequest analysisRequest) {
-        analysisService.validateConstraints(analysisRequest.constraints());
         analysisService.validatePreferences(analysisRequest.preferences());
 
         File requestFolder = new File(baseDirectory + File.separator + UUID.randomUUID());

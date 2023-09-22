@@ -69,7 +69,7 @@ public class PasswordResetService {
                     passwordResetRepository.deleteToken(hashedToken);
 
                     // send confirmation email
-                    userRepository.findUserByUserId(passwordResetToken.userId())
+                    userRepository.findUserById(passwordResetToken.userId())
                             .ifPresent(user -> emailService.sendPasswordResetSuccessEmail(
                                     user.getEmail(),
                                     user.getUsername()));

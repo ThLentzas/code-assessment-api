@@ -129,7 +129,6 @@ public class AnalysisService {
         request body is missing.
      */
     public AnalysisResult refreshAnalysisResult(Integer analysisId, RefreshRequest request) {
-        validateConstraints(request.constraints());
         validatePreferences(request.preferences());
 
         Analysis analysis = findAnalysisByAnalysisId(analysisId);
@@ -191,28 +190,6 @@ public class AnalysisService {
         int userId = Integer.parseInt(jwtService.getSubject());
 
         analysisRepository.deleteAnalysis(analysisId, userId);
-    }
-
-    /*
-        We don't have to check if we have invalid quality metric values, it will be handled by the deserializer during
-        the deserialization. Null/Empty constraints means user didn't provide any constraints, so they will be no
-        filtering.
-     */
-    public void validateConstraints(List<Constraint> constraints) {
-        if (constraints == null || constraints.isEmpty()) {
-            return;
-        }
-
-        Set<QualityMetric> qualityMetrics = constraints.stream()
-                .map(Constraint::getQualityMetric)
-                .collect(Collectors.toSet());
-
-        /*
-            Case: Duplicate quality metric was provided.
-         */
-        if (qualityMetrics.size() != constraints.size()) {
-            throw new IllegalArgumentException("Invalid constraint values. Avoid duplicates");
-        }
     }
 
     /*

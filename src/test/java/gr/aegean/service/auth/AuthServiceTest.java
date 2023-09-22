@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -16,6 +17,7 @@ import gr.aegean.model.dto.auth.LoginRequest;
 import gr.aegean.model.dto.auth.RegisterRequest;
 import gr.aegean.exception.UnauthorizedException;
 import gr.aegean.service.user.UserService;
+import gr.aegean.model.UserPrincipal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -81,6 +83,10 @@ class AuthServiceTest {
         verify(jwtService, times(1)).assignToken(any(UserDTO.class));
     }
 
+    /*
+        The principal(1st argument) of the UsernamePasswordAuthenticationToken is of type SecurityUser, because
+        SecurityUser implements UserDetails.
+     */
     @Test
     void shouldAuthenticateUser() {
         //Arrange
@@ -91,7 +97,7 @@ class AuthServiceTest {
 
         when(jwtService.assignToken(any(UserDTO.class))).thenReturn(jwtToken);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(
-                new UsernamePasswordAuthenticationToken(user, "test"));
+                new UsernamePasswordAuthenticationToken(new UserPrincipal(user), null));
 
         //Act
         AuthResponse authResponse = underTest.loginUser(loginRequest);
@@ -106,14 +112,14 @@ class AuthServiceTest {
 
     /*
         When authenticate from authentication manager fails it will throw either spring.security.BadCredentialsException
-        if password is wrong or EmptyResultDataAccessException if the user's email doesn't exist. In any case both are
-        run time exceptions.
+        if password is wrong or UsernameNotFoundException if the user's email doesn't exist. The
+        UsernameNotFoundException is caught by Spring and a spring.security.BadCredentialsException is thrown instead.
      */
     @Test
     void shouldThrowUnauthorizedExceptionWhenAuthEmailOrPasswordIsWrong() {
         //Arrange
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new RuntimeException());
+                .thenThrow(new BadCredentialsException("Username or password is incorrect"));
 
         //Act
         LoginRequest request = new LoginRequest("test@example.com", "password");

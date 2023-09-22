@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 import gr.aegean.entity.User;
 import gr.aegean.mapper.row.UserRowMapper;
 import gr.aegean.exception.ServerErrorException;
-import gr.aegean.exception.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -65,55 +64,24 @@ public class UserRepository {
         The following methods if they don't update the entity correctly is because some internal error happened
         (BAD SQL GRAMMAR) and not because the user is not found.
      */
-    public void updateFirstname(Integer userId, String firstname) {
-        final String sql = "UPDATE app_user SET first_name = ? WHERE id = ?";
+    public void updateUser(User user) {
+        final String sql = "UPDATE app_user SET " +
+                "first_name = ?, " +
+                "last_name = ?, " +
+                "username = ?, " +
+                "bio = ?, " +
+                "location = ?, " +
+                "company = ? WHERE id = ?";
 
-        int update = jdbcTemplate.update(sql, firstname, userId);
-        if (update != 1) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        }
-    }
-
-    public void updateLastname(Integer userId, String lastname) {
-        final String sql = "UPDATE app_user SET last_name = ? WHERE id = ?";
-
-        int update = jdbcTemplate.update(sql, lastname, userId);
-        if (update != 1) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        }
-    }
-
-    public void updateBio(Integer userId, String bio) {
-        final String sql = "UPDATE app_user SET bio = ? WHERE id = ?";
-
-        int update = jdbcTemplate.update(sql, bio, userId);
-        if (update != 1) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        }
-    }
-
-    public void updateLocation(Integer userId, String location) {
-        final String sql = "UPDATE app_user SET location = ? WHERE id = ?";
-
-        int update = jdbcTemplate.update(sql, location, userId);
-        if (update != 1) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        }
-    }
-
-    public void updateCompany(Integer userId, String company) {
-        final String sql = "UPDATE app_user SET company = ? WHERE id = ?";
-
-        int update = jdbcTemplate.update(sql, company, userId);
-        if (update != 1) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        }
-    }
-
-    public void updateUsername(Integer userId, String username) {
-        final String sql = "UPDATE app_user SET username = ? WHERE id = ?";
-
-        int update = jdbcTemplate.update(sql, username, userId);
+        int update = jdbcTemplate.update(
+                sql,
+                user.getFirstname(),
+                user.getLastname(),
+                user.getUsername(),
+                user.getBio(),
+                user.getLocation(),
+                user.getCompany(),
+                user.getId());
         if (update != 1) {
             throw new ServerErrorException(SERVER_ERROR_MSG);
         }
@@ -158,7 +126,7 @@ public class UserRepository {
     }
 
 
-    public Optional<User> findUserByUserId(Integer userId) {
+    public Optional<User> findUserById(Integer userId) {
         final String sql = "SELECT " +
                 "id, " +
                 "first_name, " +
@@ -198,9 +166,8 @@ public class UserRepository {
         final String sql = "DELETE FROM app_user WHERE id = ?";
 
         int update = jdbcTemplate.update(sql, userId);
-
         if (update != 1) {
-            throw new ResourceNotFoundException("No account was found with the provided: " + userId);
+            throw new ServerErrorException(SERVER_ERROR_MSG);
         }
     }
 

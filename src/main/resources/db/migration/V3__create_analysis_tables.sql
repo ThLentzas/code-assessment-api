@@ -34,17 +34,19 @@ CREATE TYPE quality_attribute AS ENUM (
 );
 
 CREATE TABLE IF NOT EXISTS analysis (
-    id           SERIAL PRIMARY KEY,
-    user_id      INTEGER   NOT NULL,
+    id SERIAL,
+    user_id INTEGER NOT NULL,
     created_date DATE NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES app_user (id) ON DELETE CASCADE
+    CONSTRAINT pk_analysis PRIMARY KEY (id),
+    CONSTRAINT fk_analysis_user_id FOREIGN KEY (user_id) REFERENCES app_user(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS analysis_report (
-    id          SERIAL PRIMARY KEY,
+    id SERIAL,
     analysis_id INTEGER NOT NULL,
-    report      jsonb   NOT NULL,
-    FOREIGN KEY (analysis_id) REFERENCES analysis (id) ON DELETE CASCADE
+    report jsonb NOT NULL,
+    CONSTRAINT pk_analysis_report PRIMARY KEY (id),
+    CONSTRAINT fk_analysis_report_analysis_id FOREIGN KEY (analysis_id) REFERENCES analysis(id) ON DELETE CASCADE
 );
 
 CREATE TYPE operator AS ENUM (
@@ -54,24 +56,25 @@ CREATE TYPE operator AS ENUM (
     'LTE',
     'EQ',
     'NEQ'
-);
+    );
 
-/*
-    constraint is a reserved key word similar to user.
- */
 CREATE TABLE IF NOT EXISTS analysis_constraint (
-    analysis_id    INTEGER          NOT NULL,
-    quality_metric quality_metric   NOT NULL,
-    operator       operator         NOT NULL,
-    threshold      double precision NOT NULL,
-    FOREIGN KEY (analysis_id) REFERENCES analysis (id) ON DELETE CASCADE,
-    PRIMARY KEY (quality_metric, analysis_id)
+    id SERIAL,
+    analysis_id INTEGER NOT NULL,
+    quality_metric quality_metric NOT NULL,
+    operator operator NOT NULL,
+    threshold double precision NOT NULL,
+    CONSTRAINT pk_analysis_constraint PRIMARY KEY (id),
+    CONSTRAINT fk_analysis_constraint_analysis_id FOREIGN KEY (analysis_id) REFERENCES analysis(id) ON DELETE CASCADE
+
 );
 
 CREATE TABLE IF NOT EXISTS analysis_preference (
-    analysis_id       INTEGER           NOT NULL,
+    analysis_id INTEGER NOT NULL,
     quality_attribute quality_attribute NOT NULL,
-    weight            double precision  NOT NULL,
-    FOREIGN KEY (analysis_id) REFERENCES analysis (id) ON DELETE CASCADE,
-    PRIMARY KEY (quality_attribute, analysis_id)
+    weight double precision NOT NULL,
+    CONSTRAINT pk_analysis_preference PRIMARY KEY (quality_attribute, analysis_id),
+    CONSTRAINT fk_analysis_preference_analysis_id FOREIGN KEY (analysis_id) REFERENCES analysis(id) ON DELETE CASCADE
 );
+
+

@@ -78,7 +78,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldCreateUser() {
+    void shouldRegisterUser() {
         //Arrange
         User user = generateUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -93,7 +93,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldThrowDuplicateResourceExceptionIfEmailAlreadyExists() {
+    void shouldThrowDuplicateResourceExceptionIfEmailAlreadyExistsForRegisterRequest() {
         //Arrange
         User user = generateUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -112,7 +112,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldThrowDuplicateResourceExceptionIfUsernameAlreadyExists() {
+    void shouldThrowDuplicateResourceExceptionIfUsernameAlreadyExistsForRegisterRequest() {
         //Arrange
         User user = generateUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -280,8 +280,8 @@ class UserServiceTest extends AbstractTestContainers {
         userRepository.registerUser(user);
         UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
                 "foo",
-                "foo",
-                "Foo",
+                null,
+                null,
                 "I have a real passion for teaching",
                 "Miami, OH",
                 "VM, LLC"
@@ -293,15 +293,35 @@ class UserServiceTest extends AbstractTestContainers {
         underTest.updateProfile(profileUpdateRequest);
 
         //Assert
-        userRepository.findUserByUserId(user.getId())
-                .ifPresent(user1 -> {
-                    assertThat(user1.getFirstname()).isEqualTo(profileUpdateRequest.firstname());
-                    assertThat(user1.getLastname()).isEqualTo(profileUpdateRequest.lastname());
-                    assertThat(user1.getUsername()).isEqualTo(profileUpdateRequest.username());
-                    assertThat(user1.getBio()).isEqualTo(profileUpdateRequest.bio());
-                    assertThat(user1.getLocation()).isEqualTo(profileUpdateRequest.location());
-                    assertThat(user1.getCompany()).isEqualTo(profileUpdateRequest.company());
+        userRepository.findUserById(user.getId())
+                .ifPresent(actual -> {
+                    assertThat(actual.getFirstname()).isEqualTo(profileUpdateRequest.firstname());
+                    assertThat(actual.getBio()).isEqualTo(profileUpdateRequest.bio());
+                    assertThat(actual.getLocation()).isEqualTo(profileUpdateRequest.location());
+                    assertThat(actual.getCompany()).isEqualTo(profileUpdateRequest.company());
                 });
+    }
+
+    @Test
+    void shouldThrowDuplicateResourceExceptionWhenUsernameAlreadyExistsForProfileUpdateRequest() {
+        User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.registerUser(user);
+
+        UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
+                "foo",
+                "foo",
+                "TestT",
+                "I have a real passion for teaching",
+                "Miami, OH",
+                "VM, LLC"
+        );
+
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
+
+        assertThatThrownBy(() -> underTest.updateProfile(profileUpdateRequest))
+                .isInstanceOf(DuplicateResourceException.class)
+                .hasMessage("The provided username already exists");
     }
 
     @Test
@@ -341,7 +361,7 @@ class UserServiceTest extends AbstractTestContainers {
         underTest.updatePassword(passwordUpdateRequest);
 
         //Assert
-        userRepository.findUserByUserId(user.getId())
+        userRepository.findUserById(user.getId())
                 .ifPresent(user1 -> assertTrue(passwordEncoder.matches("CyN549^*o2Cr", user1.getPassword())));
     }
 

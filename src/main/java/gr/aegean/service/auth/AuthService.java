@@ -2,6 +2,7 @@ package gr.aegean.service.auth;
 
 import gr.aegean.entity.User;
 import gr.aegean.mapper.dto.UserDTOMapper;
+import gr.aegean.model.UserPrincipal;
 import gr.aegean.model.dto.user.UserDTO;
 import gr.aegean.model.dto.auth.AuthResponse;
 import gr.aegean.model.dto.auth.RegisterRequest;
@@ -10,6 +11,7 @@ import gr.aegean.model.dto.auth.LoginRequest;
 import gr.aegean.service.user.UserService;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,8 +40,8 @@ public class AuthService {
 
         userService.validateUser(user);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
         userService.registerUser(user);
+
         UserDTO userDTO = userDTOMapper.apply(user);
         String jwtToken = jwtService.assignToken(userDTO);
 
@@ -49,15 +51,19 @@ public class AuthService {
     public AuthResponse loginUser(LoginRequest request) {
         Authentication authentication;
 
+        /*
+            In either case, meaning if user is not found or the password is wrong Spring will throw a
+            spring.security.BadCredentialsException.
+         */
         try {
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.email(), request.password()));
-        } catch (Exception e) {
+        } catch (BadCredentialsException bce) {
             throw new UnauthorizedException("Username or password is incorrect");
         }
 
-        User principal = (User) authentication.getPrincipal();
-        UserDTO userDTO = userDTOMapper.apply(principal);
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        UserDTO userDTO = userDTOMapper.apply(principal.getUser());
         String jwtToken = jwtService.assignToken(userDTO);
 
         return new AuthResponse(jwtToken);

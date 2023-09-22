@@ -62,7 +62,7 @@ public class UserService {
     public UserProfile getProfile() {
         int userId = Integer.parseInt(jwtService.getSubject());
 
-        return userRepository.findUserByUserId(userId)
+        return userRepository.findUserById(userId)
                 .map(user -> new UserProfile(
                         user.getFirstname(),
                         user.getLastname(),
@@ -75,7 +75,7 @@ public class UserService {
 
     public UserDTO findUser() {
         int userId = Integer.parseInt(jwtService.getSubject());
-        User user = userRepository.findUserByUserId(userId).orElseThrow(
+        User user = userRepository.findUserById(userId).orElseThrow(
                 () -> new ResourceNotFoundException(USER_NOT_FOUND_ERROR_MSG + userId));
 
         return userDTOMapper.apply(user);
@@ -84,7 +84,7 @@ public class UserService {
     public void updateProfile(UserProfileUpdateRequest profileUpdateRequest) {
         int userId = Integer.parseInt(jwtService.getSubject());
 
-        userRepository.findUserByUserId(userId)
+        userRepository.findUserById(userId)
                 .ifPresentOrElse(user -> updateProfileProperties(user, profileUpdateRequest),
                         () -> {
                             throw new ResourceNotFoundException(USER_NOT_FOUND_ERROR_MSG + userId);
@@ -94,7 +94,7 @@ public class UserService {
     public void createEmailUpdateToken(UserEmailUpdateRequest emailUpdateRequest) {
         int userId = Integer.parseInt(jwtService.getSubject());
 
-        userRepository.findUserByUserId(userId)
+        userRepository.findUserById(userId)
                 .ifPresentOrElse(user -> {
                     if (!passwordEncoder.matches(emailUpdateRequest.password(), user.getPassword())) {
                         throw new BadCredentialsException("Wrong password");
@@ -155,7 +155,7 @@ public class UserService {
     public void updatePassword(UserPasswordUpdateRequest passwordUpdateRequest) {
         int userId = Integer.parseInt(jwtService.getSubject());
 
-        userRepository.findUserByUserId(userId)
+        userRepository.findUserById(userId)
                 .ifPresentOrElse(user -> {
                     if (!passwordEncoder.matches(passwordUpdateRequest.oldPassword(), user.getPassword())) {
                         throw new BadCredentialsException("Old password is incorrect");
@@ -184,7 +184,7 @@ public class UserService {
             throw new IllegalArgumentException("Both from and to dates must be provided");
         }
 
-        if (from != null && !from.isBlank() && !to.isBlank()) {
+        if (from != null) {
             StringUtils.validateDate(from);
             StringUtils.validateDate(to);
 
@@ -216,13 +216,13 @@ public class UserService {
     public void deleteAccount(UserAccountDeleteRequest accountDeleteRequest) {
         int userId = Integer.parseInt(jwtService.getSubject());
 
-        userRepository.findUserByUserId(userId)
+        userRepository.findUserById(userId)
                 .ifPresentOrElse(user -> {
                     if (!passwordEncoder.matches(accountDeleteRequest.password(), user.getPassword())) {
                         throw new BadCredentialsException("Password is incorrect");
                     }
                     userRepository.deleteAccount(userId);
-                    }, () -> {
+                }, () -> {
                     throw new ResourceNotFoundException(USER_NOT_FOUND_ERROR_MSG + userId);
                 });
     }
@@ -289,16 +289,19 @@ public class UserService {
         }
     }
 
+    /*
+        Update the user based on the UserProfileUpdateRequest. Only the fields that are non-null will be updated.
+     */
     private void updateProfileProperties(User user, UserProfileUpdateRequest profileUpdateRequest) {
         updatePropertyIfNonNull(
                 profileUpdateRequest.firstname(),
                 this::validateFirstname,
-                value -> userRepository.updateFirstname(user.getId(), value));
+                user::setFirstname);
 
         updatePropertyIfNonNull(
                 profileUpdateRequest.lastname(),
                 this::validateLastname,
-                value -> userRepository.updateLastname(user.getId(), value));
+                user::setLastname);
 
         if (profileUpdateRequest.username() != null && !profileUpdateRequest.username().isBlank()) {
             validateUsername(profileUpdateRequest.username());
@@ -306,23 +309,25 @@ public class UserService {
                 throw new DuplicateResourceException("The provided username already exists");
             }
 
-            userRepository.updateUsername(user.getId(), profileUpdateRequest.username());
+            user.setUsername(profileUpdateRequest.username());
         }
 
         updatePropertyIfNonNull(
                 profileUpdateRequest.bio(),
                 this::validateBio,
-                value -> userRepository.updateBio(user.getId(), value));
+                user::setBio);
 
         updatePropertyIfNonNull(
                 profileUpdateRequest.location(),
                 this::validateLocation,
-                value -> userRepository.updateLocation(user.getId(), value));
+                user::setLocation);
 
         updatePropertyIfNonNull(
                 profileUpdateRequest.company(),
                 this::validateCompany,
-                value -> userRepository.updateCompany(user.getId(), value));
+                user::setCompany);
+
+        userRepository.updateUser(user);
     }
 
     private void updatePropertyIfNonNull(String property, Consumer<String> validator, Consumer<String> updater) {
