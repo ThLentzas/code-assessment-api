@@ -30,6 +30,12 @@ spring:
           starttls:
             enable: true
 
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
 projects:
   base-directory: F:\\Projects
 

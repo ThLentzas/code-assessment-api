@@ -59,6 +59,7 @@ class UserServiceTest extends AbstractTestContainers {
     private EmailUpdateRepository emailUpdateRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final UserDTOMapper userDTOMapper = new UserDTOMapper();
+    private static final String USER_NOT_FOUND_ERROR_MSG = "User not found with id: ";
     private UserService underTest;
 
     @BeforeEach
@@ -269,7 +270,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.findUser())
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User not found with id: " + 1);
+                .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
     }
 
     @Test
@@ -307,7 +308,6 @@ class UserServiceTest extends AbstractTestContainers {
         User user = generateUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
-
         UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
                 "foo",
                 "foo",
@@ -341,7 +341,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.updateProfile(profileUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User not found with id: " + 1);
+                .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
     }
 
     /*
@@ -366,7 +366,7 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenOldPasswordIsNotCorrect() {
+    void shouldThrowBadCredentialsExceptionWhenOldPasswordIsWrong() {
         //Arrange
         User user = generateUser();
         userRepository.registerUser(user);
@@ -378,7 +378,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.updatePassword(passwordUpdateRequest))
                 .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("Old password is incorrect");
+                .hasMessage("Old password is wrong");
     }
 
     @Test
@@ -391,7 +391,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.updatePassword(passwordUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User not found with id: " + 1);
+                .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
     }
 
     /*
@@ -428,7 +428,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.getProfile())
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User not found with id: " + 1);
+                .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
     }
 
     @Test
@@ -437,7 +437,6 @@ class UserServiceTest extends AbstractTestContainers {
         User user = generateUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
-
         UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
                 "foo@example.com",
                 "Test2Ex@mple"
@@ -468,7 +467,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.createEmailUpdateToken(emailUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User not found with id: " + 1);
+                .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
     }
 
     @Test
@@ -476,7 +475,6 @@ class UserServiceTest extends AbstractTestContainers {
         //Arrange
         User user = generateUser();
         userRepository.registerUser(user);
-
         UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
                 "foo@example.com",
                 "foo"
@@ -497,7 +495,6 @@ class UserServiceTest extends AbstractTestContainers {
         User user = generateUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
-
         UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
                 "test@example.com",
                 "Test2Ex@mple"
@@ -558,7 +555,6 @@ class UserServiceTest extends AbstractTestContainers {
                 hashedToken,
                 user.getEmail(),
                 expiryDate);
-
         emailUpdateRepository.saveToken(emailUpdateToken);
 
         UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
@@ -575,6 +571,10 @@ class UserServiceTest extends AbstractTestContainers {
         assertThat(emailUpdateRepository.findToken(hashedToken)).isNotPresent();
     }
 
+    /*
+        We don't mock the jwtService, because this is the permitAll() endpoint, where user clicks the link on their
+        email
+     */
     @Test
     void shouldUpdateEmail() {
         //Arrange
@@ -601,7 +601,7 @@ class UserServiceTest extends AbstractTestContainers {
 
     @ParameterizedTest
     @NullAndEmptySource
-    void shouldThrowIllegalArgumentExceptionWhenOnlyFromDateIsProvided(String from) {
+    void shouldThrowIllegalArgumentExceptionWhenOnlyToDateIsProvided(String from) {
         //Arrange
         User user = generateUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -618,7 +618,7 @@ class UserServiceTest extends AbstractTestContainers {
 
     @ParameterizedTest
     @NullAndEmptySource
-    void shouldThrowIllegalArgumentExceptionWhenOnlyToDateIsProvided(String to) {
+    void shouldThrowIllegalArgumentExceptionWhenOnlyFromDateIsProvided(String to) {
         //Arrange
         User user = generateUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -639,7 +639,6 @@ class UserServiceTest extends AbstractTestContainers {
         User user = generateUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
-
         UserAccountDeleteRequest accountDeleteRequest = new UserAccountDeleteRequest("Test2Ex@mple");
 
         when(jwtService.getSubject()).thenReturn(user.getId().toString());
@@ -650,7 +649,23 @@ class UserServiceTest extends AbstractTestContainers {
         //Assert
         assertThatThrownBy(() -> underTest.getProfile())
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User not found with id: " + user.getId());
+                .hasMessage(USER_NOT_FOUND_ERROR_MSG + user.getId());
+    }
+
+    @Test
+    void shouldThrowBadCredentialExceptionWhenPasswordIsWrongForAccountDeletion() {
+        //Arrange
+        User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.registerUser(user);
+        UserAccountDeleteRequest accountDeleteRequest = new UserAccountDeleteRequest("foo");
+
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.deleteAccount(accountDeleteRequest))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessage("Password is wrong");
     }
 
     @Test
@@ -663,7 +678,7 @@ class UserServiceTest extends AbstractTestContainers {
         //Act Assert
         assertThatThrownBy(() -> underTest.deleteAccount(accountDeleteRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User not found with id: " + 1);
+                .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
     }
 
     private User generateUser() {

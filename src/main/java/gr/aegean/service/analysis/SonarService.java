@@ -31,9 +31,9 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.awaitility.Awaitility.await;
-
 import lombok.RequiredArgsConstructor;
+
+import static org.awaitility.Awaitility.await;
 
 
 @Service

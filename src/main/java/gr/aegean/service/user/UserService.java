@@ -158,7 +158,7 @@ public class UserService {
         userRepository.findUserById(userId)
                 .ifPresentOrElse(user -> {
                     if (!passwordEncoder.matches(passwordUpdateRequest.oldPassword(), user.getPassword())) {
-                        throw new BadCredentialsException("Old password is incorrect");
+                        throw new BadCredentialsException("Old password is wrong");
                     }
 
                     PasswordValidator.validatePassword(passwordUpdateRequest.newPassword());
@@ -219,7 +219,7 @@ public class UserService {
         userRepository.findUserById(userId)
                 .ifPresentOrElse(user -> {
                     if (!passwordEncoder.matches(accountDeleteRequest.password(), user.getPassword())) {
-                        throw new BadCredentialsException("Password is incorrect");
+                        throw new BadCredentialsException("Password is wrong");
                     }
                     userRepository.deleteAccount(userId);
                 }, () -> {

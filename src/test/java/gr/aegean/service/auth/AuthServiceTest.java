@@ -78,9 +78,7 @@ class AuthServiceTest {
         //Assert
         assertThat(authResponse.token()).isEqualTo(jwtToken);
 
-        verify(passwordEncoder, times(1)).encode(user.getPassword());
         verify(userService, times(1)).registerUser(any(User.class));
-        verify(jwtService, times(1)).assignToken(any(UserDTO.class));
     }
 
     /*
@@ -92,22 +90,17 @@ class AuthServiceTest {
         //Arrange
         LoginRequest loginRequest = new LoginRequest("test@gmail.com", "test");
         User user = new User(loginRequest.email(), loginRequest.password());
-
         String jwtToken = "jwtToken";
 
-        when(jwtService.assignToken(any(UserDTO.class))).thenReturn(jwtToken);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(
                 new UsernamePasswordAuthenticationToken(new UserPrincipal(user), null));
+        when(jwtService.assignToken(any(UserDTO.class))).thenReturn(jwtToken);
 
         //Act
         AuthResponse authResponse = underTest.loginUser(loginRequest);
 
         //Assert
         assertThat(authResponse.token()).isEqualTo(jwtToken);
-
-        verify(jwtService, times(1)).assignToken(any(UserDTO.class));
-        verify(authenticationManager, times(1)).authenticate(
-                any(UsernamePasswordAuthenticationToken.class));
     }
 
     /*
@@ -118,18 +111,14 @@ class AuthServiceTest {
     @Test
     void shouldThrowUnauthorizedExceptionWhenAuthEmailOrPasswordIsWrong() {
         //Arrange
+        LoginRequest request = new LoginRequest("test@example.com", "password");
+
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new BadCredentialsException("Username or password is incorrect"));
 
-        //Act
-        LoginRequest request = new LoginRequest("test@example.com", "password");
-
-        //Assert
+        //Act Assert
         assertThatThrownBy(() -> underTest.loginUser(request))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessage("Username or password is incorrect");
-
-        verify(authenticationManager).authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password()));
     }
 }

@@ -15,7 +15,6 @@ import gr.aegean.entity.User;
 /*
     For separation of concern we don't want our User Entity class to implement the UserDetails.
  */
-
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor

@@ -5,14 +5,15 @@ import gr.aegean.config.security.JwtConfig;
 import gr.aegean.config.security.SecurityConfig;
 import gr.aegean.exception.DuplicateResourceException;
 import gr.aegean.exception.ResourceNotFoundException;
-import gr.aegean.repository.UserRepository;
-import gr.aegean.service.user.UserService;
-import gr.aegean.service.auth.JwtService;
+import gr.aegean.model.dto.user.UserAccountDeleteRequest;
 import gr.aegean.model.dto.user.UserDTO;
 import gr.aegean.model.dto.user.UserEmailUpdateRequest;
 import gr.aegean.model.dto.user.UserPasswordUpdateRequest;
 import gr.aegean.model.dto.user.UserProfile;
 import gr.aegean.model.dto.user.UserProfileUpdateRequest;
+import gr.aegean.repository.UserRepository;
+import gr.aegean.service.user.UserService;
+import gr.aegean.service.auth.JwtService;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -241,7 +242,7 @@ class UserControllerTest {
         String requestBody = """
                 {
                     "oldPassword": "3frMH4v!20d4",
-                    "updatedPassword": "CyN549^*o2Cr"
+                    "newPassword": "CyN549^*o2Cr"
                 }
                 """;
 
@@ -276,6 +277,27 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.message", is("Old password is required")));
 
         verifyNoInteractions(userService);
+    }
+
+    @Test
+    @WithMockUser(username = "test")
+    void shouldReturnHTTP400WhenOldPasswordIsWrong() throws Exception{
+        String requestBody = """
+                {
+                    "oldPassword": "wrongPassword",
+                    "newPassword": "CyN549^*o2Cr"
+                }
+                """;
+
+        doThrow(new BadCredentialsException("Old password is wrong"))
+                .when(userService).updatePassword(any(UserPasswordUpdateRequest.class));
+
+        mockMvc.perform(put(USER_PATH + "/settings/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Old password is wrong")));
     }
 
     @ParameterizedTest
@@ -407,7 +429,7 @@ class UserControllerTest {
 
     @Test
     @WithMockUser(username = "test")
-    void shouldReturn400WhenIncorrectPasswordProvidedForEmailUpdate() throws Exception {
+    void shouldReturn400WhenWrongPasswordIsProvidedForEmailUpdate() throws Exception {
         String requestBody = """
                 {
                     "email": "test@example.com",
@@ -515,10 +537,30 @@ class UserControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+    @Test
+    @WithMockUser(username = "test")
+    void shouldReturnHTTP400WhenPasswordIsWrongForAccountDeletion() throws Exception{
+        String requestBody = """
+                {
+                    "password": "wrongPassword"
+                }
+                """;
+
+        doThrow(new BadCredentialsException("Password is wrong"))
+                .when(userService).deleteAccount(any(UserAccountDeleteRequest.class));
+
+        mockMvc.perform(put(USER_PATH + "/settings/account")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Password is wrong")));
+    }
+
     @ParameterizedTest
     @NullAndEmptySource
     @WithMockUser(username = "test")
-    void shouldReturnHTTP400WhenPasswordIsNullOrEmptyForDeletingAccount(String password) throws Exception{
+    void shouldReturnHTTP400WhenPasswordIsNullOrEmptyForAccountDeletion(String password) throws Exception{
         String passwordValue = password == null ? "null" : "\"" + password + "\"";
         String requestBody = String.format("""
                 {
