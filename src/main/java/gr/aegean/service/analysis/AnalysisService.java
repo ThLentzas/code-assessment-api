@@ -62,7 +62,7 @@ public class AnalysisService {
         /*
             For each project we downloaded and stored locally we detect the languages used.
          */
-        Map<String, Double> detectedLanguages = languageService.detectLanguage(projectPath.toString());
+        Map<String, Double> detectedLanguages = languageService.detectLanguages(projectPath.toString());
         if (!languageService.verifySupportedLanguages(detectedLanguages)) {
             return Optional.empty();
         }

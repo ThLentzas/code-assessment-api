@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 
 @ControllerAdvice
-public class DefaultExceptionHandler {
+public class ApiExceptionHandler {
 
     /*
         Thrown by the @Valid annotation

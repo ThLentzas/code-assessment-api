@@ -27,7 +27,7 @@ class FilteringServiceTest {
     }
 
     @Test
-    void shouldReturnAnEmptyCompliantList() throws IOException {
+    void shouldReturnAnEmptyCompliantListWhenAllReportsAreNonCompliantWithTheConstraints() throws IOException {
         //Arrange
         ObjectMapper mapper = new ObjectMapper();
         List<Constraint> constraints = new ArrayList<>();
@@ -46,11 +46,11 @@ class FilteringServiceTest {
             actual.get(1) = non-compliant list
          */
         assertThat(actual.get(0)).isEmpty();
-        assertThat(actual.get(1)).hasSize(2);
+        assertThat(actual.get(1)).hasSize(reports.size());
     }
 
     @Test
-    void shouldReturnOneReportInEachList() throws IOException {
+    void shouldReturnReportsInBothLists() throws IOException {
         //Arrange
         ObjectMapper mapper = new ObjectMapper();
         List<Constraint> constraints = new ArrayList<>();
@@ -74,7 +74,7 @@ class FilteringServiceTest {
     }
 
     @Test
-    void shouldReturnAnEmptyNonCompliantList() throws IOException {
+    void shouldReturnAnEmptyNonCompliantListWhenAllReportsAreCompliantWithTheConstraints() throws IOException {
         //Assert
         ObjectMapper mapper = new ObjectMapper();
         List<Constraint> constraints = new ArrayList<>();
@@ -93,7 +93,7 @@ class FilteringServiceTest {
             actual.get(0) = compliant list
             actual.get(1) = non-compliant list
          */
-        assertThat(actual.get(0)).hasSize(2);
+        assertThat(actual.get(0)).hasSize(reports.size());
         assertThat(actual.get(1)).isEmpty();
     }
 }

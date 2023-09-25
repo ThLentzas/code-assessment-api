@@ -1,18 +1,5 @@
 package gr.aegean.service.auth;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EmptySource;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import gr.aegean.entity.User;
 import gr.aegean.model.dto.auth.PasswordResetRequest;
 import gr.aegean.entity.PasswordResetToken;
@@ -22,6 +9,15 @@ import gr.aegean.repository.PasswordResetRepository;
 import gr.aegean.utility.StringUtils;
 import gr.aegean.AbstractTestContainers;
 import gr.aegean.service.email.EmailService;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -84,14 +80,11 @@ class PasswordResetServiceTest extends AbstractTestContainers {
         verifyNoInteractions(emailService);
     }
 
-    @ParameterizedTest
-    @NullSource
-    @EmptySource
-    @ValueSource(strings = {"invalidToken"})
-    void shouldThrowBadCredentialsExceptionWhenPasswordResetTokenIsInvalid(String invalidToken) {
+    @Test
+    void shouldThrowBadCredentialsExceptionWhenPasswordResetTokenIsInvalid() {
         //Arrange
         PasswordResetConfirmationRequest passwordResetConfirmationRequest = new PasswordResetConfirmationRequest(
-                invalidToken,
+                "invalidToken",
                 "@4ts0v6$Cz06");
 
         // Act Assert
@@ -118,7 +111,7 @@ class PasswordResetServiceTest extends AbstractTestContainers {
 
         passwordResetRepository.saveToken(passwordResetToken);
 
-        //Assert
+        //Act Assert
         assertThatThrownBy(() -> underTest.resetPassword(passwordResetConfirmationRequest))
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("The password reset link has expired. Please request a new one");
@@ -150,8 +143,7 @@ class PasswordResetServiceTest extends AbstractTestContainers {
 
     /*
         No need to test for the password encoder or to validate the updated password or the email service because they
-        have been tested separately in email service, etc. The validatePasswordResetToken() it's tested here as well
-        for valid token.
+        have been tested separately in email service, etc.
     */
     @Test
     void shouldResetPassword() {

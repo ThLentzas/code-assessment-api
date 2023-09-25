@@ -98,15 +98,13 @@ class UserServiceTest extends AbstractTestContainers {
         //Arrange
         User user = generateUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        underTest.registerUser(user);
 
         User duplicateEmailUser = generateUser();
         duplicateEmailUser.setPassword(duplicateEmailUser.getPassword());
         duplicateEmailUser.setEmail(user.getEmail());
 
-        //Act
-        underTest.registerUser(user);
-
-        //Assert
+        //Act Assert
         assertThatThrownBy(() -> underTest.registerUser(duplicateEmailUser))
                 .isInstanceOf(DuplicateResourceException.class)
                 .hasMessage("Email already in use");

@@ -110,6 +110,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
     void shouldSaveAnalysisProcess() throws IOException {
         //Arrange
         User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.registerUser(user);
 
         List<Constraint> constraints = new ArrayList<>();
@@ -129,13 +130,14 @@ class AnalysisServiceTest extends AbstractTestContainers {
         Integer actual = underTest.saveAnalysisProcess(user.getId(), reports, constraints, preferences);
 
         //Assert
-        assertThat(actual).isNotNull().isPositive();
+        assertThat(actual).isPositive();
     }
 
     @Test
-    void shouldFindAnalysesByUserId() throws IOException {
+    void shouldGetUserHistory() throws IOException {
         //Arrange
         User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.registerUser(user);
 
         List<Constraint> constraints = new ArrayList<>();
@@ -164,6 +166,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
     void shouldDeleteAnalysis() throws IOException {
         //Arrange
         User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.registerUser(user);
 
         List<Constraint> constraints = new ArrayList<>();
@@ -196,6 +199,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
     void shouldGetAnalysisRequest() throws IOException {
         //Arrange
         User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.registerUser(user);
 
         List<Constraint> constraints = new ArrayList<>();

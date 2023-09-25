@@ -16,8 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 /*
-    In this class the treeBuildingService is also tested indirectly for the creation of the tree. The values in these
-    tests are actual values from reports.
+    The values in these tests are actual values from reports.
  */
 class RankingServiceTest {
     private RankingService underTest;
@@ -29,7 +28,7 @@ class RankingServiceTest {
     }
 
     @Test
-    void shouldRankReportsWhenNoPreferencesWereProvided() {
+    void shouldRankReportsWhenNoPreferencesAreProvided() {
         //Arrange
         List<Preference> preferences = new ArrayList<>();
         Map<QualityMetric, Double> metricsReport = new EnumMap<>(QualityMetric.class);
@@ -55,7 +54,7 @@ class RankingServiceTest {
     }
 
     @Test
-    void shouldRankReportsWhenPreferencesWereProvided() {
+    void shouldRankReportsWhenPreferencesAreProvided() {
         //Arrange
         List<Preference> preferences = new ArrayList<>();
         Map<QualityMetric, Double> metricsReport = new EnumMap<>(QualityMetric.class);

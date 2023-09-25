@@ -34,7 +34,7 @@ class AssessmentServiceTest {
     }
 
     @Test
-    void shouldNotFilterReportsWhenNoConstraintsWereProvided() throws IOException {
+    void shouldNotFilterReportsWhenNoConstraintsAreProvided() throws IOException {
         //Arrange
         ObjectMapper mapper = new ObjectMapper();
         List<Constraint> constraints = new ArrayList<>();

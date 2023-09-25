@@ -27,13 +27,12 @@ class LanguageServiceTest {
     }
 
     @Test
-    void shouldDetectLanguagesCorrectly() {
+    void shouldDetectLanguages() {
         when(dockerService.createLinguistContainer(any(String.class))).thenReturn("100.00% 31261      Python");
 
-        Map<String, Double> actual = underTest.detectLanguage("path");
+        Map<String, Double> actual = underTest.detectLanguages("path");
 
         assertThat(actual).hasSize(1)
-                .containsKey("Python")
                 .containsEntry("Python", 100.0);
     }
 

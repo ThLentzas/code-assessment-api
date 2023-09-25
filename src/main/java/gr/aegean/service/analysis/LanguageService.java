@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class LanguageService {
     private final DockerService dockerService;
 
-    public Map<String, Double> detectLanguage(String path) {
+    public Map<String, Double> detectLanguages(String path) {
         String containerOutput = dockerService.createLinguistContainer(path);
 
         return parseLinguistOutput(containerOutput);

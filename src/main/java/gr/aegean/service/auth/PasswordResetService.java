@@ -56,7 +56,7 @@ public class PasswordResetService {
         //Validate the token
         validatePasswordResetToken(resetConfirmationRequest.token());
 
-        //validate/hash the updated password
+        //validate/hash the password
         PasswordValidator.validatePassword(resetConfirmationRequest.password());
         String hashedPassword = passwordEncoder.encode(resetConfirmationRequest.password());
 
@@ -76,11 +76,11 @@ public class PasswordResetService {
                 });
     }
 
+    /*
+        When validatePasswordResetToken() gets called, the token can't be null or blank. If it was, @Valid annotation
+        would have handled it.
+     */
     private void validatePasswordResetToken(String token) {
-        if (token == null || token.isBlank()) {
-            throw new BadCredentialsException("Reset password token is invalid");
-        }
-
         String hashedToken = StringUtils.hashToken(token);
 
         passwordResetRepository.findToken(hashedToken)

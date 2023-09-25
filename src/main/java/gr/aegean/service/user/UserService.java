@@ -44,8 +44,8 @@ public class UserService {
     private final EmailService emailService;
     private final AnalysisService analysisService;
     private final PasswordEncoder passwordEncoder;
-    private static final String USER_NOT_FOUND_ERROR_MSG = "User not found with id: ";
     private final UserDTOMapper userDTOMapper = new UserDTOMapper();
+    private static final String USER_NOT_FOUND_ERROR_MSG = "User not found with id: ";
 
     public void registerUser(User user) {
         if (userRepository.existsUserWithEmail(user.getEmail())) {

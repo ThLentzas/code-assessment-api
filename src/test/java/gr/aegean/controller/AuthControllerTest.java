@@ -48,7 +48,6 @@ class AuthControllerTest {
 
     @Test
     void shouldReturnJwtTokenAndHTTP201WhenUserIsRegisteredSuccessfully() throws Exception {
-        //Arrange
         String requestBody = """
                 {
                     "firstname": "Test",
@@ -62,7 +61,6 @@ class AuthControllerTest {
 
         when(authService.registerUser(any(RegisterRequest.class))).thenReturn(authResponse);
 
-        //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
@@ -74,9 +72,7 @@ class AuthControllerTest {
 
     @ParameterizedTest
     @NullAndEmptySource
-    void shouldReturnHTTP400WhenRegisterFirstnameIsNullOrEmpty(String firstname)
-            throws Exception {
-        //Arrange
+    void shouldReturnHTTP400WhenRegisterFirstnameIsNullOrEmpty(String firstname) throws Exception {
         String firstnameValue = firstname == null ? "null" : "\"" + firstname + "\"";
         String requestBody = String.format("""
                 {
@@ -88,7 +84,6 @@ class AuthControllerTest {
                 }
                 """, firstnameValue);
 
-        //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
@@ -100,7 +95,6 @@ class AuthControllerTest {
     @ParameterizedTest
     @NullAndEmptySource
     void shouldReturnHTTP400WhenRegisterLastnameIsNullOrEmpty(String lastname) throws Exception {
-        //Arrange
         String lastnameValue = lastname == null ? "null" : "\"" + lastname + "\"";
         String requestBody = String.format("""
                 {
@@ -112,7 +106,6 @@ class AuthControllerTest {
                 }
                 """, lastnameValue);
 
-        //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
@@ -124,7 +117,6 @@ class AuthControllerTest {
     @ParameterizedTest
     @NullAndEmptySource
     void shouldReturnHTTP400WhenRegisterUsernameIsNullOrEmpty(String username) throws Exception {
-        //Arrange
         String usernameValue = username == null ? "null" : "\"" + username + "\"";
         String requestBody = String.format("""
                 {
@@ -136,7 +128,6 @@ class AuthControllerTest {
                 }
                 """, usernameValue);
 
-        //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/signup")
                         .servletPath(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -148,9 +139,7 @@ class AuthControllerTest {
 
     @ParameterizedTest
     @NullAndEmptySource
-    void shouldReturnHTTP400WhenRegisterEmailIsNullOrEmpty(String email)
-            throws Exception {
-        //Arrange
+    void shouldReturnHTTP400WhenRegisterEmailIsNullOrEmpty(String email) throws Exception {
         String emailValue = email == null ? "null" : "\"" + email + "\"";
         String requestBody = String.format("""
                 {
@@ -162,7 +151,6 @@ class AuthControllerTest {
                 }
                 """, emailValue);
 
-        //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
@@ -174,7 +162,6 @@ class AuthControllerTest {
     @ParameterizedTest
     @NullAndEmptySource
     void shouldReturnHTTP400WhenRegisterPasswordIsNullOrEmpty(String password) throws Exception {
-        //Arrange
         String passwordValue = password == null ? "null" : "\"" + password + "\"";
         String requestBody = String.format("""
                 {
@@ -186,7 +173,6 @@ class AuthControllerTest {
                 }
                 """, passwordValue);
 
-        //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
@@ -197,7 +183,6 @@ class AuthControllerTest {
 
     @Test
     void shouldReturnJwtTokenAndHTTP200WhenUserIsAuthenticatedSuccessfully() throws Exception {
-        //Arrange
         String requestBody = """
                 {
                     "email": "test@example.com",
@@ -208,7 +193,6 @@ class AuthControllerTest {
 
         when(authService.loginUser(any(LoginRequest.class))).thenReturn(authResponse);
 
-        //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
@@ -221,7 +205,6 @@ class AuthControllerTest {
     @ParameterizedTest
     @NullAndEmptySource
     void shouldReturnHTTP400WhenAuthEmailIsNullOrEmpty(String email) throws Exception {
-        //Arrange
         String emailValue = email == null ? "null" : "\"" + email + "\"";
         String requestBody = String.format("""
                 {
@@ -230,7 +213,6 @@ class AuthControllerTest {
                 }
                 """, emailValue);
 
-        //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
@@ -243,7 +225,6 @@ class AuthControllerTest {
     @ParameterizedTest
     @NullAndEmptySource
     void shouldReturnHTTP400WhenAuthPasswordIsNullOrEmpty(String password) throws Exception {
-        //Arrange
         String passwordValue = password == null ? "null" : "\"" + password + "\"";
         String requestBody = String.format("""
                 {
@@ -252,7 +233,6 @@ class AuthControllerTest {
                 }
                 """, passwordValue);
 
-        //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
@@ -264,8 +244,7 @@ class AuthControllerTest {
 
     @ParameterizedTest
     @NullAndEmptySource
-    void shouldReturnHTTP400WhenPasswordResetRequestEmailIsNullOrEmpty(String email)
-            throws Exception {
+    void shouldReturnHTTP400WhenPasswordResetRequestEmailIsNullOrEmpty(String email) throws Exception {
         String emailValue = email == null ? "null" : "\"" + email + "\"";
         String requestBody = String.format("""
                 {
@@ -284,14 +263,12 @@ class AuthControllerTest {
 
     @Test
     void shouldReturnHTTP200ForPasswordResetRequestRegardlessIfEmailExists() throws Exception {
-        //Arrange
         String requestBody = """
                 {
                     "email": "test@example.com"
                 }
                 """;
 
-        //Act Assert
         mockMvc.perform(post(AUTH_PATH + "/password_reset")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
@@ -299,25 +276,38 @@ class AuthControllerTest {
                 .andExpect(status().isAccepted());
     }
 
-    /*
-        No need to test the token if its null or empty it is already tested in the validatePasswordResetToken() method
-        in PasswordResetServiceTest -> void shouldThrowBadCredentialsExceptionWhenTokenIsInvalid(String invalidToken)
-        We test @Valid annotation here
-    */
     @ParameterizedTest
     @NullAndEmptySource
-    void shouldReturnHTTP400WhenNewPasswordIsNullOrEmpty(String newPassword)
-            throws Exception {
-        //Arrange
+    void shouldReturnHTTP400WhenPasswordResetTokenIsNullOrEmpty(String token) throws Exception {
+        String tokenValue = token == null ? "null" : "\"" + token + "\"";
+        String requestBody = String.format("""
+                {
+                    "token": %s,
+                    "password": "somePassword"
+                }
+                """, tokenValue);
+
+        mockMvc.perform(put(AUTH_PATH + "/password_reset/confirm")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("No token provided")));
+    }
+
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    void shouldReturnHTTP400WhenNewPasswordIsNullOrEmpty(String newPassword) throws Exception {
         String newPasswordValue = newPassword == null ? "null" : "\"" + newPassword + "\"";
         String requestBody = String.format("""
                 {
                     "token": "someToken",
-                    "newPassword": %s
+                    "password": %s
                 }
                 """, newPasswordValue);
 
-        //Act Assert
         mockMvc.perform(put(AUTH_PATH + "/password_reset/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
@@ -329,7 +319,6 @@ class AuthControllerTest {
 
     @Test
     void shouldResetPasswordAndReturnHTTP204WhenTokenAndNewPasswordAreValid() throws Exception {
-        //Arrange
         String requestBody = """
                 {
                     "token": "someToken",
@@ -337,7 +326,6 @@ class AuthControllerTest {
                 }
                 """;
 
-        //Act Assert
         mockMvc.perform(put(AUTH_PATH + "/password_reset/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
