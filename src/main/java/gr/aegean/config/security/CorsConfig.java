@@ -12,15 +12,14 @@ import java.util.List;
 
 @Configuration
 public class CorsConfig {
+
+    //Intellij's value preview might show '*' due to a visual bug. The correct values are being picked up at runtime.
     @Value("${cors.allowed-origins}")
     private String allowedOrigins;
-
     @Value("${cors.allowed-methods}")
     private String allowedMethods;
-
     @Value("${cors.allowed-headers}")
     private String allowedHeaders;
-
     @Value("${cors.exposed-headers}")
     private String exposedHeaders;
 
@@ -35,7 +34,7 @@ public class CorsConfig {
 
         /*
             If there's no comma in the string, the split(",") method will return an array containing the original
-            string as its only element. That's the case we only have a single value.
+            string as its only element. That's the case when we only have a single value.
          */
         configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
         configuration.setAllowedMethods(List.of(allowedMethods.split(",")));

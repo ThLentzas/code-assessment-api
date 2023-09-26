@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.JavaType;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +14,9 @@ import java.util.List;
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.entity.Constraint;
 import gr.aegean.entity.Preference;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -41,7 +42,7 @@ class AssessmentServiceTest {
         List<Preference> preferences = new ArrayList<>();
 
         String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
-        JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
+        CollectionType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 
         //Act

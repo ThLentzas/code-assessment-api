@@ -23,6 +23,13 @@ class EmailUpdateTokenRowMapperTest {
         underTest = new EmailUpdateTokenRowMapper();
     }
 
+    /*
+        We can not create an EmailUpdateToken object and then asserThat(actual).isEqualTo(expected) because of the
+        expiry date property. For example: EmailUpdateToken expected = new EmailUpdateToken(
+        1, "token", "email", LocalDate.now()) and then call when(resultSet.getTimestamp("expiry_date")).thenReturn(
+        Timestamp.valueOf(expiryDate)); some time will be elapsed and the 2 expiryDates will be different. So calling
+        equals and hashcode will treat them as 2 different objects.
+     */
     @Test
     void shouldMapRowToEmailUpdateToken() throws SQLException {
         try (ResultSet resultSet = mock(ResultSet.class)) {

@@ -1,14 +1,14 @@
 package gr.aegean.entity;
 
-import gr.aegean.model.analysis.quality.QualityMetric;
-import gr.aegean.model.analysis.sonarqube.HotspotsReport;
-import gr.aegean.model.analysis.sonarqube.IssuesReport;
-import gr.aegean.model.analysis.sonarqube.Rule;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import gr.aegean.model.analysis.quality.QualityMetric;
+import gr.aegean.model.analysis.sonarqube.HotspotsReport;
+import gr.aegean.model.analysis.sonarqube.IssuesReport;
+import gr.aegean.model.analysis.sonarqube.Rule;
 
 import java.util.Map;
 

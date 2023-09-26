@@ -1,10 +1,5 @@
 package gr.aegean.service.analysis;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.JavaType;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.EnumMap;
@@ -13,6 +8,12 @@ import java.util.Map;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.sonarqube.HotspotsReport;
 import gr.aegean.model.analysis.sonarqube.IssuesReport;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JavaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

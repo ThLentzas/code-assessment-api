@@ -56,7 +56,7 @@ class AuthServiceTest {
                 "Test",
                 "TestT",
                 "test@gmail.com",
-                "CyN549^*o2Cr"
+                "IgwcUQAlfX$E"
         );
 
         User user = User.builder()

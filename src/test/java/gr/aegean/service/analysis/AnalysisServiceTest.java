@@ -27,8 +27,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.JavaType;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +37,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 
 @ExtendWith(MockitoExtension.class)
 class AnalysisServiceTest extends AbstractTestContainers {
@@ -123,7 +123,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
 
         ObjectMapper mapper = new ObjectMapper();
         String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
-        JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
+        CollectionType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 
         //Act
@@ -150,7 +150,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
 
         ObjectMapper mapper = new ObjectMapper();
         String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
-        JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
+        CollectionType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 
         underTest.saveAnalysisProcess(user.getId(), reports, constraints, preferences);
@@ -179,7 +179,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
 
         ObjectMapper mapper = new ObjectMapper();
         String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
-        JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
+        CollectionType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 
         Integer analysisId = underTest.saveAnalysisProcess(user.getId(), reports, constraints, preferences);
@@ -212,7 +212,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
 
         ObjectMapper mapper = new ObjectMapper();
         String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
-        JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
+        CollectionType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
 
         Integer analysisId = underTest.saveAnalysisProcess(user.getId(), reports, constraints, preferences);
@@ -236,7 +236,7 @@ class AnalysisServiceTest extends AbstractTestContainers {
                 .lastname("Test")
                 .username("TestT")
                 .email("test@example.com")
-                .password(passwordEncoder.encode("test"))
+                .password(passwordEncoder.encode("IgwcUQAlfX$E"))
                 .bio("I have a real passion for teaching")
                 .location("Cleveland, OH")
                 .company("Code Monkey, LLC")

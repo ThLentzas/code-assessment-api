@@ -1,19 +1,20 @@
 package gr.aegean.mapper.row;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gr.aegean.entity.AnalysisReport;
 
@@ -28,18 +29,16 @@ class AnalysisReportRowMapperTest {
     }
 
     @Test
-    void shouldMapRowToAnalysisReport() throws SQLException, JsonProcessingException {
+    void shouldMapRowToAnalysisReport() throws SQLException, IOException {
         try (ResultSet resultSet = mock(ResultSet.class)) {
             //Arrange
-            Map<String, Double> languages = new HashMap<>();
-            AnalysisReport expected = new AnalysisReport();
-            expected.setId(1);
-            expected.setAnalysisId(3);
-            expected.setLanguages(languages);
-
+            String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
+            CollectionType type = objectMapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
+            List<AnalysisReport> reports = objectMapper.readValue(new File(analysisReportPath), type);
+            AnalysisReport expected = reports.get(0);
             String jsonReport = objectMapper.writeValueAsString(expected);
 
-            when(resultSet.getInt("id")).thenReturn(1);
+            when(resultSet.getInt("id")).thenReturn(3);
             when(resultSet.getString("report")).thenReturn(jsonReport);
 
             //Act

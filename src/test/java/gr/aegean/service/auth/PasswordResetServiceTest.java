@@ -162,7 +162,7 @@ class PasswordResetServiceTest extends AbstractTestContainers {
 
         PasswordResetConfirmationRequest passwordResetConfirmationRequest = new PasswordResetConfirmationRequest(
                 "token",
-                "3frMH4v!20d4");
+                "@4ts0v6$Cz06");
 
         //Act
         underTest.resetPassword(passwordResetConfirmationRequest);
@@ -180,7 +180,7 @@ class PasswordResetServiceTest extends AbstractTestContainers {
                 .lastname("Test")
                 .username("TestT")
                 .email("test@example.com")
-                .password(passwordEncoder.encode("test"))
+                .password(passwordEncoder.encode("Igw4UQAlfX$E"))
                 .bio("I have a real passion for teaching")
                 .location("Cleveland, OH")
                 .company("Code Monkey, LLC")

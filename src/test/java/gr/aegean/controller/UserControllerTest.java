@@ -205,7 +205,7 @@ class UserControllerTest {
         String requestBody = """
                 {
                     "oldPassword": "3frMH4v!20d4",
-                    "newPassword": "CyN549^*o2Cr"
+                    "newPassword": "Igw4UQAlfX$E"
                 }
                 """;
 
@@ -222,7 +222,7 @@ class UserControllerTest {
         String requestBody = """
                 {
                     "oldPassword": "3frMH4v!20d4",
-                    "newPassword": "CyN549^*o2Cr"
+                    "newPassword": "Igw4UQAlfX$E"
                 }
                 """;
 
@@ -242,7 +242,7 @@ class UserControllerTest {
         String requestBody = """
                 {
                     "oldPassword": "3frMH4v!20d4",
-                    "newPassword": "CyN549^*o2Cr"
+                    "newPassword": "Igw4UQAlfX$E"
                 }
                 """;
 

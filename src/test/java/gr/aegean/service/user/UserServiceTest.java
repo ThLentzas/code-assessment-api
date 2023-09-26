@@ -343,56 +343,6 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     /*
-        Password validation has already being tested.
-     */
-    @Test
-    void shouldUpdateUserPassword() {
-        //Arrange
-        User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.registerUser(user);
-        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("Test2Ex@mple", "CyN549^*o2Cr");
-
-        when(jwtService.getSubject()).thenReturn(user.getId().toString());
-
-        //Act
-        underTest.updatePassword(passwordUpdateRequest);
-
-        //Assert
-        userRepository.findUserById(user.getId())
-                .ifPresent(user1 -> assertTrue(passwordEncoder.matches("CyN549^*o2Cr", user1.getPassword())));
-    }
-
-    @Test
-    void shouldThrowBadCredentialsExceptionWhenOldPasswordIsWrong() {
-        //Arrange
-        User user = generateUser();
-        userRepository.registerUser(user);
-        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("foo", "CyN549^*o2Cr");
-
-        when(jwtService.getSubject()).thenReturn(user.getId().toString());
-
-
-        //Act Assert
-        assertThatThrownBy(() -> underTest.updatePassword(passwordUpdateRequest))
-                .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("Old password is wrong");
-    }
-
-    @Test
-    void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdatePassword() {
-        //Arrange
-        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("foo", "CyN549^*o2Cr");
-
-        when(jwtService.getSubject()).thenReturn(String.valueOf(1));
-
-        //Act Assert
-        assertThatThrownBy(() -> underTest.updatePassword(passwordUpdateRequest))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
-    }
-
-    /*
         Have to override equals() and hashcode() for this to work
      */
     @Test
@@ -429,6 +379,56 @@ class UserServiceTest extends AbstractTestContainers {
                 .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
     }
 
+    /*
+        Password validation has already being tested.
+     */
+    @Test
+    void shouldUpdateUserPassword() {
+        //Arrange
+        User user = generateUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.registerUser(user);
+        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("Igw4UQAlfX$E", "3frMH4v!20d4");
+
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
+
+        //Act
+        underTest.updatePassword(passwordUpdateRequest);
+
+        //Assert
+        userRepository.findUserById(user.getId())
+                .ifPresent(user1 -> assertTrue(passwordEncoder.matches("3frMH4v!20d4", user1.getPassword())));
+    }
+
+    @Test
+    void shouldThrowBadCredentialsExceptionWhenOldPasswordIsWrong() {
+        //Arrange
+        User user = generateUser();
+        userRepository.registerUser(user);
+        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("foo", "3frMH4v!20d4");
+
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
+
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.updatePassword(passwordUpdateRequest))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessage("Old password is wrong");
+    }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdatePassword() {
+        //Arrange
+        UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("foo", "CyN549^*o2Cr");
+
+        when(jwtService.getSubject()).thenReturn(String.valueOf(1));
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.updatePassword(passwordUpdateRequest))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
+    }
+
     @Test
     void shouldCreateEmailUpdateToken() {
         //Arrange
@@ -437,7 +437,7 @@ class UserServiceTest extends AbstractTestContainers {
         userRepository.registerUser(user);
         UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
                 "foo@example.com",
-                "Test2Ex@mple"
+                "Igw4UQAlfX$E"
         );
 
         when(jwtService.getSubject()).thenReturn(user.getId().toString());
@@ -495,7 +495,7 @@ class UserServiceTest extends AbstractTestContainers {
         userRepository.registerUser(user);
         UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
                 "test@example.com",
-                "Test2Ex@mple"
+                "Igw4UQAlfX$E"
         );
 
         when(jwtService.getSubject()).thenReturn(user.getId().toString());
@@ -557,7 +557,7 @@ class UserServiceTest extends AbstractTestContainers {
 
         UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
                 "foo@example.com",
-                "Test2Ex@mple"
+                "Igw4UQAlfX$E"
         );
 
         when(jwtService.getSubject()).thenReturn(user.getId().toString());
@@ -637,7 +637,7 @@ class UserServiceTest extends AbstractTestContainers {
         User user = generateUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
-        UserAccountDeleteRequest accountDeleteRequest = new UserAccountDeleteRequest("Test2Ex@mple");
+        UserAccountDeleteRequest accountDeleteRequest = new UserAccountDeleteRequest("Igw4UQAlfX$E");
 
         when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
@@ -685,7 +685,7 @@ class UserServiceTest extends AbstractTestContainers {
                 .lastname("Test")
                 .username("TestT")
                 .email("test@example.com")
-                .password("Test2Ex@mple")
+                .password("Igw4UQAlfX$E")
                 .bio("I have a real passion for teaching")
                 .location("Cleveland, OH")
                 .company("Code Monkey, LLC")

@@ -13,9 +13,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -25,7 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import gr.aegean.config.security.AuthConfig;
 import gr.aegean.config.security.SecurityConfig;
 import gr.aegean.config.security.JwtConfig;
-import gr.aegean.model.dto.analysis.RefreshRequest;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
 import gr.aegean.service.analysis.AsyncService;
@@ -53,7 +51,7 @@ class AnalysisControllerTest {
     private static final String ANALYSIS_PATH = "/api/v1/analysis";
 
     @Test
-    void shouldReturnHTTP401WhenAnalysisIsCalledByUnauthenticatedUser() throws Exception {
+    void shouldReturnHTTP401WhenAnalyzeIsCalledByUnauthenticatedUser() throws Exception {
         String requestBody = """
                 {
                     "projectUrls": [
@@ -384,7 +382,6 @@ class AnalysisControllerTest {
         verifyNoInteractions(asyncService);
     }
 
-
     @Test
     void shouldReturnHTTP401WhenGetAnalysisResultIsCalledByUnauthenticatedUser() throws Exception {
         mockMvc.perform(get(ANALYSIS_PATH + "/{analysisId}", 1))
@@ -393,30 +390,44 @@ class AnalysisControllerTest {
         verifyNoInteractions(asyncService);
     }
 
+    /*
+        The refresh request validation for constraints and preferences is the same with the analysis request,
+        which is already tested
+     */
     @Test
     void shouldReturnHTTP401WhenRefreshAnalysisResultIsCalledByUnauthenticatedUser() throws Exception {
-        mockMvc.perform(put(ANALYSIS_PATH + "/{analysisId}", 1))
+        String requestBody = """
+                {
+                    "constraints": [
+                        {
+                            "qualityMetric": "CYCLOMATIC_COMPLEXITY",
+                            "operator": ">",
+                            "threshold": 0.85
+                        }
+                    ]
+                }
+                """;
+
+        mockMvc.perform(put(ANALYSIS_PATH + "/{analysisId}", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(asyncService);
     }
 
     @Test
-    @WithMockUser(username = "test")
-    void shouldReturnHTTP400WhenConstraintThresholdIsNotValid() throws Exception {
-        when(analysisService.refreshAnalysisResult(any(Integer.class), any(RefreshRequest.class)))
-                .thenThrow(new IllegalArgumentException("No refresh request was provided"));
+    void shouldReturnHTTP401WhenDeleteAnalysisIsCalledByUnauthenticatedUser() throws Exception {
+        mockMvc.perform(delete(ANALYSIS_PATH + "/{analysisId}", 1))
+                .andExpect(status().isUnauthorized());
 
-        mockMvc.perform(put(ANALYSIS_PATH + "/{analysisId}", 1)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("")
-                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+        verifyNoInteractions(asyncService);
     }
 
     @Test
-    void shouldReturnHTTP401WhenAnalysisResultIsCalledByUnauthenticatedUser() throws Exception {
-        mockMvc.perform(get(ANALYSIS_PATH + "/reports/{reportId}", 1))
+    void shouldReturnHTTP401WhenGetAnalysisRequestIsCalledByUnauthenticatedUser() throws Exception {
+        mockMvc.perform(get(ANALYSIS_PATH + "/{analysisId}/request", 1))
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(asyncService);

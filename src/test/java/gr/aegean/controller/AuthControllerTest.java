@@ -54,7 +54,7 @@ class AuthControllerTest {
                     "lastname": "Test",
                     "username": "Test",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr"
+                    "password": "Igw4UQAlfX$E"
                 }
                 """;
         AuthResponse authResponse = new AuthResponse("jwtToken");
@@ -80,7 +80,7 @@ class AuthControllerTest {
                     "lastname": "Test",
                     "username": "Test",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr"
+                    "password": "Igw4UQAlfX$E"
                 }
                 """, firstnameValue);
 
@@ -102,7 +102,7 @@ class AuthControllerTest {
                     "lastname": %s,
                     "username": "Test",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr"
+                    "password": "Igw4UQAlfX$E"
                 }
                 """, lastnameValue);
 
@@ -124,7 +124,7 @@ class AuthControllerTest {
                     "lastname": "Test",
                     "username": %s,
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr"
+                    "password": "Igw4UQAlfX$E"
                 }
                 """, usernameValue);
 
@@ -147,7 +147,7 @@ class AuthControllerTest {
                     "lastname": "Test",
                     "username": "TestT",
                     "email": %s,
-                    "password": "CyN549^*o2Cr"
+                    "password": "Igw4UQAlfX$E"
                 }
                 """, emailValue);
 
@@ -186,7 +186,7 @@ class AuthControllerTest {
         String requestBody = """
                 {
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr"
+                    "password": "Igw4UQAlfX$E"
                 }
                 """;
         AuthResponse authResponse = new AuthResponse("jwtToken");
@@ -209,7 +209,7 @@ class AuthControllerTest {
         String requestBody = String.format("""
                 {
                     "email": %s,
-                    "password": "CyN549^*o2Cr"
+                    "password": "Igw4UQAlfX$E"
                 }
                 """, emailValue);
 

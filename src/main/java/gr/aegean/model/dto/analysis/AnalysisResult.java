@@ -13,6 +13,6 @@ import java.util.List;
 public record AnalysisResult(Integer analysisId,
                              List<List<AnalysisReportDTO>> reports,
                              @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-                               @JsonSerialize(using = LocalDateSerializer.class)
-                               LocalDate createdDate) {
+                             @JsonSerialize(using = LocalDateSerializer.class)
+                             LocalDate createdDate) {
 }

@@ -18,7 +18,7 @@ class UserDTOMapperTest {
     }
 
     @Test
-    void shouldConvertUserToUserDTO() {
+    void shouldMapUserToUserDTO() {
         //Arrange
         User expected = User.builder()
                 .id(1)
@@ -26,6 +26,7 @@ class UserDTOMapperTest {
                 .lastname("Test")
                 .username("TestT")
                 .email("test@example.com")
+                .password("Test")
                 .bio("I have a real passion for teaching")
                 .location("Cleveland, OH")
                 .company("Code Monkey, LLC")
@@ -35,13 +36,13 @@ class UserDTOMapperTest {
         UserDTO actual = underTest.apply(expected);
 
         //Assert
-        assertThat(expected.getId()).isEqualTo(actual.id());
-        assertThat(expected.getFirstname()).isEqualTo(actual.firstname());
-        assertThat(expected.getLastname()).isEqualTo(actual.lastname());
-        assertThat(expected.getUsername()).isEqualTo(actual.username());
-        assertThat(expected.getEmail()).isEqualTo(actual.email());
-        assertThat(expected.getBio()).isEqualTo(actual.bio());
-        assertThat(expected.getLocation()).isEqualTo(actual.location());
-        assertThat(expected.getCompany()).isEqualTo(actual.company());
+        assertThat(actual.id()).isEqualTo(expected.getId());
+        assertThat(actual.firstname()).isEqualTo(expected.getFirstname());
+        assertThat(actual.lastname()).isEqualTo(expected.getLastname());
+        assertThat(actual.username()).isEqualTo(expected.getUsername());
+        assertThat(actual.email()).isEqualTo(expected.getEmail());
+        assertThat(actual.bio()).isEqualTo(expected.getBio());
+        assertThat(actual.location()).isEqualTo(expected.getLocation());
+        assertThat(actual.company()).isEqualTo(expected.getCompany());
     }
 }

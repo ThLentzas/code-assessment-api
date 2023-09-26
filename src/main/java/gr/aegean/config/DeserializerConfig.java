@@ -1,11 +1,11 @@
 package gr.aegean.config;
 
-import gr.aegean.deserializer.AttributeDeserializer;
+import gr.aegean.deserializer.QualityAttributeDeserializer;
 import gr.aegean.model.analysis.quality.QualityAttribute;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.quality.QualityMetricOperator;
-import gr.aegean.deserializer.OperatorDeserializer;
-import gr.aegean.deserializer.MetricDeserializer;
+import gr.aegean.deserializer.QualityMetricOperatorDeserializer;
+import gr.aegean.deserializer.QualityMetricDeserializer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,9 +24,9 @@ public class DeserializerConfig {
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
 
-        module.addDeserializer(QualityMetric.class, new MetricDeserializer());
-        module.addDeserializer(QualityAttribute.class, new AttributeDeserializer());
-        module.addDeserializer(QualityMetricOperator.class, new OperatorDeserializer());
+        module.addDeserializer(QualityMetric.class, new QualityMetricDeserializer());
+        module.addDeserializer(QualityAttribute.class, new QualityAttributeDeserializer());
+        module.addDeserializer(QualityMetricOperator.class, new QualityMetricOperatorDeserializer());
         objectMapper.registerModule(module);
 
         return objectMapper;

@@ -16,36 +16,36 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 
 import java.io.IOException;
 
-import gr.aegean.model.analysis.quality.QualityMetric;
+import gr.aegean.model.analysis.quality.QualityAttribute;
 
 
-class MetricDeserializerTest {
-    private MetricDeserializer underTest;
+class QualityAttributeDeserializerTest {
+    private QualityAttributeDeserializer underTest;
 
     @BeforeEach
     void setup() {
-        underTest = new MetricDeserializer();
+        underTest = new QualityAttributeDeserializer();
     }
 
     @Test
-    void shouldDeserializeMetric() throws IOException {
-        //Arrange
-        String expected = "DUPLICATION";
+    void shouldDeserializeQualityAttribute() throws IOException {
+        // Arrange
+        String expected = "RELIABILITY";
         JsonParser parser = mock(JsonParser.class);
         DeserializationContext context = mock(DeserializationContext.class);
 
         when(parser.getValueAsString()).thenReturn(expected);
 
-        //Act
-        QualityMetric actual = underTest.deserialize(parser, context);
+        // Act
+        QualityAttribute actual = underTest.deserialize(parser, context);
 
-        //Assert
-        assertThat(actual).isEqualTo(QualityMetric.valueOf(expected));
+        // Assert
+        assertThat(actual).isEqualTo(QualityAttribute.valueOf(expected));
     }
 
     @Test
-    void shouldDeserializeMetricIgnoringCaseAndSpaces() throws IOException {
-        //Arrange
+    void shouldDeserializeQualityAttributeIgnoringCaseAndExtraSpaces() throws IOException {
+        // Arrange
         String input = "  Bug  Severity  ";
         String expected = "BUG_SEVERITY";
         JsonParser parser = mock(JsonParser.class);
@@ -53,30 +53,31 @@ class MetricDeserializerTest {
 
         when(parser.getValueAsString()).thenReturn(input);
 
-        //Act
-        QualityMetric actual = underTest.deserialize(parser, context);
+        // Act
+        QualityAttribute actual = underTest.deserialize(parser, context);
 
-        //Assert
-        assertThat(actual).isEqualTo(QualityMetric.valueOf(expected));
+        // Assert
+        assertThat(actual).isEqualTo(QualityAttribute.valueOf(expected));
     }
 
     /*
-        Null case is covered by the @Valid annotation. There will be no mapping if the quality metric is null so no
-        deserialization will happen for the quality metric property.
+        Null case is covered by the @Valid annotation. There will be no mapping if the quality attribute is null so no
+        deserialization will happen for the quality attribute property.
      */
     @ParameterizedTest
     @EmptySource
-    @ValueSource(strings = {"invalidMetric"})
-    void shouldThrowIllegalArgumentExceptionWhenMetricIsInvalid(String metric) throws IOException {
+    @ValueSource(strings = {"invalidAttribute"})
+    void shouldThrowIllegalArgumentExceptionWhenQualityAttributeIsInvalid(String attribute) throws IOException {
         // Arrange
         JsonParser parser = mock(JsonParser.class);
         DeserializationContext context = mock(DeserializationContext.class);
 
-        when(parser.getValueAsString()).thenReturn(metric);
+        // Act
+        when(parser.getValueAsString()).thenReturn(attribute);
 
-        //Act Assert
+        // Assert
         assertThatThrownBy(() -> underTest.deserialize(parser, context))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid quality metric: " + metric.toUpperCase());
+                .hasMessage("Invalid quality attribute: " + attribute.toUpperCase());
     }
 }

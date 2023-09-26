@@ -5,7 +5,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;
@@ -48,21 +47,21 @@ class UserIT extends AbstractIntegrationTest {
                     "lastname": "Test",
                     "username": "TestT",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr"
+                    "password": "Igw4UQAlfX$E"
                 }
                 """;
-
-        EntityExchangeResult<AuthResponse> result = webTestClient.post()
+        AuthResponse response = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
-                .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody(AuthResponse.class)
-                .returnResult();
+                .returnResult()
+                .getResponseBody();
 
-        String jwtToken = result.getResponseBody().token();
+        String jwtToken = response.token();
 
         UserDTO actual = webTestClient.get()
                 .uri(USER_PATH)
@@ -104,21 +103,22 @@ class UserIT extends AbstractIntegrationTest {
                     "lastname": "Test",
                     "username": "TestT",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr"
+                    "password": "Igw4UQAlfX$E"
                 }
                 """;
 
-        EntityExchangeResult<AuthResponse> result = webTestClient.post()
+        AuthResponse response = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
-                .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody(AuthResponse.class)
-                .returnResult();
+                .returnResult()
+                .getResponseBody();
 
-        String jwtToken = result.getResponseBody().token();
+        String jwtToken = response.token();
 
         UserProfile actual = webTestClient.get()
                 .uri(USER_PATH + "/profile")
@@ -150,21 +150,22 @@ class UserIT extends AbstractIntegrationTest {
                     "lastname": "Test",
                     "username": "TestT",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr"
+                    "password": "Igw4UQAlfX$E"
                 }
                 """;
 
-        EntityExchangeResult<AuthResponse> result = webTestClient.post()
+        AuthResponse response = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
-                .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody(AuthResponse.class)
-                .returnResult();
+                .returnResult()
+                .getResponseBody();
 
-        String jwtToken = result.getResponseBody().token();
+        String jwtToken = response.token();
 
         requestBody = """
                 {
@@ -180,8 +181,50 @@ class UserIT extends AbstractIntegrationTest {
         webTestClient.put()
                 .uri(USER_PATH + "/profile")
                 .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
                 .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
+                .exchange()
+                .expectStatus().isNoContent();
+    }
+
+    @Test
+    void shouldUpdatePassword() {
+        String requestBody = """
+                {
+                    "firstname": "Test",
+                    "lastname": "Test",
+                    "username": "TestT",
+                    "email": "test@example.com",
+                    "password": "Igw4UQAlfX$E"
+                }
+                """;
+
+        AuthResponse response = webTestClient.post()
+                .uri(AUTH_PATH + "/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(AuthResponse.class)
+                .returnResult()
+                .getResponseBody();
+
+        String jwtToken = response.token();
+
+        requestBody = """
+                {
+                    "oldPassword": "Igw4UQAlfX$E",
+                    "newPassword": "3frMH4v!20d4"
+                }
+                """;
+
+        webTestClient.put()
+                .uri(USER_PATH + "/settings/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
                 .bodyValue(requestBody)
                 .exchange()
                 .expectStatus().isNoContent();
@@ -195,34 +238,35 @@ class UserIT extends AbstractIntegrationTest {
                     "lastname": "Test",
                     "username": "TestT",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr"
+                    "password": "Igw4UQAlfX$E"
                 }
                 """;
 
-        EntityExchangeResult<AuthResponse> result = webTestClient.post()
+        AuthResponse response = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
-                .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody(AuthResponse.class)
-                .returnResult();
+                .returnResult()
+                .getResponseBody();
 
-        String jwtToken = result.getResponseBody().token();
+        String jwtToken = response.token();
 
         requestBody = """
                 {
                     "email": "foo@example.com",
-                    "password": "CyN549^*o2Cr"
+                    "password": "Igw4UQAlfX$E"
                 }
                 """;
 
         webTestClient.post()
                 .uri(USER_PATH + "/settings/email")
+                .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
-                .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange()
                 .expectStatus().isAccepted();
@@ -271,33 +315,34 @@ class UserIT extends AbstractIntegrationTest {
                     "lastname": "Test",
                     "username": "TestT",
                     "email": "test@example.com",
-                    "password": "CyN549^*o2Cr"
+                    "password": "Igw4UQAlfX$E"
                 }
                 """;
 
-        EntityExchangeResult<AuthResponse> result = webTestClient.post()
+        AuthResponse response = webTestClient.post()
                 .uri(AUTH_PATH + "/signup")
-                .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody(AuthResponse.class)
-                .returnResult();
+                .returnResult()
+                .getResponseBody();
 
-        String jwtToken = result.getResponseBody().token();
+        String jwtToken = response.token();
 
         requestBody = """
                 {
-                    "password": "CyN549^*o2Cr"
+                    "password": "Igw4UQAlfX$E"
                 }
                 """;
 
         webTestClient.put()
                 .uri(USER_PATH + "/settings/account")
-                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
-                .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header(AUTHORIZATION, String.format("Bearer %s", jwtToken))
                 .bodyValue(requestBody)
                 .exchange()
                 .expectStatus().isNoContent();

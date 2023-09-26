@@ -11,7 +11,7 @@ import java.io.IOException;
 /*
     Receives an equality symbol and maps it to an Enum value. Valid symbols are: >, >=, <, <=, ==, <>.
  */
-public class OperatorDeserializer extends JsonDeserializer<QualityMetricOperator> {
+public class QualityMetricOperatorDeserializer extends JsonDeserializer<QualityMetricOperator> {
 
     @Override
     public QualityMetricOperator deserialize(JsonParser parser, DeserializationContext context) throws IOException {

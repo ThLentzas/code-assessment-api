@@ -38,9 +38,7 @@ class AnalysisRowMapperTest {
             Analysis actual = underTest.mapRow(resultSet, 1);
 
             //Assert
-            assertThat(actual.getId()).isEqualTo(expected.getId());
-            assertThat(actual.getUserId()).isEqualTo(expected.getUserId());
-            assertThat(actual.getCreatedDate()).isEqualTo(expected.getCreatedDate());
+            assertThat(actual).isEqualTo(expected);
         }
     }
 }

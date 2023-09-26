@@ -13,7 +13,7 @@ import java.io.IOException;
     The deserializer converts the provided attribute to uppercase, trims the input and replaces the " " with "_".
     It covers cases like "Hotspot Priority" to "HOTSPOT_PRIORITY" which in the enum value.
  */
-public class AttributeDeserializer extends JsonDeserializer<QualityAttribute> {
+public class QualityAttributeDeserializer extends JsonDeserializer<QualityAttribute> {
 
     @Override
     public QualityAttribute deserialize(JsonParser parser, DeserializationContext context) throws IOException {

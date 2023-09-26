@@ -19,16 +19,16 @@ import gr.aegean.model.analysis.quality.QualityMetricOperator;
 import java.io.IOException;
 
 
-class OperatorDeserializerTest {
-    private OperatorDeserializer underTest;
+class QualityMetricOperatorDeserializerTest {
+    private QualityMetricOperatorDeserializer underTest;
 
     @BeforeEach
     void setup() {
-        underTest = new OperatorDeserializer();
+        underTest = new QualityMetricOperatorDeserializer();
     }
 
     @Test
-    void shouldDeserializeSymbolToOperator() throws IOException {
+    void shouldDeserializeSymbolToQualityMetricOperator() throws IOException {
         //Arrange
         String symbol = "<=";
         QualityMetricOperator expected = QualityMetricOperator.LTE;
@@ -49,7 +49,7 @@ class OperatorDeserializerTest {
         so no deserialization will happen for the quality metric operator property.
      */
     @ParameterizedTest
-    @ValueSource(strings = {"://"})
+    @ValueSource(strings = {"("})
     @EmptySource
     void shouldThrowIllegalArgumentExceptionWhenSymbolIsInvalid(String symbol) throws IOException {
         // Arrange

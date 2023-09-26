@@ -13,7 +13,7 @@ import java.io.IOException;
     The deserializer converts the provided metric to uppercase, trims the input and replaces the " " with "_".
     It also covers cases like "Cyclomatic Complexity" to "CYCLOMATIC_COMPLEXITY" which in the enum value.
  */
-public class MetricDeserializer extends JsonDeserializer<QualityMetric> {
+public class QualityMetricDeserializer extends JsonDeserializer<QualityMetric> {
 
     @Override
     public QualityMetric deserialize(JsonParser parser, DeserializationContext context) throws IOException {
