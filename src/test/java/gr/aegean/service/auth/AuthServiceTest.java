@@ -86,7 +86,7 @@ class AuthServiceTest {
         SecurityUser implements UserDetails.
      */
     @Test
-    void shouldAuthenticateUser() {
+    void shouldLoginUser() {
         //Arrange
         LoginRequest loginRequest = new LoginRequest("test@gmail.com", "test");
         User user = new User(loginRequest.email(), loginRequest.password());
@@ -109,7 +109,7 @@ class AuthServiceTest {
         UsernameNotFoundException is caught by Spring and a spring.security.BadCredentialsException is thrown instead.
      */
     @Test
-    void shouldThrowUnauthorizedExceptionWhenAuthEmailOrPasswordIsWrong() {
+    void shouldThrowUnauthorizedExceptionWhenLoginEmailOrPasswordIsWrong() {
         //Arrange
         LoginRequest request = new LoginRequest("test@example.com", "password");
 

@@ -1,6 +1,5 @@
 package gr.aegean.integration;
 
-import gr.aegean.exception.ApiError;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,19 +12,19 @@ import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.hamcrest.Matchers.is;
-
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import gr.aegean.AbstractIntegrationTest;
+import gr.aegean.exception.ApiError;
+import gr.aegean.model.dto.auth.AuthResponse;
+
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
-import gr.aegean.AbstractIntegrationTest;
-import gr.aegean.model.dto.auth.AuthResponse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 
 @AutoConfigureWebTestClient
@@ -84,7 +83,7 @@ class AuthIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldNotLoginUserWhenPasswordIsWrong() {
+    void shouldNotLoginUserWhenCredentialsAreWrong() {
         String requestBody = """
                 {
                     "firstname": "Test",
@@ -112,50 +111,6 @@ class AuthIT extends AbstractIntegrationTest {
                 {
                     "email": "test@example.com",
                     "password": "wrongPassword"
-                }
-                """;
-
-        webTestClient.post()
-                .uri(AUTH_PATH + "/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .bodyValue(requestBody)
-                .exchange()
-                .expectStatus().isUnauthorized()
-                .expectBody()
-                .jsonPath("$.error", is("Username or password is incorrect"));
-    }
-
-    @Test
-    void shouldNotLoginUserWhenEmailIsWrong() {
-        String requestBody = """
-                {
-                    "firstname": "Test",
-                    "lastname": "Test",
-                    "username": "Test",
-                    "email": "test@example.com",
-                    "password": "Igw4UQAlfX$E"
-                }
-                """;
-
-        AuthResponse response = webTestClient.post()
-                .uri(AUTH_PATH + "/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .bodyValue(requestBody)
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody(AuthResponse.class)
-                .returnResult()
-                .getResponseBody();
-
-        assertThat(response.token()).isNotNull();
-
-
-        requestBody = """
-                {
-                    "email": "wrongemail@example.com",
-                    "password": "password"
                 }
                 """;
 

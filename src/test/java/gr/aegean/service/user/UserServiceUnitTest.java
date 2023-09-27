@@ -1,6 +1,6 @@
 package gr.aegean.service.user;
 
-import gr.aegean.AbstractTestContainers;
+import gr.aegean.AbstractUnitTest;
 import gr.aegean.entity.EmailUpdateToken;
 import gr.aegean.entity.User;
 import gr.aegean.exception.DuplicateResourceException;
@@ -48,7 +48,7 @@ import java.util.Random;
 
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest extends AbstractTestContainers {
+class UserServiceUnitTest extends AbstractUnitTest {
     @Mock
     private EmailService emailService;
     @Mock
@@ -342,9 +342,6 @@ class UserServiceTest extends AbstractTestContainers {
                 .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
     }
 
-    /*
-        Have to override equals() and hashcode() for this to work
-     */
     @Test
     void shouldGetUserProfile() {
         //Arrange
@@ -380,7 +377,10 @@ class UserServiceTest extends AbstractTestContainers {
     }
 
     /*
-        Password validation has already being tested.
+        Password validation has already being tested, we don't have to test that the new password meets all the
+        requirements, will test that the exception is thrown and handled correctly in the Controller. Same case with
+        validating constraints and preferences for both analysis request and refresh request. We only did for the
+        analysis request.
      */
     @Test
     void shouldUpdateUserPassword() {

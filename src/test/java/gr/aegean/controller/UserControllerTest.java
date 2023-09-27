@@ -45,7 +45,8 @@ import static org.hamcrest.Matchers.is;
     the Service, that's why we call verifyNoInteractions(userService); in every BadRequest test.
  */
 @WebMvcTest(UserController.class)
-@Import({SecurityConfig.class,
+@Import({
+        SecurityConfig.class,
         AuthConfig.class,
         JwtConfig.class})
 class UserControllerTest {
@@ -61,7 +62,7 @@ class UserControllerTest {
 
     @Test
     @WithMockUser(username = "test")
-    void shouldReturnUserAndHTTP200() throws Exception {
+    void shouldReturnUserDTOAndHTTP200() throws Exception {
         UserDTO actual = new UserDTO(
                 1,
                 "Test",
@@ -326,6 +327,27 @@ class UserControllerTest {
 
     @Test
     @WithMockUser(username = "test")
+    void shouldReturnHTTP400WhenNewPasswordDoesNotMeetTheRequirements() throws Exception{
+        String requestBody = """
+                {
+                    "oldPassword": "CyN549^*o2Cr",
+                    "newPassword": "password"
+                }
+                """;
+
+        doThrow(new IllegalArgumentException("Password must be 12 or more characters in length."))
+                .when(userService).updatePassword(any(UserPasswordUpdateRequest.class));
+
+        mockMvc.perform(put(USER_PATH + "/settings/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Password must be 12 or more characters in length.")));
+    }
+
+    @Test
+    @WithMockUser(username = "test")
     void shouldReturnProfileAndHTTP200() throws Exception {
         //Arrange
         UserProfile profile = new UserProfile(
@@ -371,9 +393,13 @@ class UserControllerTest {
         verifyNoInteractions(userService);
     }
 
+    /*
+        This is the endpoint where the email token is created and then added in the verification link that is sent
+        to the user's new email.
+     */
     @Test
     @WithMockUser(username = "test")
-    void shouldReturnHTTP202WhenEmailTokenIsCreated() throws Exception {
+    void shouldReturnHTTP202WhenEmailTokenIsCreatedForEmailUpdate() throws Exception {
         String requestBody = """
                 {
                     "email": "test@example.com",
@@ -427,48 +453,6 @@ class UserControllerTest {
         verifyNoInteractions(userService);
     }
 
-    @Test
-    @WithMockUser(username = "test")
-    void shouldReturn400WhenWrongPasswordIsProvidedForEmailUpdate() throws Exception {
-        String requestBody = """
-                {
-                    "email": "test@example.com",
-                    "password": "wrongPassword"
-                }
-                """;
-
-        doThrow(new BadCredentialsException("Wrong password"))
-                .when(userService).createEmailUpdateToken(any(UserEmailUpdateRequest.class));
-
-        mockMvc.perform(post(USER_PATH + "/settings/email")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody)
-                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Wrong password")));
-    }
-
-    @Test
-    @WithMockUser(username = "test")
-    void shouldReturnHTTP409WhenUpdatingEmailWithExistingEmail() throws Exception {
-        String requestBody = """
-                {
-                    "email": "test@example.com",
-                    "password": "CyN549^*o2Cr"
-                }
-                """;
-
-        doThrow(new DuplicateResourceException("Email already is use"))
-                .when(userService).createEmailUpdateToken(any(UserEmailUpdateRequest.class));
-
-        mockMvc.perform(post(USER_PATH + "/settings/email")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody)
-                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message", is("Email already is use")));
-    }
-
     @ParameterizedTest
     @NullAndEmptySource
     @WithMockUser(username = "test")
@@ -491,6 +475,27 @@ class UserControllerTest {
         verifyNoInteractions(userService);
     }
 
+    @Test
+    @WithMockUser(username = "test")
+    void shouldReturnHTTP400WhenWrongPasswordIsProvidedForEmailUpdate() throws Exception {
+        String requestBody = """
+                {
+                    "email": "test@example.com",
+                    "password": "wrongPassword"
+                }
+                """;
+
+        doThrow(new BadCredentialsException("Wrong password"))
+                .when(userService).createEmailUpdateToken(any(UserEmailUpdateRequest.class));
+
+        mockMvc.perform(post(USER_PATH + "/settings/email")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Wrong password")));
+    }
+
     @ParameterizedTest
     @NullAndEmptySource
     @WithMockUser(username = "test")
@@ -511,6 +516,27 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.message", is("The Email field is required")));
 
         verifyNoInteractions(userService);
+    }
+
+    @Test
+    @WithMockUser(username = "test")
+    void shouldReturnHTTP409WhenUpdatingEmailWithExistingEmail() throws Exception {
+        String requestBody = """
+                {
+                    "email": "test@example.com",
+                    "password": "CyN549^*o2Cr"
+                }
+                """;
+
+        doThrow(new DuplicateResourceException("Email already is use"))
+                .when(userService).createEmailUpdateToken(any(UserEmailUpdateRequest.class));
+
+        mockMvc.perform(post(USER_PATH + "/settings/email")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message", is("Email already is use")));
     }
 
     @Test
@@ -537,26 +563,6 @@ class UserControllerTest {
                 .andExpect(status().isNoContent());
     }
 
-    @Test
-    @WithMockUser(username = "test")
-    void shouldReturnHTTP400WhenPasswordIsWrongForAccountDeletion() throws Exception{
-        String requestBody = """
-                {
-                    "password": "wrongPassword"
-                }
-                """;
-
-        doThrow(new BadCredentialsException("Password is wrong"))
-                .when(userService).deleteAccount(any(UserAccountDeleteRequest.class));
-
-        mockMvc.perform(put(USER_PATH + "/settings/account")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody)
-                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Password is wrong")));
-    }
-
     @ParameterizedTest
     @NullAndEmptySource
     @WithMockUser(username = "test")
@@ -579,8 +585,37 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "test")
+    void shouldReturnHTTP400WhenPasswordIsWrongForAccountDeletion() throws Exception{
+        String requestBody = """
+                {
+                    "password": "wrongPassword"
+                }
+                """;
+
+        doThrow(new BadCredentialsException("Password is wrong"))
+                .when(userService).deleteAccount(any(UserAccountDeleteRequest.class));
+
+        mockMvc.perform(put(USER_PATH + "/settings/account")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Password is wrong")));
+    }
+
+    @Test
     void shouldReturnHTTP401WhenDeleteAccountIsCalledByUnauthenticatedUser() throws Exception {
-        mockMvc.perform(put(USER_PATH + "/settings/account"))
+        String requestBody = """
+                {
+                    "password": "CyN549^*o2Cr"
+                }
+                """;
+
+        mockMvc.perform(put(USER_PATH + "/settings/account")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(userService);

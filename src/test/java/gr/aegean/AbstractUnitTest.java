@@ -13,7 +13,7 @@ import javax.sql.DataSource;
 
 
 @Testcontainers
-public abstract class AbstractTestContainers {
+public abstract class AbstractUnitTest {
     @BeforeAll
     static void beforeAll() {
         Flyway flyway = Flyway.configure().dataSource(
@@ -35,10 +35,10 @@ public abstract class AbstractTestContainers {
     private static DataSource getDataSource() {
         HikariDataSource dataSource = new HikariDataSource();
 
-        dataSource.setDriverClassName(postgreSQLContainer.getDriverClassName());
         dataSource.setJdbcUrl(postgreSQLContainer.getJdbcUrl());
         dataSource.setUsername(postgreSQLContainer.getUsername());
         dataSource.setPassword(postgreSQLContainer.getPassword());
+        dataSource.setDriverClassName(postgreSQLContainer.getDriverClassName());
         dataSource.setMaximumPoolSize(1);
 
         return dataSource;

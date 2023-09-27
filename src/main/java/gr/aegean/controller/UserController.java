@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
     email update verification link.
  */
 @Controller
-@RequestMapping("api/v1/user")
+@RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;

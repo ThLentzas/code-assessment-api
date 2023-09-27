@@ -1,6 +1,6 @@
 package gr.aegean.service.analysis;
 
-import gr.aegean.AbstractTestContainers;
+import gr.aegean.AbstractUnitTest;
 import gr.aegean.entity.Analysis;
 import gr.aegean.entity.AnalysisReport;
 import gr.aegean.entity.Constraint;
@@ -41,7 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
 @ExtendWith(MockitoExtension.class)
-class AnalysisServiceTest extends AbstractTestContainers {
+class AnalysisServiceUnitTest extends AbstractUnitTest {
     @Mock
     private LanguageService languageService;
     @Mock

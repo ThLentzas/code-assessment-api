@@ -35,7 +35,8 @@ import gr.aegean.config.DeserializerConfig;
     preferences. We don't have to test for the refresh request. Same process.
  */
 @WebMvcTest(AnalysisController.class)
-@Import({SecurityConfig.class,
+@Import({
+        SecurityConfig.class,
         AuthConfig.class,
         JwtConfig.class,
         DeserializerConfig.class})

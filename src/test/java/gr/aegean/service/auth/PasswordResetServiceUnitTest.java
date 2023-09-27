@@ -7,7 +7,7 @@ import gr.aegean.model.dto.auth.PasswordResetConfirmationRequest;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.repository.PasswordResetRepository;
 import gr.aegean.utility.StringUtils;
-import gr.aegean.AbstractTestContainers;
+import gr.aegean.AbstractUnitTest;
 import gr.aegean.service.email.EmailService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +31,7 @@ import java.time.LocalDateTime;
 
 
 @ExtendWith(MockitoExtension.class)
-class PasswordResetServiceTest extends AbstractTestContainers {
+class PasswordResetServiceUnitTest extends AbstractUnitTest {
     @Mock
     private EmailService emailService;
     private PasswordResetRepository passwordResetRepository;

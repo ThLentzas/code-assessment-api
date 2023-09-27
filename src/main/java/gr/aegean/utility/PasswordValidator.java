@@ -13,7 +13,7 @@ public final class PasswordValidator {
     private PasswordValidator() {
 
         // prevent instantiation
-        throw new UnsupportedOperationException("StringUtils is a utility class and cannot be instantiated.");
+        throw new UnsupportedOperationException("PasswordValidator is a utility class and cannot be instantiated.");
     }
 
     /*
@@ -30,7 +30,7 @@ public final class PasswordValidator {
 
         RuleResult result = validator.validate(new PasswordData(password));
         if (!result.isValid()) {
-            throw new BadCredentialsException(validator.getMessages(result).get(0));
+            throw new IllegalArgumentException(validator.getMessages(result).get(0));
         }
     }
 }

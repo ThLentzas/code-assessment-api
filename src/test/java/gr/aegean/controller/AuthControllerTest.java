@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -32,7 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(AuthController.class)
-@Import({SecurityConfig.class,
+@Import({
+        SecurityConfig.class,
         AuthConfig.class,
         JwtConfig.class})
 class AuthControllerTest {
@@ -182,7 +184,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void shouldReturnJwtTokenAndHTTP200WhenUserIsAuthenticatedSuccessfully() throws Exception {
+    void shouldReturnJwtTokenAndHTTP200WhenUserIsLoggedInSuccessfully() throws Exception {
         String requestBody = """
                 {
                     "email": "test@example.com",
@@ -204,7 +206,7 @@ class AuthControllerTest {
 
     @ParameterizedTest
     @NullAndEmptySource
-    void shouldReturnHTTP400WhenAuthEmailIsNullOrEmpty(String email) throws Exception {
+    void shouldReturnHTTP400WhenLoginEmailIsNullOrEmpty(String email) throws Exception {
         String emailValue = email == null ? "null" : "\"" + email + "\"";
         String requestBody = String.format("""
                 {
@@ -224,7 +226,7 @@ class AuthControllerTest {
 
     @ParameterizedTest
     @NullAndEmptySource
-    void shouldReturnHTTP400WhenAuthPasswordIsNullOrEmpty(String password) throws Exception {
+    void shouldReturnHTTP400WhenLoginPasswordIsNullOrEmpty(String password) throws Exception {
         String passwordValue = password == null ? "null" : "\"" + password + "\"";
         String requestBody = String.format("""
                 {
@@ -242,9 +244,24 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.message", is("The Password field is necessary")));
     }
 
+    @Test
+    void shouldReturnHTTP202ForPasswordResetRequestRegardlessIfEmailExists() throws Exception {
+        String requestBody = """
+                {
+                    "email": "test@example.com"
+                }
+                """;
+
+        mockMvc.perform(post(AUTH_PATH + "/password_reset")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted());
+    }
+
     @ParameterizedTest
     @NullAndEmptySource
-    void shouldReturnHTTP400WhenPasswordResetRequestEmailIsNullOrEmpty(String email) throws Exception {
+    void shouldReturnHTTP400WhenPasswordResetEmailIsNullOrEmpty(String email) throws Exception {
         String emailValue = email == null ? "null" : "\"" + email + "\"";
         String requestBody = String.format("""
                 {
@@ -261,24 +278,9 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.message", is("The Email field is required")));
     }
 
-    @Test
-    void shouldReturnHTTP200ForPasswordResetRequestRegardlessIfEmailExists() throws Exception {
-        String requestBody = """
-                {
-                    "email": "test@example.com"
-                }
-                """;
-
-        mockMvc.perform(post(AUTH_PATH + "/password_reset")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody)
-                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isAccepted());
-    }
-
     @ParameterizedTest
     @NullAndEmptySource
-    void shouldReturnHTTP400WhenPasswordResetTokenIsNullOrEmpty(String token) throws Exception {
+    void shouldReturnHTTP400WhenPasswordResetConfirmationTokenIsNullOrEmpty(String token) throws Exception {
         String tokenValue = token == null ? "null" : "\"" + token + "\"";
         String requestBody = String.format("""
                 {
@@ -299,7 +301,7 @@ class AuthControllerTest {
 
     @ParameterizedTest
     @NullAndEmptySource
-    void shouldReturnHTTP400WhenNewPasswordIsNullOrEmpty(String newPassword) throws Exception {
+    void shouldReturnHTTP400WhenWhenPasswordResetConfirmationPasswordIsNullOrEmpty(String newPassword) throws Exception {
         String newPasswordValue = newPassword == null ? "null" : "\"" + newPassword + "\"";
         String requestBody = String.format("""
                 {
@@ -318,7 +320,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void shouldResetPasswordAndReturnHTTP204WhenTokenAndNewPasswordAreValid() throws Exception {
+    void shouldReturnHTTP204WhenTokenAndNewPasswordAreValid() throws Exception {
         String requestBody = """
                 {
                     "token": "someToken",
