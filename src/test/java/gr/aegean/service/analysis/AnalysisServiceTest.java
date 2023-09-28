@@ -40,8 +40,9 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
+
 @ExtendWith(MockitoExtension.class)
-class AnalysisServiceUnitTest extends AbstractUnitTest {
+class AnalysisServiceTest extends AbstractUnitTest {
     @Mock
     private LanguageService languageService;
     @Mock

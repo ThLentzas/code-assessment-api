@@ -17,7 +17,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import gr.aegean.AbstractIntegrationTest;
-import gr.aegean.exception.ApiError;
 import gr.aegean.model.dto.auth.AuthResponse;
 
 import jakarta.mail.MessagingException;
@@ -26,7 +25,9 @@ import jakarta.mail.internet.MimeMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-
+/*
+    We test the happy paths in ITs.
+ */
 @AutoConfigureWebTestClient
 class AuthIT extends AbstractIntegrationTest {
     @Autowired
@@ -83,52 +84,6 @@ class AuthIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldNotLoginUserWhenCredentialsAreWrong() {
-        String requestBody = """
-                {
-                    "firstname": "Test",
-                    "lastname": "Test",
-                    "username": "Test",
-                    "email": "test@example.com",
-                    "password": "Igw4UQAlfX$E"
-                }
-                """;
-
-        AuthResponse response = webTestClient.post()
-                .uri(AUTH_PATH + "/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .bodyValue(requestBody)
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody(AuthResponse.class)
-                .returnResult()
-                .getResponseBody();
-
-        assertThat(response.token()).isNotNull();
-
-        requestBody = """
-                {
-                    "email": "test@example.com",
-                    "password": "wrongPassword"
-                }
-                """;
-
-        ApiError error = webTestClient.post()
-                .uri(AUTH_PATH + "/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .bodyValue(requestBody)
-                .exchange()
-                .expectStatus().isUnauthorized()
-                .expectBody(ApiError.class)
-                .returnResult()
-                .getResponseBody();
-
-        assertThat(error.message()).isEqualTo("Username or password is incorrect");
-    }
-
-    @Test
     void shouldResetPassword() throws MessagingException {
         // Create a user
         String requestBody = """
@@ -171,7 +126,7 @@ class AuthIT extends AbstractIntegrationTest {
         /*
           Extracting the token from the send email to be used in the GET request. The url part is encoded since we
           can't click it so our browser can do the decoding we have to extract the token from the encoded url for
-          testing only. The decoding process is down by our browser when we click the email link.
+          testing only. The decoding process is down by our browser automatically when we click the email link.
 
           Sending the email is done async, so we have to use awaitility.
          */
@@ -181,7 +136,7 @@ class AuthIT extends AbstractIntegrationTest {
         MimeMessage message = messages[0];
         String body = GreenMailUtil.getBody(message);
 
-        // Remove encoded line breaks before extracting URL
+        // Remove encoded line breaks before extracting the reset link
         body = body.replace("=\r\n", "");
         Pattern pattern = Pattern.compile("http://localhost:4200/password_reset/confirm[^\"]*");
         Matcher matcher = pattern.matcher(body);
@@ -232,52 +187,26 @@ class AuthIT extends AbstractIntegrationTest {
         assertThat(message.getAllRecipients()).hasSize(1);
         assertThat(message.getAllRecipients()[0]).hasToString("test@example.com");
         assertThat(message.getSubject()).isEqualTo("Your password was reset");
-    }
 
-    @Test
-    void shouldNotResetPasswordWhenEmailDoesNotExist() {
-        // Create a user
-        String requestBody = """
+        requestBody = """
                 {
-                    "firstname": "Test",
-                    "lastname": "Test",
-                    "username": "Test",
-                    "email": "greenmail@example.com",
-                    "password": "Igw4UQAlfX$E"
+                    "email": "test@example.com",
+                    "password": "3frMH4v!20d4"
                 }
                 """;
 
-        AuthResponse response = webTestClient.post()
-                .uri(AUTH_PATH + "/signup")
+        //Login the user with the new password
+        response = webTestClient.post()
+                .uri(AUTH_PATH + "/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange()
-                .expectStatus().isCreated()
+                .expectStatus().isOk()
                 .expectBody(AuthResponse.class)
                 .returnResult()
                 .getResponseBody();
 
         assertThat(response.token()).isNotNull();
-
-
-        requestBody = """
-                {
-                    "email": "nonexisting@gmail.com"
-                }
-                """;
-
-        webTestClient.post()
-                .uri(AUTH_PATH + "/password_reset")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .bodyValue(requestBody)
-                .exchange()
-                .expectStatus().isAccepted();
-
-        MimeMessage[] messages = greenMail.getReceivedMessages();
-
-        //No email was received
-        assertThat(messages).isEmpty();
     }
 }

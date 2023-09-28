@@ -3,7 +3,6 @@ package gr.aegean.model.dto.analysis;
 import gr.aegean.model.analysis.quality.QualityMetric;
 import gr.aegean.model.analysis.sonarqube.HotspotsReport;
 import gr.aegean.model.analysis.sonarqube.IssuesReport;
-import gr.aegean.model.analysis.sonarqube.Rule;
 
 import java.util.Map;
 
@@ -17,7 +16,6 @@ public record AnalysisReportDTO(
         Map<String, Double> languages,
         IssuesReport issuesReport,
         HotspotsReport hotspotsReport,
-        Map<String, Rule> ruleDetails,
         Map<QualityMetric, Double> qualityMetricsReport,
         Double rank) {
 }

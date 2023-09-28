@@ -48,7 +48,7 @@ import java.util.Random;
 
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceUnitTest extends AbstractUnitTest {
+class UserServiceTest extends AbstractUnitTest {
     @Mock
     private EmailService emailService;
     @Mock

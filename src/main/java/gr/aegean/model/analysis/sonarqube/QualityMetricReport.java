@@ -9,11 +9,11 @@ import java.util.List;
 @Getter
 @Setter
 public class QualityMetricReport {
-    private List<QualityMetricReportDetails> measures;
+    private List<Measures> measures;
 
     @Getter
     @Setter
-    public static class QualityMetricReportDetails {
+    public static class Measures {
         private String metric;
         private double value;
     }

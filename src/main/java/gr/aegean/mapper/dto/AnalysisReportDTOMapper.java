@@ -16,7 +16,6 @@ public class AnalysisReportDTOMapper implements Function<AnalysisReport, Analysi
                 report.getLanguages(),
                 report.getIssuesReport(),
                 report.getHotspotsReport(),
-                report.getRuleDetails(),
                 report.getQualityMetricsReport(),
                 report.getRank());
     }

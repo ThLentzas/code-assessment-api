@@ -31,7 +31,7 @@ import java.time.LocalDateTime;
 
 
 @ExtendWith(MockitoExtension.class)
-class PasswordResetServiceUnitTest extends AbstractUnitTest {
+class PasswordResetServiceTest extends AbstractUnitTest {
     @Mock
     private EmailService emailService;
     private PasswordResetRepository passwordResetRepository;

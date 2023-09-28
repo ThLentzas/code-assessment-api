@@ -55,18 +55,16 @@ public class TreeService {
                     .filter(preference -> preference.getQualityAttribute().name().equals(child.getName()))
                     .findFirst();
 
-            if(matchingPreference.isPresent()) {
+            if (matchingPreference.isPresent()) {
                 childNodesWithWeight++;
-                sum+=matchingPreference.get().getWeight();
+                sum += matchingPreference.get().getWeight();
 
                 /*
                     Case: sum of provided weights for the child nodes is greater than 1.0
                  */
                 if (sum > 1.0) {
                     throw new IllegalArgumentException("The combined weights of " +
-                            matchingPreference.get()
-                                    .getQualityAttribute()
-                                    .toString() + " node's child nodes must not exceed 1");
+                            matchingPreference.get().getQualityAttribute() + " node's child nodes must not exceed 1");
                 }
             }
         }
@@ -75,12 +73,9 @@ public class TreeService {
             Case: child nodes of a parent node have all defined weight, meaning the user provided weight for all the
             child nodes, and the sum is not equal to 1.0
          */
-
-        if((childNodesWithWeight == node.getChildren().size()) && sum != 1.0) {
+        if ((childNodesWithWeight == node.getChildren().size()) && sum != 1.0) {
             throw new IllegalArgumentException("The combined weights of all " +
-                    matchingPreference.get()
-                            .getQualityAttribute()
-                            .toString() + " node's child nodes must not be less than 1");
+                    matchingPreference.get().getQualityAttribute() + " node's child nodes must not be less than 1");
         }
     }
 
@@ -89,7 +84,7 @@ public class TreeService {
     }
 
     private void addChildren(TreeNode parent, List<TreeNode> children) {
-        for(TreeNode child : children) {
+        for (TreeNode child : children) {
             parent.addChild(child);
         }
     }
