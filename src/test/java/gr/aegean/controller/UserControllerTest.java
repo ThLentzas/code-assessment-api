@@ -35,9 +35,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 /*
@@ -73,29 +72,42 @@ class UserControllerTest {
                 "Cleveland, OH",
                 "Code Monkey, LLC"
         );
+        String responseBody = """
+                {
+                    "id": 1,
+                    "firstname": "Test",
+                    "lastname": "Test",
+                    "username": "TestT",
+                    "email": "test@example.com",
+                    "bio": "I have a real passion for teaching",
+                    "location": "Cleveland, OH",
+                    "company": "Code Monkey, LLC"
+                }
+                """;
+
 
         when(userService.findUser()).thenReturn(actual);
 
         mockMvc.perform(get(USER_PATH))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(actual.id())))
-                .andExpect(jsonPath("$.firstname", is(actual.firstname())))
-                .andExpect(jsonPath("$.lastname", is(actual.lastname())))
-                .andExpect(jsonPath("$.username", is(actual.username())))
-                .andExpect(jsonPath("$.email", is(actual.email())))
-                .andExpect(jsonPath("$.bio", is(actual.bio())))
-                .andExpect(jsonPath("$.location", is(actual.location())))
-                .andExpect(jsonPath("$.company", is(actual.company())));
+                .andExpect(content().json(responseBody));
     }
 
     @Test
     @WithMockUser(username = "test")
     void shouldReturnHTTP404WhenUserIsNotFound() throws Exception {
+        String responseBody = """
+                {
+                    "message": "User not found with id: 1",
+                    "statusCode": 404
+                }
+                """;
+
         when(userService.findUser()).thenThrow(new ResourceNotFoundException("User not found with id: " + 1));
 
         mockMvc.perform(get(USER_PATH))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message", is("User not found with id: " + 1)));
+                .andExpect(content().json(responseBody));
     }
 
     @Test
@@ -140,6 +152,12 @@ class UserControllerTest {
                     "company": "VM, LLC"
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "The provided username already exists",
+                    "statusCode": 409
+                }
+                """;
 
         doThrow(new DuplicateResourceException("The provided username already exists"))
                 .when(userService).updateProfile(any(UserProfileUpdateRequest.class));
@@ -150,7 +168,7 @@ class UserControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message", is("The provided username already exists")));
+                .andExpect(content().json(responseBody));
     }
 
     @Test
@@ -166,6 +184,12 @@ class UserControllerTest {
                     "company": "VM, LLC"
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "User not found with id: 1",
+                    "statusCode": 404
+                }
+                """;
 
         doThrow(new ResourceNotFoundException("User not found with id: " + 1))
                 .when(userService).updateProfile(any(UserProfileUpdateRequest.class));
@@ -175,7 +199,7 @@ class UserControllerTest {
                 .content(requestBody)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message", is("User not found with id: " + 1)));
+                .andExpect(content().json(responseBody));
     }
 
     @Test
@@ -226,6 +250,12 @@ class UserControllerTest {
                     "newPassword": "Igw4UQAlfX$E"
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "User not found with id: 1",
+                    "statusCode": 404
+                }
+                """;
 
         doThrow(new ResourceNotFoundException("User not found with id: " + 1))
                 .when(userService).updatePassword(any(UserPasswordUpdateRequest.class));
@@ -235,7 +265,7 @@ class UserControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message", is("User not found with id: " + 1)));
+                .andExpect(content().json(responseBody));
     }
 
     @Test
@@ -260,7 +290,6 @@ class UserControllerTest {
     @NullAndEmptySource
     @WithMockUser(username = "test")
     void shouldReturnHTTP400WhenOldPasswordIsNullOrEmpty(String password) throws Exception {
-        //Arrange
         String passwordValue = password == null ? "null" : "\"" + password + "\"";
         String requestBody = String.format("""
                 {
@@ -268,14 +297,19 @@ class UserControllerTest {
                     "newPassword": "CyN549^*o2Cr"
                 }
                 """, passwordValue);
+        String responseBody = """
+                {
+                    "message": "Old password is required",
+                    "statusCode": 400
+                }
+                """;
 
-        //Act Assert
         mockMvc.perform(put(USER_PATH + "/settings/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Old password is required")));
+                .andExpect(content().json(responseBody));
 
         verifyNoInteractions(userService);
     }
@@ -289,6 +323,12 @@ class UserControllerTest {
                     "newPassword": "CyN549^*o2Cr"
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "Old password is wrong",
+                    "statusCode": 400
+                }
+                """;
 
         doThrow(new BadCredentialsException("Old password is wrong"))
                 .when(userService).updatePassword(any(UserPasswordUpdateRequest.class));
@@ -298,14 +338,13 @@ class UserControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Old password is wrong")));
+                .andExpect(content().json(responseBody));
     }
 
     @ParameterizedTest
     @NullAndEmptySource
     @WithMockUser(username = "test")
     void shouldReturnHTTP400WhenNewPasswordIsNullOrEmpty(String password) throws Exception {
-        //Arrange
         String passwordValue = password == null ? "null" : "\"" + password + "\"";
         String requestBody = String.format("""
                 {
@@ -313,14 +352,19 @@ class UserControllerTest {
                     "newPassword": %s
                 }
                 """, passwordValue);
+        String responseBody = """
+                {
+                    "message": "New password is required",
+                    "statusCode": 400
+                }
+                """;
 
-        //Act Assert
         mockMvc.perform(put(USER_PATH + "/settings/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("New password is required")));
+                .andExpect(content().json(responseBody));
 
         verifyNoInteractions(userService);
     }
@@ -334,6 +378,12 @@ class UserControllerTest {
                     "newPassword": "password"
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "Password must be 12 or more characters in length.",
+                    "statusCode": 400
+                }
+                """;
 
         doThrow(new IllegalArgumentException("Password must be 12 or more characters in length."))
                 .when(userService).updatePassword(any(UserPasswordUpdateRequest.class));
@@ -343,50 +393,55 @@ class UserControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Password must be 12 or more characters in length.")));
+                .andExpect(content().json(responseBody));
     }
 
     @Test
     @WithMockUser(username = "test")
     void shouldReturnProfileAndHTTP200() throws Exception {
-        //Arrange
         UserProfile profile = new UserProfile(
                 "Foo",
                 "Foo",
                 "FooBar",
                 "I like Java",
                 "Miami, OH",
-                "VM, LLC"
-        );
+                "VM, LLC");
+        String responseBody = """
+                {
+                    "firstname": "Foo",
+                    "lastname": "Foo",
+                    "username": "FooBar",
+                    "bio": "I like Java",
+                    "location": "Miami, OH",
+                    "company": "VM, LLC"
+                }
+                """;
 
-        //Act
         when(userService.getProfile()).thenReturn(profile);
 
-        //Assert
         mockMvc.perform(get(USER_PATH + "/profile"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstname", is(profile.firstname())))
-                .andExpect(jsonPath("$.lastname", is(profile.lastname())))
-                .andExpect(jsonPath("$.username", is(profile.username())))
-                .andExpect(jsonPath("$.bio", is(profile.bio())))
-                .andExpect(jsonPath("$.location", is(profile.location())))
-                .andExpect(jsonPath("$.company", is(profile.company())));
+                .andExpect(content().json(responseBody));
     }
 
     @Test
     @WithMockUser(username = "test")
     void shouldReturnHTTP404WhenUserIsNotFoundToGetProfile() throws Exception {
-        //Arrange
+        String responseBody = """
+                {
+                    "message": "User not found with id: 1",
+                    "statusCode": 404
+                }
+                """;
         when(userService.getProfile()).thenThrow(new ResourceNotFoundException("User not found with id: " + 1));
 
-        //Act Assert
         mockMvc.perform(get(USER_PATH + "/profile"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().json(responseBody));
     }
 
     @Test
     void shouldReturnHTTP401WhenGetProfileIsCalledByUnauthenticatedUser() throws Exception {
-        //Arrange Act Assert
         mockMvc.perform(get(USER_PATH + "/profile"))
                 .andExpect(status().isUnauthorized());
 
@@ -423,6 +478,12 @@ class UserControllerTest {
                     "password": "CyN549^*o2Cr"
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "User not found with id: 1",
+                    "statusCode": 404
+                }
+                """;
 
         doThrow(new ResourceNotFoundException("User not found with id: " + 1))
                 .when(userService).createEmailUpdateToken(any(UserEmailUpdateRequest.class));
@@ -432,7 +493,7 @@ class UserControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message", is("User not found with id: " + 1)));
+                .andExpect(content().json(responseBody));
     }
 
     @Test
@@ -464,13 +525,19 @@ class UserControllerTest {
                     "password": %s
                 }
                 """, passwordValue);
+        String responseBody = """
+                {
+                    "message": "The Password field is required",
+                    "statusCode": 400
+                }
+                """;
 
         mockMvc.perform(post(USER_PATH + "/settings/email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Password field is required")));
+                .andExpect(content().json(responseBody));
 
         verifyNoInteractions(userService);
     }
@@ -484,6 +551,12 @@ class UserControllerTest {
                     "password": "wrongPassword"
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "Wrong password",
+                    "statusCode": 400
+                }
+                """;
 
         doThrow(new BadCredentialsException("Wrong password"))
                 .when(userService).createEmailUpdateToken(any(UserEmailUpdateRequest.class));
@@ -493,7 +566,7 @@ class UserControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Wrong password")));
+                .andExpect(content().json(responseBody));
     }
 
     @ParameterizedTest
@@ -507,13 +580,19 @@ class UserControllerTest {
                     "password": "password"
                 }
                 """, emailValue);
+        String responseBody = """
+                {
+                    "message": "The Email field is required",
+                    "statusCode": 400
+                }
+                """;
 
         mockMvc.perform(post(USER_PATH + "/settings/email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Email field is required")));
+                .andExpect(content().json(responseBody));
 
         verifyNoInteractions(userService);
     }
@@ -527,6 +606,12 @@ class UserControllerTest {
                     "password": "CyN549^*o2Cr"
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "Email already is use",
+                    "statusCode": 409
+                }
+                """;
 
         doThrow(new DuplicateResourceException("Email already is use"))
                 .when(userService).createEmailUpdateToken(any(UserEmailUpdateRequest.class));
@@ -536,7 +621,7 @@ class UserControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message", is("Email already is use")));
+                .andExpect(content().json(responseBody));
     }
 
     @Test
@@ -573,13 +658,20 @@ class UserControllerTest {
                     "password": %s
                 }
                 """, passwordValue);
+        String responseBody = """
+                {
+                    "message": "The Password field is required",
+                    "statusCode": 400
+                }
+                """;
+
 
         mockMvc.perform(put(USER_PATH + "/settings/account")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Password field is required")));
+                .andExpect(content().json(responseBody));
 
         verifyNoInteractions(userService);
     }

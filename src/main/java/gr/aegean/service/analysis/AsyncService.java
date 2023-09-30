@@ -1,14 +1,12 @@
 package gr.aegean.service.analysis;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.concurrent.DelegatingSecurityContextExecutor;
@@ -96,10 +94,6 @@ public class AsyncService {
 
             Integer userId = Integer.parseInt(jwtService.getSubject());
             Integer analysisId = saveAnalysisProcess(userId, reports, analysisRequest);
-            /*
-                Delete the folder after all the threads are done being processed.
-             */
-            deleteProjectDirectory(requestFolder);
 
             return CompletableFuture.completedFuture(analysisId);
         });
@@ -113,14 +107,6 @@ public class AsyncService {
          */
         return CompletableFuture.supplyAsync(() -> gitHubService.cloneProject(requestFolder, projectUrl)
                 .flatMap(projectPath -> analysisService.analyze(projectPath, projectUrl)), taskExecutor);
-    }
-
-    private void deleteProjectDirectory(File requestFolder) {
-        try {
-            FileUtils.deleteDirectory(requestFolder);
-        } catch (IOException e) {
-            throw new ServerErrorException(SERVER_ERROR_MSG);
-        }
     }
 
     /*

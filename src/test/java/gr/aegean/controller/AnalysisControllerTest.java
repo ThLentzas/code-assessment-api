@@ -12,14 +12,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import gr.aegean.config.security.AuthConfig;
 import gr.aegean.config.security.SecurityConfig;
@@ -89,13 +87,19 @@ class AnalysisControllerTest {
                     "projectUrls": []
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "Provide at least one GitHub url repository",
+                    "statusCode": 400
+                }
+                """;
 
         mockMvc.perform(post(ANALYSIS_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Provide at least one GitHub url repository")));
+                .andExpect(content().json(responseBody));
 
         verifyNoInteractions(asyncService);
     }
@@ -111,13 +115,19 @@ class AnalysisControllerTest {
                     "projectUrls": null
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "Provide at least one GitHub url repository",
+                    "statusCode": 400
+                }
+                """;
 
         mockMvc.perform(post(ANALYSIS_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Provide at least one GitHub url repository")));
+                .andExpect(content().json(responseBody));
 
         verifyNoInteractions(asyncService);
     }
@@ -154,13 +164,19 @@ class AnalysisControllerTest {
                     ]
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "Quality metric is required",
+                    "statusCode": 400
+                }
+                """;
 
         mockMvc.perform(post(ANALYSIS_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Quality metric is required")));
+                .andExpect(content().json(responseBody));
 
         verifyNoInteractions(asyncService);
     }
@@ -190,13 +206,19 @@ class AnalysisControllerTest {
                     ]
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "Quality metric operator is required",
+                    "statusCode": 400
+                }
+                """;
 
         mockMvc.perform(post(ANALYSIS_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Quality metric operator is required")));
+                .andExpect(content().json(responseBody));
 
         verifyNoInteractions(asyncService);
     }
@@ -225,13 +247,19 @@ class AnalysisControllerTest {
                     ]
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "Threshold is required",
+                    "statusCode": 400
+                }
+                """;
 
         mockMvc.perform(post(ANALYSIS_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Threshold is required")));
+                .andExpect(content().json(responseBody));
 
         verifyNoInteractions(asyncService);
     }
@@ -262,14 +290,19 @@ class AnalysisControllerTest {
                     ]
                 }
                 """, threshold);
+        String responseBody = """
+                {
+                    "message": "Threshold value must be in the range of [0.0 - 1.0]",
+                    "statusCode": 400
+                }
+                """;
 
         mockMvc.perform(post("/api/v1/analysis")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is(
-                        "Threshold value must be in the range of [0.0 - 1.0]")));
+                .andExpect(content().json(responseBody));
 
         verifyNoInteractions(asyncService);
     }
@@ -299,13 +332,19 @@ class AnalysisControllerTest {
                     ]
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "Quality attribute is required",
+                    "statusCode": 400
+                }
+                """;
 
         mockMvc.perform(post(ANALYSIS_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Quality attribute is required")));
+                .andExpect(content().json(responseBody));
 
         verifyNoInteractions(asyncService);
     }
@@ -334,13 +373,19 @@ class AnalysisControllerTest {
                     ]
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "Weight is required",
+                    "statusCode": 400
+                }
+                """;
 
         mockMvc.perform(post(ANALYSIS_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Weight is required")));
+                .andExpect(content().json(responseBody));
 
         verifyNoInteractions(asyncService);
     }
@@ -371,14 +416,19 @@ class AnalysisControllerTest {
                     ]
                 }
                 """, weight);
+        String responseBody = """
+                {
+                    "message": "Weight value must be in the range of [0.0 - 1.0]",
+                    "statusCode": 400
+                }
+                """;
 
         mockMvc.perform(post("/api/v1/analysis")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is(
-                        "Weight value must be in the range of [0.0 - 1.0]")));
+                .andExpect(content().json(responseBody));
 
         verifyNoInteractions(asyncService);
     }

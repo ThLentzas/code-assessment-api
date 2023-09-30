@@ -8,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -24,11 +23,9 @@ import gr.aegean.repository.UserRepository;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
-import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -59,17 +56,21 @@ class AuthControllerTest {
                     "password": "Igw4UQAlfX$E"
                 }
                 """;
-        AuthResponse authResponse = new AuthResponse("jwtToken");
+        String responseBody = """
+                {
+                    "token": "jwtToken"
+                }
+                """;
 
+        AuthResponse authResponse = new AuthResponse("jwtToken");
         when(authService.registerUser(any(RegisterRequest.class))).thenReturn(authResponse);
 
         mockMvc.perform(post(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.token", is(authResponse.token())));
+                .andExpect(content().json(responseBody));
     }
 
     @ParameterizedTest
@@ -77,21 +78,27 @@ class AuthControllerTest {
     void shouldReturnHTTP400WhenRegisterFirstnameIsNullOrEmpty(String firstname) throws Exception {
         String firstnameValue = firstname == null ? "null" : "\"" + firstname + "\"";
         String requestBody = String.format("""
-                {
-                    "firstname": %s,
-                    "lastname": "Test",
-                    "username": "Test",
-                    "email": "test@example.com",
-                    "password": "Igw4UQAlfX$E"
-                }
-                """, firstnameValue);
+            {
+                "firstname": %s,
+                "lastname": "Test",
+                "username": "Test",
+                "email": "test@example.com",
+                "password": "Igw4UQAlfX$E"
+            }
+            """, firstnameValue);
+        String responseBody = """
+            {
+                "message": "The First Name field is required",
+                "statusCode": 400
+            }
+            """;
 
         mockMvc.perform(post(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The First Name field is required")));
+                .andExpect(content().json(responseBody));
     }
 
     @ParameterizedTest
@@ -99,21 +106,27 @@ class AuthControllerTest {
     void shouldReturnHTTP400WhenRegisterLastnameIsNullOrEmpty(String lastname) throws Exception {
         String lastnameValue = lastname == null ? "null" : "\"" + lastname + "\"";
         String requestBody = String.format("""
-                {
-                    "firstname": "Test",
-                    "lastname": %s,
-                    "username": "Test",
-                    "email": "test@example.com",
-                    "password": "Igw4UQAlfX$E"
-                }
-                """, lastnameValue);
+            {
+                "firstname": "Test",
+                "lastname": %s,
+                "username": "Test",
+                "email": "test@example.com",
+                "password": "Igw4UQAlfX$E"
+            }
+            """, lastnameValue);
+        String responseBody = """
+            {
+                "message": "The Last Name field is required",
+                "statusCode": 400
+            }
+            """;
 
         mockMvc.perform(post(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Last Name field is required")));
+                .andExpect(content().json(responseBody));
     }
 
     @ParameterizedTest
@@ -121,22 +134,27 @@ class AuthControllerTest {
     void shouldReturnHTTP400WhenRegisterUsernameIsNullOrEmpty(String username) throws Exception {
         String usernameValue = username == null ? "null" : "\"" + username + "\"";
         String requestBody = String.format("""
-                {
-                    "firstname": "Test",
-                    "lastname": "Test",
-                    "username": %s,
-                    "email": "test@example.com",
-                    "password": "Igw4UQAlfX$E"
-                }
-                """, usernameValue);
+            {
+                "firstname": "Test",
+                "lastname": "Test",
+                "username": %s,
+                "email": "test@example.com",
+                "password": "Igw4UQAlfX$E"
+            }
+            """, usernameValue);
+        String responseBody = """
+            {
+                "message": "The Username field is required",
+                "statusCode": 400
+            }
+            """;
 
         mockMvc.perform(post(AUTH_PATH + "/signup")
-                        .servletPath(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Username field is required")));
+                .andExpect(content().json(responseBody));
     }
 
     @ParameterizedTest
@@ -144,21 +162,28 @@ class AuthControllerTest {
     void shouldReturnHTTP400WhenRegisterEmailIsNullOrEmpty(String email) throws Exception {
         String emailValue = email == null ? "null" : "\"" + email + "\"";
         String requestBody = String.format("""
-                {
-                    "firstname": "Test",
-                    "lastname": "Test",
-                    "username": "TestT",
-                    "email": %s,
-                    "password": "Igw4UQAlfX$E"
-                }
-                """, emailValue);
+            {
+                "firstname": "Test",
+                "lastname": "Test",
+                "username": "TestT",
+                "email": %s,
+                "password": "Igw4UQAlfX$E"
+            }
+            """, emailValue);
+
+        String responseBody = """
+            {
+                "message": "The Email field is required",
+                "statusCode": 400
+            }
+            """;
 
         mockMvc.perform(post(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Email field is required")));
+                .andExpect(content().json(responseBody));
     }
 
     @ParameterizedTest
@@ -166,21 +191,27 @@ class AuthControllerTest {
     void shouldReturnHTTP400WhenRegisterPasswordIsNullOrEmpty(String password) throws Exception {
         String passwordValue = password == null ? "null" : "\"" + password + "\"";
         String requestBody = String.format("""
-                {
-                    "firstname": "Test",
-                    "lastname": "Test",
-                    "username": "TestT",
-                    "email": "test@example.com",
-                    "password": %s
-                }
-                """, passwordValue);
+            {
+                "firstname": "Test",
+                "lastname": "Test",
+                "username": "TestT",
+                "email": "test@example.com",
+                "password": %s
+            }
+            """, passwordValue);
+        String responseBody = """
+            {
+                "message": "The Password field is required",
+                "statusCode": 400
+            }
+            """;
 
         mockMvc.perform(post(AUTH_PATH + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Password field is required")));
+                .andExpect(content().json(responseBody));
     }
 
     @Test
@@ -191,17 +222,21 @@ class AuthControllerTest {
                     "password": "Igw4UQAlfX$E"
                 }
                 """;
-        AuthResponse authResponse = new AuthResponse("jwtToken");
+        String responseBody = """
+                {
+                    "token": "jwtToken"
+                }
+                """;
 
+        AuthResponse authResponse = new AuthResponse("jwtToken");
         when(authService.loginUser(any(LoginRequest.class))).thenReturn(authResponse);
 
         mockMvc.perform(post(AUTH_PATH + "/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token", is(authResponse.token())));
+                .andExpect(content().json(responseBody));
     }
 
     @ParameterizedTest
@@ -209,19 +244,24 @@ class AuthControllerTest {
     void shouldReturnHTTP400WhenLoginEmailIsNullOrEmpty(String email) throws Exception {
         String emailValue = email == null ? "null" : "\"" + email + "\"";
         String requestBody = String.format("""
-                {
-                    "email": %s,
-                    "password": "Igw4UQAlfX$E"
-                }
-                """, emailValue);
+            {
+                "email": %s,
+                "password": "Igw4UQAlfX$E"
+            }
+            """, emailValue);
+        String responseBody = """
+            {
+                "message": "The Email field is necessary",
+                "statusCode": 400
+            }
+            """;
 
         mockMvc.perform(post(AUTH_PATH + "/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Email field is necessary")));
+                .andExpect(content().json(responseBody));
     }
 
     @ParameterizedTest
@@ -229,20 +269,26 @@ class AuthControllerTest {
     void shouldReturnHTTP400WhenLoginPasswordIsNullOrEmpty(String password) throws Exception {
         String passwordValue = password == null ? "null" : "\"" + password + "\"";
         String requestBody = String.format("""
-                {
-                    "email": "test@example.com",
-                    "password": %s
-                }
-                """, passwordValue);
+            {
+                "email": "test@example.com",
+                "password": %s
+            }
+            """, passwordValue);
+        String responseBody = """
+            {
+                "message": "The Password field is necessary",
+                "statusCode": 400
+            }
+            """;
 
         mockMvc.perform(post(AUTH_PATH + "/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Password field is necessary")));
+                .andExpect(content().json(responseBody));
     }
+
 
     @Test
     void shouldReturnHTTP202ForPasswordResetRequestRegardlessIfEmailExists() throws Exception {
@@ -264,18 +310,23 @@ class AuthControllerTest {
     void shouldReturnHTTP400WhenPasswordResetEmailIsNullOrEmpty(String email) throws Exception {
         String emailValue = email == null ? "null" : "\"" + email + "\"";
         String requestBody = String.format("""
-                {
-                    "email": %s
-                }
-                """, emailValue);
+            {
+                "email": %s
+            }
+            """, emailValue);
+        String responseBody = """
+            {
+                "message": "The Email field is required",
+                "statusCode": 400
+            }
+            """;
 
         mockMvc.perform(post(AUTH_PATH + "/password_reset")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Email field is required")));
+                .andExpect(content().json(responseBody));
     }
 
     @ParameterizedTest
@@ -283,40 +334,49 @@ class AuthControllerTest {
     void shouldReturnHTTP400WhenPasswordResetConfirmationTokenIsNullOrEmpty(String token) throws Exception {
         String tokenValue = token == null ? "null" : "\"" + token + "\"";
         String requestBody = String.format("""
-                {
-                    "token": %s,
-                    "password": "somePassword"
-                }
-                """, tokenValue);
+            {
+                "token": %s,
+                "password": "somePassword"
+            }
+            """, tokenValue);
+        String responseBody = """
+            {
+                "message": "No token provided",
+                "statusCode": 400
+            }
+            """;
 
         mockMvc.perform(put(AUTH_PATH + "/password_reset/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("No token provided")));
+                .andExpect(content().json(responseBody));
     }
-
 
     @ParameterizedTest
     @NullAndEmptySource
     void shouldReturnHTTP400WhenWhenPasswordResetConfirmationPasswordIsNullOrEmpty(String newPassword) throws Exception {
         String newPasswordValue = newPassword == null ? "null" : "\"" + newPassword + "\"";
         String requestBody = String.format("""
-                {
-                    "token": "someToken",
-                    "password": %s
-                }
-                """, newPasswordValue);
+            {
+                "token": "someToken",
+                "password": %s
+            }
+            """, newPasswordValue);
+        String responseBody = """
+            {
+                "message": "The Password field is required",
+                "statusCode": 400
+            }
+            """;
 
         mockMvc.perform(put(AUTH_PATH + "/password_reset/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("The Password field is required")));
+                .andExpect(content().json(responseBody));
     }
 
     @Test
