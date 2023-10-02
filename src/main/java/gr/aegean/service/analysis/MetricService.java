@@ -23,7 +23,7 @@ public class MetricService {
             "complete your request. Please try again later";
 
     /*
-        For every quality metric, the relative utility function(utf) is applied.
+        For every quality metric, the relevant utility function(utf) is applied.
      */
     public Map<QualityMetric, Double> applyUtf(Map<QualityMetric, Double> metricsReport,
                                                IssuesReport issuesReport,
@@ -183,7 +183,7 @@ public class MetricService {
             MINOR: 2,
             INFO: 1
 
-            We know the total occurrences of each severity, so we can apply the relative utf.
+            We know the total occurrences of each severity, so we can apply the relevant utf.
          */
         return sortedSeverities.stream()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));

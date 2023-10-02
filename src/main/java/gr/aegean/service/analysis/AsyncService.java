@@ -74,8 +74,8 @@ public class AsyncService {
             Wait for all the threads to finish to collect the results, remove empty optionals and return the analysis
             report. Empty optionals would have null values in the list.
          */
-        CompletableFuture<List<AnalysisReport>> allFutures = CompletableFuture.allOf(
-                        futures.toArray(new CompletableFuture[0]))
+        CompletableFuture<List<AnalysisReport>> allFutures = CompletableFuture.allOf(futures.toArray(
+                new CompletableFuture[0]))
                 .thenApply(v -> futures.stream()
                         .map(CompletableFuture::join)
                         .filter(Optional::isPresent)

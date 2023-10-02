@@ -67,6 +67,9 @@ public class RankingService {
             }
         }
 
+        /*
+            Weight is distributed dynamically to the child nodes without weight
+         */
         double weightToDistribute = sum / childNodesWithoutWeight.size();
         childNodesWithoutWeight.forEach(nodeWithoutWeight -> nodeWithoutWeight.setWeight(weightToDistribute));
 
@@ -106,5 +109,4 @@ public class RankingService {
 
         node.setValue(parentValue);
     }
-
 }

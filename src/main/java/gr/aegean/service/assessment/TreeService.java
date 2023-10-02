@@ -45,6 +45,13 @@ public class TreeService {
         return root;
     }
 
+    /*
+        Before the analysis starts we have to validate the sum of the weights of the child nodes for each parent node
+        for 2 cases.
+
+        Case 1: sum of provided weights for the child nodes is greater than 1.0
+        Case 2: the user provided weight for all the child nodes, and the sum is not equal to 1.0
+     */
     public void validateChildNodesWeightsSum(TreeNode node, List<Preference> preferences) {
         int childNodesWithWeight = 0;
         double sum = 0.0;

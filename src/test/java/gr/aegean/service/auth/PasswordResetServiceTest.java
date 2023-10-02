@@ -13,16 +13,18 @@ import gr.aegean.service.email.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -59,14 +61,13 @@ class PasswordResetServiceTest extends AbstractUnitTest {
         userRepository.registerUser(user);
 
         PasswordResetRequest passwordResetRequest = new PasswordResetRequest("test@example.com");
+        doNothing().when(emailService).sendPasswordResetEmail(eq(user.getEmail()), any(String.class));
 
         //Act
         underTest.createPasswordResetToken(passwordResetRequest);
 
         //Assert
-        verify(emailService, times(1)).sendPasswordResetEmail(
-                eq(user.getEmail()),
-                any(String.class));
+        verify(emailService, times(1)).sendPasswordResetEmail(eq(user.getEmail()), any(String.class));
     }
 
     @Test
@@ -80,21 +81,24 @@ class PasswordResetServiceTest extends AbstractUnitTest {
         verifyNoInteractions(emailService);
     }
 
-    @Test
-    void shouldThrowBadCredentialsExceptionWhenPasswordResetTokenIsInvalid() {
+    @ParameterizedTest
+    @EmptySource
+    @ValueSource(strings = {"malformedToken"})
+    void shouldNotResetPasswordWhenPasswordResetTokenIsBlankOrMalformed(String token) {
         //Arrange
         PasswordResetConfirmationRequest passwordResetConfirmationRequest = new PasswordResetConfirmationRequest(
-                "invalidToken",
+                token,
                 "@4ts0v6$Cz06");
 
-        // Act Assert
-        assertThatThrownBy(() -> underTest.resetPassword(passwordResetConfirmationRequest))
-                .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("Reset password token is invalid");
+        // Act
+        boolean actual = underTest.resetPassword(passwordResetConfirmationRequest);
+
+        //Assert
+        assertThat(actual).isFalse();
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenPasswordResetTokenExpired() {
+    void shouldNotResetPasswordWhenPasswordResetTokenExpired() {
         //Arrange
         User user = generateUser();
         userRepository.registerUser(user);
@@ -111,10 +115,11 @@ class PasswordResetServiceTest extends AbstractUnitTest {
 
         passwordResetRepository.saveToken(passwordResetToken);
 
-        //Act Assert
-        assertThatThrownBy(() -> underTest.resetPassword(passwordResetConfirmationRequest))
-                .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("The password reset link has expired. Please request a new one");
+        // Act
+        boolean actual = underTest.resetPassword(passwordResetConfirmationRequest);
+
+        //Assert
+        assertThat(actual).isFalse();
     }
 
     @Test
@@ -159,19 +164,19 @@ class PasswordResetServiceTest extends AbstractUnitTest {
                 expiryDate);
 
         passwordResetRepository.saveToken(passwordResetToken);
+        doNothing().when(emailService).sendPasswordResetSuccessEmail(user.getEmail(), user.getUsername());
 
         PasswordResetConfirmationRequest passwordResetConfirmationRequest = new PasswordResetConfirmationRequest(
                 "token",
                 "@4ts0v6$Cz06");
 
         //Act
-        underTest.resetPassword(passwordResetConfirmationRequest);
+        boolean actual = underTest.resetPassword(passwordResetConfirmationRequest);
 
         //Assert
+        assertThat(actual).isTrue();
         assertThat(passwordResetRepository.findToken(hashedToken)).isNotPresent();
-        verify(emailService, times(1)).sendPasswordResetSuccessEmail(
-                user.getEmail(),
-                user.getUsername());
+        verify(emailService, times(1)).sendPasswordResetSuccessEmail(user.getEmail(), user.getUsername());
     }
 
     private User generateUser() {

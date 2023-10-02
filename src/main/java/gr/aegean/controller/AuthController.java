@@ -52,11 +52,20 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
+    /*
+        If the validation of the token in the verification link was successful NO_CONTENT is returned and the password
+        was reset successfully, otherwise the token was not valid so UNAUTHORIZED is returned to indicate that the user
+        didn't have the necessary credentials(valid token).
+     */
     @PutMapping("/password_reset/confirm")
     public ResponseEntity<Void> resetPassword(@Valid @RequestBody
                                               PasswordResetConfirmationRequest resetConfirmationRequest) {
-        passwordResetService.resetPassword(resetConfirmationRequest);
+        boolean reset = passwordResetService.resetPassword(resetConfirmationRequest);
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if (reset) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 }

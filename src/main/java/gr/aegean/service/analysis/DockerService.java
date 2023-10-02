@@ -16,6 +16,9 @@ import gr.aegean.exception.ServerErrorException;
 
 @Service
 public class DockerService {
+    /*
+        This is the access token for SonarQube
+     */
     @Value("${sonar.token}")
     private String authToken;
 

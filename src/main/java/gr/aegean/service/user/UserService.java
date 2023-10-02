@@ -26,8 +26,11 @@ import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,6 +49,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserDTOMapper userDTOMapper = new UserDTOMapper();
     private static final String USER_NOT_FOUND_ERROR_MSG = "User not found with id: ";
+    private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
     public void registerUser(User user) {
         if (userRepository.existsUserWithEmail(user.getEmail())) {
@@ -128,28 +132,25 @@ public class UserService {
                 });
     }
 
-    public void updateEmail(String token) {
-        if (token == null || token.isEmpty()) {
-            throw new BadCredentialsException("Email update token is invalid");
+    /*
+        Token will never be null because there is a default value of an empty string that is given in the controller.
+     */
+    public boolean updateEmail(String token) {
+        if (isValidEmailUpdateToken(token)) {
+            String hashedToken = StringUtils.hashToken(token);
+
+            emailUpdateRepository.findToken(hashedToken)
+                    .ifPresent(emailUpdateToken -> {
+                        /*
+                            Update user's email and delete the relevant email token.
+                        */
+                        userRepository.updateEmail(emailUpdateToken.userId(), emailUpdateToken.email());
+                        emailUpdateRepository.deleteToken(hashedToken);
+                    });
+            return true;
         }
 
-        String hashedToken = StringUtils.hashToken(token);
-
-        emailUpdateRepository.findToken(hashedToken)
-                .ifPresentOrElse(emailUpdateToken -> {
-                    if (emailUpdateToken.expiryDate().isBefore(LocalDateTime.now())) {
-                        throw new BadCredentialsException("The email verification link has expired. " +
-                                "Please request a new one");
-                    }
-
-                    /*
-                        Update user's email and delete the relevant email token.
-                     */
-                    userRepository.updateEmail(emailUpdateToken.userId(), emailUpdateToken.email());
-                    emailUpdateRepository.deleteToken(hashedToken);
-                }, () -> {
-                    throw new BadCredentialsException("Email update token is invalid");
-                });
+        return false;
     }
 
     public void updatePassword(UserPasswordUpdateRequest passwordUpdateRequest) {
@@ -287,6 +288,34 @@ public class UserService {
         if (company.length() > 50) {
             throw new IllegalArgumentException("Invalid company. Company must not exceed 50 characters");
         }
+    }
+
+    /*
+        This method validates the token that's encoded in the verification link. Since we can't really throw exceptions
+        we keep a state on the server for each invalid case by logging, and we return false for each one.
+     */
+    private boolean isValidEmailUpdateToken(String token) {
+        if (token.isBlank()) {
+            LOG.warn("Received empty email update token");
+
+            return false;
+        }
+
+        String hashedToken = StringUtils.hashToken(token);
+        Optional<EmailUpdateToken> optionalToken = emailUpdateRepository.findToken(hashedToken);
+        if (optionalToken.isEmpty()) {
+            LOG.warn("Invalid email update token received: {}", token);
+
+            return false;
+        }
+
+        EmailUpdateToken emailUpdateToken = optionalToken.get();
+        if (emailUpdateToken.expiryDate().isBefore(LocalDateTime.now())) {
+            LOG.warn("The email verification link has expired for user with id: {}", emailUpdateToken.userId());
+
+            return false;
+        }
+        return true;
     }
 
     /*

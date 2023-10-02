@@ -2,6 +2,7 @@ package gr.aegean.service.analysis;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.UUID;
@@ -57,7 +58,7 @@ public class GitHubService {
             String host = uri.getHost();
 
             return host.equals("github.com");
-        } catch (Exception e) {
+        } catch (URISyntaxException use) {
             return false;
         }
     }

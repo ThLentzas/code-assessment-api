@@ -32,7 +32,8 @@ class LanguageServiceTest {
 
         Map<String, Double> actual = underTest.detectLanguages("path");
 
-        assertThat(actual).hasSize(1)
+        assertThat(actual)
+                .hasSize(1)
                 .containsEntry("Python", 100.0);
     }
 

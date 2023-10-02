@@ -222,7 +222,7 @@ public class SonarService {
 
     /*
         For BUG_SEVERITY, VULNERABILITY_SEVERITY, HOTSPOT_PRIORITY the initial value will be 0 because we don't fetch
-        any value from Sonarqube and will get the actual value when we apply the relative utf.
+        any value from Sonarqube and will get the actual value when we apply the relevant utf.
      */
     private Map<QualityMetric, Double> getQualityMetrics(RestTemplate restTemplate,
                                                          HttpEntity<String> entity,
@@ -249,6 +249,9 @@ public class SonarService {
     private Map<String, Double> fetchQualityMetricValues(RestTemplate restTemplate,
                                                          HttpEntity<String> entity,
                                                          String projectKey) {
+        /*
+            Metric values based on SonarQube's documentation
+         */
         final String[] METRICS = new String[]{
                 "comment_lines_density",
                 "functions",

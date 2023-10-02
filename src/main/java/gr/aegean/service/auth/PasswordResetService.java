@@ -9,11 +9,13 @@ import gr.aegean.service.email.EmailService;
 import gr.aegean.utility.PasswordValidator;
 import gr.aegean.utility.StringUtils;
 
-import org.springframework.security.authentication.BadCredentialsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +27,7 @@ public class PasswordResetService {
     private final PasswordResetRepository passwordResetRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private static final Logger LOG = LoggerFactory.getLogger(PasswordResetService.class);
 
     public void createPasswordResetToken(PasswordResetRequest resetRequest) {
         userRepository.findUserByEmail(resetRequest.email())
@@ -52,45 +55,64 @@ public class PasswordResetService {
                 });
     }
 
-    public void resetPassword(PasswordResetConfirmationRequest resetConfirmationRequest) {
-        //Validate the token
-        validatePasswordResetToken(resetConfirmationRequest.token());
+    /**
+     * @return true if the token is valid and the provided password meets the requirements, false otherwise.
+     */
 
-        //validate/hash the password
-        PasswordValidator.validatePassword(resetConfirmationRequest.password());
-        String hashedPassword = passwordEncoder.encode(resetConfirmationRequest.password());
+    public boolean resetPassword(PasswordResetConfirmationRequest resetConfirmationRequest) {
+        //Validate the password reset token
+        if (isValidPasswordToken(resetConfirmationRequest.token())) {
+            PasswordValidator.validatePassword(resetConfirmationRequest.password());
+            String hashedPassword = passwordEncoder.encode(resetConfirmationRequest.password());
 
-        //Update the password in db and delete the password reset token record after so subsequent requests will fail
-        String hashedToken = StringUtils.hashToken(resetConfirmationRequest.token());
+            /*
+                Update the password in db and delete the password reset token record after so subsequent requests will
+                fail
+             */
+            String hashedToken = StringUtils.hashToken(resetConfirmationRequest.token());
+            passwordResetRepository.findToken(hashedToken)
+                    .ifPresent(passwordResetToken -> {
+                        userRepository.updatePassword(passwordResetToken.userId(), hashedPassword);
+                        passwordResetRepository.deleteToken(hashedToken);
 
-        passwordResetRepository.findToken(hashedToken)
-                .ifPresent(passwordResetToken -> {
-                    userRepository.updatePassword(passwordResetToken.userId(), hashedPassword);
-                    passwordResetRepository.deleteToken(hashedToken);
+                        // send confirmation email
+                        userRepository.findUserById(passwordResetToken.userId())
+                                .ifPresent(user -> emailService.sendPasswordResetSuccessEmail(
+                                        user.getEmail(),
+                                        user.getUsername()));
+                    });
+            return true;
+        }
 
-                    // send confirmation email
-                    userRepository.findUserById(passwordResetToken.userId())
-                            .ifPresent(user -> emailService.sendPasswordResetSuccessEmail(
-                                    user.getEmail(),
-                                    user.getUsername()));
-                });
+        return false;
     }
 
     /*
-        When validatePasswordResetToken() gets called, the token can't be null or blank. If it was, @Valid annotation
-        would have handled it.
+        This method validates the token that's encoded in the verification link. Since we can't really throw exceptions
+        we keep a state on the server for each invalid case by logging, and we return false for each one.
      */
-    private void validatePasswordResetToken(String token) {
-        String hashedToken = StringUtils.hashToken(token);
+    private boolean isValidPasswordToken(String token) {
+        if (token.isBlank()) {
+            LOG.warn("Received empty email update token");
 
-        passwordResetRepository.findToken(hashedToken)
-                .ifPresentOrElse(passwordResetToken -> {
-                    if (passwordResetToken.expiryDate().isBefore(LocalDateTime.now())) {
-                        throw new BadCredentialsException("The password reset link has expired. " +
-                                "Please request a new one");
-                    }
-                }, () -> {
-                    throw new BadCredentialsException("Reset password token is invalid");
-                });
+            return false;
+        }
+
+        String hashedToken = StringUtils.hashToken(token);
+        Optional<PasswordResetToken> optionalToken = passwordResetRepository.findToken(hashedToken);
+        if (optionalToken.isEmpty()) {
+            LOG.warn("Invalid password reset token received: {}", token);
+
+            return false;
+        }
+
+        PasswordResetToken passwordResetToken = optionalToken.get();
+        if (passwordResetToken.expiryDate().isBefore(LocalDateTime.now())) {
+            LOG.warn("The password reset link has expired for user with id: {}", passwordResetToken.userId());
+
+            return false;
+        }
+
+        return true;
     }
 }

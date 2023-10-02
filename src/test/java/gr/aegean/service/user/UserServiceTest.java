@@ -25,7 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -39,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -82,7 +82,6 @@ class UserServiceTest extends AbstractUnitTest {
     void shouldRegisterUser() {
         //Arrange
         User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         //Act
         underTest.registerUser(user);
@@ -97,11 +96,9 @@ class UserServiceTest extends AbstractUnitTest {
     void shouldThrowDuplicateResourceExceptionIfEmailAlreadyExistsForRegisterRequest() {
         //Arrange
         User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         underTest.registerUser(user);
 
         User duplicateEmailUser = generateUser();
-        duplicateEmailUser.setPassword(duplicateEmailUser.getPassword());
         duplicateEmailUser.setEmail(user.getEmail());
 
         //Act Assert
@@ -114,11 +111,9 @@ class UserServiceTest extends AbstractUnitTest {
     void shouldThrowDuplicateResourceExceptionIfUsernameAlreadyExistsForRegisterRequest() {
         //Arrange
         User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         underTest.registerUser(user);
 
         User duplicateUsernameUser = generateUser();
-        duplicateUsernameUser.setPassword(duplicateUsernameUser.getPassword());
         duplicateUsernameUser.setEmail("test2@example.com");
         duplicateUsernameUser.setUsername(user.getUsername());
 
@@ -128,9 +123,6 @@ class UserServiceTest extends AbstractUnitTest {
                 .hasMessage("The provided username already exists");
     }
 
-    /*
-        Password hashing happens after user validation that's why the below password are not hashed.
-     */
     @Test
     void shouldThrowIllegalArgumentExceptionWhenFirstnameExceedsMaxLength() {
         //Arrange
@@ -247,7 +239,6 @@ class UserServiceTest extends AbstractUnitTest {
     void shouldGetUser() {
         //Arrange
         User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
         UserDTO expected = userDTOMapper.apply(user);
 
@@ -267,77 +258,6 @@ class UserServiceTest extends AbstractUnitTest {
 
         //Act Assert
         assertThatThrownBy(() -> underTest.findUser())
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
-    }
-
-    @Test
-    void shouldUpdateUserProfile() {
-        //Arrange
-        User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.registerUser(user);
-        UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
-                "foo",
-                null,
-                null,
-                "I have a real passion for teaching",
-                "Miami, OH",
-                "VM, LLC"
-        );
-
-        when(jwtService.getSubject()).thenReturn(user.getId().toString());
-
-        //Act
-        underTest.updateProfile(profileUpdateRequest);
-
-        //Assert
-        userRepository.findUserById(user.getId())
-                .ifPresent(actual -> {
-                    assertThat(actual.getFirstname()).isEqualTo(profileUpdateRequest.firstname());
-                    assertThat(actual.getBio()).isEqualTo(profileUpdateRequest.bio());
-                    assertThat(actual.getLocation()).isEqualTo(profileUpdateRequest.location());
-                    assertThat(actual.getCompany()).isEqualTo(profileUpdateRequest.company());
-                });
-    }
-
-    @Test
-    void shouldThrowDuplicateResourceExceptionWhenUsernameAlreadyExistsForProfileUpdateRequest() {
-        User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.registerUser(user);
-        UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
-                "foo",
-                "foo",
-                "TestT",
-                "I have a real passion for teaching",
-                "Miami, OH",
-                "VM, LLC"
-        );
-
-        when(jwtService.getSubject()).thenReturn(user.getId().toString());
-
-        assertThatThrownBy(() -> underTest.updateProfile(profileUpdateRequest))
-                .isInstanceOf(DuplicateResourceException.class)
-                .hasMessage("The provided username already exists");
-    }
-
-    @Test
-    void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdateProfile() {
-        //Arrange
-        UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
-                "foo",
-                "foo",
-                "Foo",
-                "I have a real passion for teaching",
-                "Miami, OH",
-                "VM, LLC"
-        );
-
-        when(jwtService.getSubject()).thenReturn(String.valueOf(1));
-
-        //Act Assert
-        assertThatThrownBy(() -> underTest.updateProfile(profileUpdateRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
     }
@@ -377,6 +297,78 @@ class UserServiceTest extends AbstractUnitTest {
     }
 
     /*
+        The user did not update all of their profile properties, just some of them.
+     */
+    @Test
+    void shouldUpdateUserProfile() {
+        //Arrange
+        User user = generateUser();
+        userRepository.registerUser(user);
+        UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
+                "foo",
+                null,
+                null,
+                "I have a real passion for teaching",
+                "Miami, OH",
+                "VM, LLC"
+        );
+
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
+
+        //Act
+        underTest.updateProfile(profileUpdateRequest);
+
+        //Assert
+        userRepository.findUserById(user.getId())
+                .ifPresent(actual -> {
+                    assertThat(actual.getFirstname()).isEqualTo(profileUpdateRequest.firstname());
+                    assertThat(actual.getBio()).isEqualTo(profileUpdateRequest.bio());
+                    assertThat(actual.getLocation()).isEqualTo(profileUpdateRequest.location());
+                    assertThat(actual.getCompany()).isEqualTo(profileUpdateRequest.company());
+                });
+    }
+
+    @Test
+    void shouldThrowDuplicateResourceExceptionWhenUsernameAlreadyExistsForProfileUpdateRequest() {
+        User user = generateUser();
+        userRepository.registerUser(user);
+        UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
+                "foo",
+                "foo",
+                "TestT",
+                "I have a real passion for teaching",
+                "Miami, OH",
+                "VM, LLC"
+        );
+
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
+
+        assertThatThrownBy(() -> underTest.updateProfile(profileUpdateRequest))
+                .isInstanceOf(DuplicateResourceException.class)
+                .hasMessage("The provided username already exists");
+    }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdateProfile() {
+        //Arrange
+        UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
+                "foo",
+                "foo",
+                "Foo",
+                "I have a real passion for teaching",
+                "Miami, OH",
+                "VM, LLC"
+        );
+
+        when(jwtService.getSubject()).thenReturn(String.valueOf(1));
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.updateProfile(profileUpdateRequest))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
+    }
+
+    /*
         Password validation has already being tested, we don't have to test that the new password meets all the
         requirements, will test that the exception is thrown and handled correctly in the Controller. Same case with
         validating constraints and preferences for both analysis request and refresh request. We only did for the
@@ -386,7 +378,6 @@ class UserServiceTest extends AbstractUnitTest {
     void shouldUpdateUserPassword() {
         //Arrange
         User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
         UserPasswordUpdateRequest passwordUpdateRequest = new UserPasswordUpdateRequest("Igw4UQAlfX$E", "3frMH4v!20d4");
 
@@ -433,7 +424,6 @@ class UserServiceTest extends AbstractUnitTest {
     void shouldCreateEmailUpdateToken() {
         //Arrange
         User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
         UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
                 "foo@example.com",
@@ -441,6 +431,10 @@ class UserServiceTest extends AbstractUnitTest {
         );
 
         when(jwtService.getSubject()).thenReturn(user.getId().toString());
+        doNothing().when(emailService).sendEmailVerification(
+                eq(emailUpdateRequest.email()),
+                any(String.class),
+                any(String.class));
 
         //Act
         underTest.createEmailUpdateToken(emailUpdateRequest);
@@ -450,22 +444,6 @@ class UserServiceTest extends AbstractUnitTest {
                 eq(emailUpdateRequest.email()),
                 any(String.class),
                 any(String.class));
-    }
-
-    @Test
-    void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdateEmail() {
-        //Arrange
-        UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
-                "foo@example.com",
-                "test"
-        );
-
-        when(jwtService.getSubject()).thenReturn(String.valueOf(1));
-
-        //Act Assert
-        assertThatThrownBy(() -> underTest.createEmailUpdateToken(emailUpdateRequest))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
     }
 
     @Test
@@ -491,7 +469,6 @@ class UserServiceTest extends AbstractUnitTest {
     void shouldThrowDuplicateResourceExceptionWhenNewEmailExistsForEmailUpdateRequest() {
         //Arrange
         User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
         UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
                 "test@example.com",
@@ -506,19 +483,22 @@ class UserServiceTest extends AbstractUnitTest {
                 .hasMessage("Email already in use");
     }
 
+    /*
+        An empty string is enough. There is no need to test more cases like {"\t", "\n", "  "} because .isBlank()
+        will handle them. Token will never be null because there is a default value of an empty string that is given
+        in the controller
+     */
     @ParameterizedTest
-    @NullSource
     @EmptySource
-    @ValueSource(strings = {"invalidToken"})
-    void shouldThrowBadCredentialsExceptionWhenEmailUpdateTokenIsInvalid(String invalidToken) {
-        //Arrange Act Assert
-        assertThatThrownBy(() -> underTest.updateEmail(invalidToken))
-                .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("Email update token is invalid");
+    @ValueSource(strings = {"malformedToken"})
+    void shouldNotUpdateEmailWhenEmailUpdateTokenIsBlankOrMalformed(String token) {
+        boolean actual = underTest.updateEmail(token);
+
+        assertThat(actual).isFalse();
     }
 
     @Test
-    void shouldThrowBadCredentialsExceptionWhenEmailUpdateTokenExpired() {
+    void shouldNotUpdateEmailWhenEmailUpdateTokenExpired() {
         //Arrange
         User user = generateUser();
         userRepository.registerUser(user);
@@ -533,17 +513,33 @@ class UserServiceTest extends AbstractUnitTest {
 
         emailUpdateRepository.saveToken(emailUpdateToken);
 
+        //Act
+        boolean actual = underTest.updateEmail("expiredToken");
+
         //Assert
-        assertThatThrownBy(() -> underTest.updateEmail("expiredToken"))
-                .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("The email verification link has expired. Please request a new one");
+        assertThat(actual).isFalse();
+    }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenUserIsNotFoundToUpdateEmail() {
+        //Arrange
+        UserEmailUpdateRequest emailUpdateRequest = new UserEmailUpdateRequest(
+                "foo@example.com",
+                "test"
+        );
+
+        when(jwtService.getSubject()).thenReturn(String.valueOf(1));
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.createEmailUpdateToken(emailUpdateRequest))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
     }
 
     @Test
     void shouldInvalidateAllPreviousTokensWhenNewEmailUpdateTokenIsGenerated() {
         //Arrange
         User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
 
         String hashedToken = StringUtils.hashToken("token");
@@ -577,7 +573,6 @@ class UserServiceTest extends AbstractUnitTest {
     void shouldUpdateEmail() {
         //Arrange
         User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
 
         String hashedToken = StringUtils.hashToken("token");
@@ -591,9 +586,10 @@ class UserServiceTest extends AbstractUnitTest {
         emailUpdateRepository.saveToken(emailUpdateToken);
 
         //Act
-        underTest.updateEmail("token");
+        boolean actual = underTest.updateEmail("token");
 
         //Assert
+        assertThat(actual).isTrue();
         assertThat(emailUpdateRepository.findToken(hashedToken)).isNotPresent();
     }
 
@@ -602,7 +598,6 @@ class UserServiceTest extends AbstractUnitTest {
     void shouldThrowIllegalArgumentExceptionWhenOnlyToDateIsProvided(String from) {
         //Arrange
         User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
         String to = "2020-04-22";
 
@@ -619,7 +614,6 @@ class UserServiceTest extends AbstractUnitTest {
     void shouldThrowIllegalArgumentExceptionWhenOnlyFromDateIsProvided(String to) {
         //Arrange
         User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
         String from = "2020-04-22";
 
@@ -635,7 +629,6 @@ class UserServiceTest extends AbstractUnitTest {
     void shouldDeleteAccount() {
         //Arrange
         User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
         UserAccountDeleteRequest accountDeleteRequest = new UserAccountDeleteRequest("Igw4UQAlfX$E");
 
@@ -654,7 +647,6 @@ class UserServiceTest extends AbstractUnitTest {
     void shouldThrowBadCredentialExceptionWhenPasswordIsWrongForAccountDeletion() {
         //Arrange
         User user = generateUser();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.registerUser(user);
         UserAccountDeleteRequest accountDeleteRequest = new UserAccountDeleteRequest("foo");
 
@@ -679,13 +671,18 @@ class UserServiceTest extends AbstractUnitTest {
                 .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
     }
 
+
+    /*
+        Password hashing happens after user validation in the authentication service, so when userService.registerUser()
+        is called the password is already hashed. For db consistency we hash the password before registering the user
+     */
     private User generateUser() {
         return User.builder()
                 .firstname("Test")
                 .lastname("Test")
                 .username("TestT")
                 .email("test@example.com")
-                .password("Igw4UQAlfX$E")
+                .password(passwordEncoder.encode("Igw4UQAlfX$E"))
                 .bio("I have a real passion for teaching")
                 .location("Cleveland, OH")
                 .company("Code Monkey, LLC")

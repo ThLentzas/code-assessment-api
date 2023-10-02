@@ -22,6 +22,7 @@ import gr.aegean.model.UserPrincipal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -71,6 +72,7 @@ class AuthServiceTest {
 
         when(passwordEncoder.encode(user.getPassword())).thenReturn("hashedPassword");
         when(jwtService.assignToken(any(UserDTO.class))).thenReturn(jwtToken);
+        doNothing().when(userService).registerUser(any(User.class));
 
         //Act
         AuthResponse authResponse = underTest.registerUser(request);

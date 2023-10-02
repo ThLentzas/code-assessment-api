@@ -19,15 +19,14 @@ import lombok.RequiredArgsConstructor;
 public class JwtService {
     private final JwtEncoder jwtEncoder;
 
-    /**
-     * The claims of the JwtToken are: issuer, when it is issued at, when it expires at, subject(user's email).
+    /*
+        The claims of the JwtToken are: issuer, when it is issued at, when it expires at, subject(user's id).
      */
     public String assignToken(UserDTO userDTO) {
         Instant now = Instant.now();
         long expiresIn = 2;
 
-        JwtClaimsSet claims = JwtClaimsSet
-                .builder()
+        JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
                 .expiresAt(now.plus(expiresIn, ChronoUnit.HOURS))
