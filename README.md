@@ -1,7 +1,7 @@
 # Code Assessment Service
 The proposed web application is a code quality and security assessment and evaluation tool for open source software repositories hosted on GitHub. The application can obtain the addresses of the repositories from the users, and the users through the interface can set constraints and preferences regarding the assessment of features and metrics of code quality and security. The main advantage is the automation of the process as all that is needed is the initial submission of repositories and optionally constraints and preferences by the user. The application automatically detects the programming languages and related build automation tools of each project repository and performs the analysis in an automated manner, simplifying the process and reducing the margin for error. A key advantage is the flexibility of the application in terms of assessment. By giving the user the ability to set the weight he wants on specific quality and safety features as well as constraints on them, the assessment is adjusted to better align with the goals of the user. The results of the assessment will not be static because the user is given the ability to change constraints and preferences on the fly as there is no need to re-analyze the relevant project but only to update the results based on the new preferences/restrictions of the user parameters. This the rest api of the application.
 
-![Your Alt Text](https://imgur.com/jIw67O1)
+![Rank Tree](https://i.imgur.com/jIw67O1.png)
 
 ### Quality Metrics
 
