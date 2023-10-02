@@ -10,10 +10,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import gr.aegean.config.security.AuthConfig;
@@ -126,7 +124,7 @@ class UserControllerTest {
 
     @Test
     @WithMockUser(username = "test")
-    void shouldReturnProfileAndHTTP200() throws Exception {
+    void shouldReturnUserProfileAndHTTP200() throws Exception {
         UserProfile profile = new UserProfile(
                 "Foo",
                 "Foo",
@@ -597,23 +595,8 @@ class UserControllerTest {
                 .andExpect(content().json(responseBody));
     }
 
-    /*
-        We consider invalid tokens the following: 1) empty 2) malformed 3) expired. This is the GET endpoint we have as
-        permitAll() because the user clicks the verification link from their email
-     */
     @Test
-    void shouldRedirectToEmailUpdateErrorPageWhenEmailUpdateTokenIsInvalid() throws Exception {
-        String token = "invalidToken";
-
-        when(userService.updateEmail(any(String.class))).thenReturn(false);
-
-        mockMvc.perform(get(USER_PATH + "/email?token={token}", token))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(header().string("Location", "http://localhost:4200/email_update_error"));
-    }
-
-    @Test
-    void shouldUpdateEmailAndRedirectToEmailUpdateSuccessPageWhenEmailUpdateTokenIsValid() throws Exception {
+    void shouldUpdateEmailAndRedirectUserToTheirProfileWhenEmailUpdateTokenIsValid() throws Exception {
         String token = "token";
 
         when(userService.updateEmail(any(String.class))).thenReturn(true);
@@ -621,6 +604,21 @@ class UserControllerTest {
         mockMvc.perform(get(USER_PATH + "/email?token={token}", token))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(header().string("Location", "http://localhost:4200/profile"));
+    }
+
+    /*
+        We consider invalid tokens the following: 1) empty 2) malformed 3) expired. This is the GET endpoint we have as
+        permitAll() because the user clicks the verification link from their email
+     */
+    @Test
+    void shouldNotUpdateEmailAndRedirectToEmailUpdateErrorPageWhenEmailUpdateTokenIsInvalid() throws Exception {
+        String token = "invalidToken";
+
+        when(userService.updateEmail(any(String.class))).thenReturn(false);
+
+        mockMvc.perform(get(USER_PATH + "/email?token={token}", token))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(header().string("Location", "http://localhost:4200/email_update_error"));
     }
 
     @Test
@@ -732,6 +730,12 @@ class UserControllerTest {
                     "password": "wrongPassword"
                 }
                 """;
+        String responseBody = """
+                {
+                    "message": "Password is wrong",
+                    "statusCode": 400
+                }
+                """;
 
         doThrow(new BadCredentialsException("Password is wrong"))
                 .when(userService).deleteAccount(any(UserAccountDeleteRequest.class));
@@ -741,7 +745,7 @@ class UserControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Password is wrong")));
+                .andExpect(content().json(responseBody));
     }
 
     @Test
