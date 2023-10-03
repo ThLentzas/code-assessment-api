@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MetricService {
+    /*
+        Default value provided by SonarQube
+     */
     private static final double LINE_COST = 0.06;
     private static final String SERVER_ERROR_MSG = "The server encountered an internal error and was unable to " +
             "complete your request. Please try again later";
