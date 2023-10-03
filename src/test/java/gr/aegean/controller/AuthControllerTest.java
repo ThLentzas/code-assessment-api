@@ -305,7 +305,7 @@ class AuthControllerTest {
                 }
                 """;
 
-            doNothing().when(passwordResetService).createPasswordResetToken(any(PasswordResetRequest.class));
+        doNothing().when(passwordResetService).createPasswordResetToken(any(PasswordResetRequest.class));
 
         mockMvc.perform(post(AUTH_PATH + "/password_reset")
                         .contentType(MediaType.APPLICATION_JSON)

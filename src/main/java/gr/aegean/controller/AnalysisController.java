@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import gr.aegean.service.analysis.AnalysisService;
-import gr.aegean.service.analysis.AsyncService;
+import gr.aegean.service.analysis.ProcessProjectService;
 import gr.aegean.model.dto.analysis.AnalysisRequest;
 import gr.aegean.model.dto.analysis.AnalysisResult;
 import gr.aegean.model.dto.analysis.RefreshRequest;
@@ -30,13 +30,13 @@ import java.net.URI;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/analysis")
 public class AnalysisController {
-    private final AsyncService asyncService;
+    private final ProcessProjectService processProjectService;
     private final AnalysisService analysisService;
 
     @PostMapping
     public ResponseEntity<Void> analyze(@Valid @RequestBody AnalysisRequest analysisRequest,
                                         UriComponentsBuilder uriBuilder) {
-        Integer analysisId = asyncService.processProject(analysisRequest).join();
+        Integer analysisId = processProjectService.processProject(analysisRequest).join();
         URI location = uriBuilder
                 .path("/api/v1/analysis/{analysisId}")
                 .buildAndExpand(analysisId)

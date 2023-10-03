@@ -28,10 +28,13 @@ class LanguageServiceTest {
 
     @Test
     void shouldDetectLanguages() {
+        //Arrange
         when(dockerService.createLinguistContainer(any(String.class))).thenReturn("100.00% 31261      Python");
 
+        //Act
         Map<String, Double> actual = underTest.detectLanguages("path");
 
+        //Assert
         assertThat(actual)
                 .hasSize(1)
                 .containsEntry("Python", 100.0);
@@ -39,6 +42,7 @@ class LanguageServiceTest {
 
     @Test
     void shouldReturnTrueWhenAtLeastOneDetectedLanguageIsSupported() {
+        //Arrange
         Map<String, Double> detectedLanguages = new HashMap<>();
 
         /*
@@ -47,13 +51,16 @@ class LanguageServiceTest {
         detectedLanguages.put("Go", 25.0);
         detectedLanguages.put("C++", 31.3);
 
+        //Act
         boolean actual = underTest.verifySupportedLanguages(detectedLanguages);
 
+        //Assert
         assertThat(actual).isTrue();
     }
 
     @Test
     void shouldReturnFalseWhenNoneOfTheDetectedLanguagesAreSupported() {
+        //Arrange
         Map<String, Double> detectedLanguages = new HashMap<>();
 
         /*
@@ -62,8 +69,10 @@ class LanguageServiceTest {
         detectedLanguages.put("Pascal", 25.0);
         detectedLanguages.put("C++", 31.3);
 
+        //Act
         boolean actual = underTest.verifySupportedLanguages(detectedLanguages);
 
+        //Assert
         assertThat(actual).isFalse();
     }
 }

@@ -17,14 +17,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import gr.aegean.config.security.AuthConfig;
 import gr.aegean.config.security.SecurityConfig;
 import gr.aegean.config.security.JwtConfig;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
-import gr.aegean.service.analysis.AsyncService;
+import gr.aegean.service.analysis.ProcessProjectService;
 import gr.aegean.config.DeserializerConfig;
 
 
@@ -42,7 +43,7 @@ class AnalysisControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private AsyncService asyncService;
+    private ProcessProjectService processProjectService;
     @MockBean
     private AnalysisService analysisService;
     @MockBean
@@ -73,7 +74,7 @@ class AnalysisControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
 
-        verifyNoInteractions(asyncService);
+        verifyNoInteractions(processProjectService);
     }
 
     /*
@@ -101,7 +102,7 @@ class AnalysisControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(responseBody));
 
-        verifyNoInteractions(asyncService);
+        verifyNoInteractions(processProjectService);
     }
 
     /*
@@ -129,7 +130,7 @@ class AnalysisControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(responseBody));
 
-        verifyNoInteractions(asyncService);
+        verifyNoInteractions(processProjectService);
     }
 
     /*
@@ -178,7 +179,7 @@ class AnalysisControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(responseBody));
 
-        verifyNoInteractions(asyncService);
+        verifyNoInteractions(processProjectService);
     }
 
     /*
@@ -220,7 +221,7 @@ class AnalysisControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(responseBody));
 
-        verifyNoInteractions(asyncService);
+        verifyNoInteractions(processProjectService);
     }
 
     /*
@@ -261,7 +262,7 @@ class AnalysisControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(responseBody));
 
-        verifyNoInteractions(asyncService);
+        verifyNoInteractions(processProjectService);
     }
 
     /*
@@ -304,7 +305,7 @@ class AnalysisControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(responseBody));
 
-        verifyNoInteractions(asyncService);
+        verifyNoInteractions(processProjectService);
     }
 
     /*
@@ -346,7 +347,7 @@ class AnalysisControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(responseBody));
 
-        verifyNoInteractions(asyncService);
+        verifyNoInteractions(processProjectService);
     }
 
     /*
@@ -387,7 +388,7 @@ class AnalysisControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(responseBody));
 
-        verifyNoInteractions(asyncService);
+        verifyNoInteractions(processProjectService);
     }
 
     /*
@@ -430,7 +431,7 @@ class AnalysisControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(responseBody));
 
-        verifyNoInteractions(asyncService);
+        verifyNoInteractions(processProjectService);
     }
 
     @Test
@@ -438,7 +439,7 @@ class AnalysisControllerTest {
         mockMvc.perform(get(ANALYSIS_PATH + "/{analysisId}", 1))
                 .andExpect(status().isUnauthorized());
 
-        verifyNoInteractions(asyncService);
+        verifyNoInteractions(processProjectService);
     }
 
     /*
@@ -465,7 +466,7 @@ class AnalysisControllerTest {
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
 
-        verifyNoInteractions(asyncService);
+        verifyNoInteractions(processProjectService);
     }
 
     @Test
@@ -473,7 +474,7 @@ class AnalysisControllerTest {
         mockMvc.perform(delete(ANALYSIS_PATH + "/{analysisId}", 1))
                 .andExpect(status().isUnauthorized());
 
-        verifyNoInteractions(asyncService);
+        verifyNoInteractions(processProjectService);
     }
 
     @Test
@@ -481,6 +482,6 @@ class AnalysisControllerTest {
         mockMvc.perform(get(ANALYSIS_PATH + "/{analysisId}/request", 1))
                 .andExpect(status().isUnauthorized());
 
-        verifyNoInteractions(asyncService);
+        verifyNoInteractions(processProjectService);
     }
 }

@@ -32,6 +32,7 @@ import gr.aegean.service.auth.JwtService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -666,10 +667,34 @@ class UserControllerTest {
         verifyNoInteractions(userService);
     }
 
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {
+            "22-04-2020",
+            "04-22-2020"
+    })
+    @WithMockUser(username = "test")
+    void shouldReturnHTTP400WhenAtLeastOneDateIsInvalidToGetUserHistoryInRange(String from) throws Exception {
+        String to = "2022-03-13";
+        String fromValue = from == null ? "null" : from;
+        String responseBody = String.format("""
+                {
+                    "message": "The provided date is invalid: '%s'",
+                    "statusCode": 400
+                }
+                """, fromValue);
+
+        when(userService.getHistory(any(String.class), any(String.class))).thenThrow(
+                new IllegalArgumentException(String.format("The provided date is invalid: '%s'", fromValue)));
+
+        mockMvc.perform(get(USER_PATH + "/history?from={from}&to={to}", from, to))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(responseBody));
+    }
 
     @Test
     void shouldReturnHTTP401WhenGetHistoryIsCalledByUnauthenticatedUser() throws Exception {
-        mockMvc.perform(post(USER_PATH + "/history"))
+        mockMvc.perform(get(USER_PATH + "/history"))
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(userService);

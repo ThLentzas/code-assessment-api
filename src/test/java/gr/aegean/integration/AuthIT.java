@@ -25,6 +25,7 @@ import jakarta.mail.internet.MimeMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
+
 /*
     We test the happy paths in ITs.
  */

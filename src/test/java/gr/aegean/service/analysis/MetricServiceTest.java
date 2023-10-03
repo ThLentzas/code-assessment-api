@@ -28,6 +28,7 @@ class MetricServiceTest {
 
     @Test
     void shouldApplyUtf() throws IOException {
+        //Arrange
         ObjectMapper mapper = new ObjectMapper();
         String issuesReportPath = "src/test/resources/reports/issues-report.json";
         String hotspotsReportPath = "src/test/resources/reports/hotspots-report.json";
@@ -51,9 +52,11 @@ class MetricServiceTest {
         expected.put(QualityMetric.HOTSPOT_PRIORITY, 0.041353383458646614);
         expected.put(QualityMetric.SECURITY_REMEDIATION_EFFORT, 1.0);
 
+        //Act
         Map<QualityMetric, Double> actual = underTest.applyUtf(metricsReport, issuesReport, hotspotsReport);
 
         /*
+            Assert
             Will fail if the expected and actual maps are not exactly equal, meaning they contain the same keys with
             the same values.
          */

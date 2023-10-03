@@ -117,7 +117,7 @@ class UserServiceTest extends AbstractUnitTest {
         duplicateUsernameUser.setEmail("test2@example.com");
         duplicateUsernameUser.setUsername(user.getUsername());
 
-        //Assert
+        //Act Assert
         assertThatThrownBy(() -> underTest.registerUser(duplicateUsernameUser))
                 .isInstanceOf(DuplicateResourceException.class)
                 .hasMessage("The provided username already exists");
@@ -330,6 +330,7 @@ class UserServiceTest extends AbstractUnitTest {
 
     @Test
     void shouldThrowDuplicateResourceExceptionWhenUsernameAlreadyExistsForProfileUpdateRequest() {
+        //Arrange
         User user = generateUser();
         userRepository.registerUser(user);
         UserProfileUpdateRequest profileUpdateRequest = new UserProfileUpdateRequest(
@@ -343,6 +344,7 @@ class UserServiceTest extends AbstractUnitTest {
 
         when(jwtService.getSubject()).thenReturn(user.getId().toString());
 
+        //Act Assert
         assertThatThrownBy(() -> underTest.updateProfile(profileUpdateRequest))
                 .isInstanceOf(DuplicateResourceException.class)
                 .hasMessage("The provided username already exists");
@@ -492,8 +494,10 @@ class UserServiceTest extends AbstractUnitTest {
     @EmptySource
     @ValueSource(strings = {"malformedToken"})
     void shouldNotUpdateEmailWhenEmailUpdateTokenIsBlankOrMalformed(String token) {
+        //Act
         boolean actual = underTest.updateEmail(token);
 
+        //Assert
         assertThat(actual).isFalse();
     }
 
@@ -595,7 +599,7 @@ class UserServiceTest extends AbstractUnitTest {
 
     @ParameterizedTest
     @NullAndEmptySource
-    void shouldThrowIllegalArgumentExceptionWhenOnlyToDateIsProvided(String from) {
+    void shouldThrowIllegalArgumentExceptionWhenFromDateIsNullOrEmpty(String from) {
         //Arrange
         User user = generateUser();
         userRepository.registerUser(user);
@@ -611,7 +615,7 @@ class UserServiceTest extends AbstractUnitTest {
 
     @ParameterizedTest
     @NullAndEmptySource
-    void shouldThrowIllegalArgumentExceptionWhenOnlyFromDateIsProvided(String to) {
+    void shouldThrowIllegalArgumentExceptionWhenToDateIsNullOrEmpty(String to) {
         //Arrange
         User user = generateUser();
         userRepository.registerUser(user);
@@ -623,6 +627,25 @@ class UserServiceTest extends AbstractUnitTest {
         assertThatThrownBy(() -> underTest.getHistory(from, to))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Both from and to dates must be provided");
+    }
+
+    /*
+        Supported format is yyyy-MM-dd
+     */
+    @Test
+    void shouldThrowIllegalArgumentExceptionWhenAtLeastOneDateIsNotInTheSupportedFormat() {
+        //Arrange
+        User user = generateUser();
+        userRepository.registerUser(user);
+        String from = "22-04-2020";
+        String to = "2020-04-22";
+
+        when(jwtService.getSubject()).thenReturn(user.getId().toString());
+
+        //Act Assert
+        assertThatThrownBy(() -> underTest.getHistory(from, to))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("The provided date is invalid: " + from);
     }
 
     @Test
@@ -670,7 +693,6 @@ class UserServiceTest extends AbstractUnitTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage(USER_NOT_FOUND_ERROR_MSG + 1);
     }
-
 
     /*
         Password hashing happens after user validation in the authentication service, so when userService.registerUser()

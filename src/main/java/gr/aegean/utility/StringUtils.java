@@ -54,7 +54,7 @@ public final class StringUtils {
         try {
             LocalDate.parse(date, formatter);
         } catch (DateTimeParseException dte) {
-            throw new IllegalArgumentException("The provided date is invalid");
+            throw new IllegalArgumentException("The provided date is invalid: " + date);
         }
     }
 }

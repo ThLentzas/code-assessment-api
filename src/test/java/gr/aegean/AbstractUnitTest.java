@@ -25,11 +25,11 @@ public abstract class AbstractUnitTest {
     }
 
     @Container
-    static final PostgreSQLContainer<?> postgreSQLContainer =
-            new PostgreSQLContainer<>("postgres:15.2-alpine")
-                    .withUsername("test")
-                    .withPassword("test")
-                    .withDatabaseName("code_assessment_test");
+    protected static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(
+            "postgres:15.2-alpine")
+            .withUsername("test")
+            .withPassword("test")
+            .withDatabaseName("code_assessment_test");
 
 
     private static DataSource getDataSource() {

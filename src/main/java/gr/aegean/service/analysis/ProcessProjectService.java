@@ -19,7 +19,7 @@ import gr.aegean.service.auth.JwtService;
 
 
 @Service
-public class AsyncService {
+public class ProcessProjectService {
     private final GitHubService gitHubService;
     private final AnalysisService analysisService;
     private final JwtService jwtService;
@@ -35,14 +35,14 @@ public class AsyncService {
         By using DelegatingSecurityContextExecutor() we automatically propagate the SecurityContext from the parent
         thread to the child thread
      */
-    public AsyncService(GitHubService gitHubService,
-                        AnalysisService analysisService,
-                        JwtService jwtService,
+    public ProcessProjectService(GitHubService gitHubService,
+                                 AnalysisService analysisService,
+                                 JwtService jwtService,
                         /*
                             The default one and the one we configured, so we have to use @Qualifier
                          */
                         @Qualifier("taskExecutor") Executor taskExecutor,
-                        @Value("${projects.base-directory}") String baseDirectoryPath) {
+                                 @Value("${projects.base-directory}") String baseDirectoryPath) {
         this.gitHubService = gitHubService;
         this.analysisService = analysisService;
         this.jwtService = jwtService;
