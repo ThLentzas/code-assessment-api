@@ -38,10 +38,10 @@ public class ProcessProjectService {
     public ProcessProjectService(GitHubService gitHubService,
                                  AnalysisService analysisService,
                                  JwtService jwtService,
-                        /*
-                            The default one and the one we configured, so we have to use @Qualifier
-                         */
-                        @Qualifier("taskExecutor") Executor taskExecutor,
+                                /*
+                                    The default one and the one we configured, so we have to use @Qualifier
+                                 */
+                                 @Qualifier("taskExecutor") Executor taskExecutor,
                                  @Value("${projects.base-directory}") String baseDirectoryPath) {
         this.gitHubService = gitHubService;
         this.analysisService = analysisService;
