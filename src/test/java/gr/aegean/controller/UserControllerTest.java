@@ -67,7 +67,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(username = "test")
     void shouldReturnUserDTOAndHTTP200() throws Exception {
-        UserDTO actual = new UserDTO(
+        UserDTO userDTO = new UserDTO(
                 1,
                 "Test",
                 "Test",
@@ -91,7 +91,7 @@ class UserControllerTest {
                 """;
 
 
-        when(userService.findUser()).thenReturn(actual);
+        when(userService.findUser()).thenReturn(userDTO);
 
         mockMvc.perform(get(USER_PATH))
                 .andExpect(status().isOk())

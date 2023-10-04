@@ -10,8 +10,8 @@ import java.io.IOException;
 
 /*
     Handling cases where the provided quality attribute is in forms like ("Bug Severity", "  Bug  Severity").
-    The deserializer converts the provided attribute to uppercase, trims the input and replaces the " " with "_".
-    It covers cases like "Hotspot Priority" to "HOTSPOT_PRIORITY" which in the enum value.
+    The deserializer converts the provided attribute to uppercase, trims the input and replaces one or more " "
+    with "_". It covers cases like "Hotspot Priority" to "HOTSPOT_PRIORITY" which in the enum value.
  */
 public class QualityAttributeDeserializer extends JsonDeserializer<QualityAttribute> {
 

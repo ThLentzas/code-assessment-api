@@ -38,10 +38,10 @@ public class ProcessProjectService {
     public ProcessProjectService(GitHubService gitHubService,
                                  AnalysisService analysisService,
                                  JwtService jwtService,
-                        /*
-                            The default one and the one we configured, so we have to use @Qualifier
-                         */
-                        @Qualifier("taskExecutor") Executor taskExecutor,
+                                 /*
+                                    The default one and the one we configured, so we have to use @Qualifier
+                                  */
+                                 @Qualifier("taskExecutor") Executor taskExecutor,
                                  @Value("${projects.base-directory}") String baseDirectoryPath) {
         this.gitHubService = gitHubService;
         this.analysisService = analysisService;
@@ -75,7 +75,7 @@ public class ProcessProjectService {
             report. Empty optionals would have null values in the list.
          */
         CompletableFuture<List<AnalysisReport>> allFutures = CompletableFuture.allOf(futures.toArray(
-                new CompletableFuture[0]))
+                        new CompletableFuture[0]))
                 .thenApply(v -> futures.stream()
                         .map(CompletableFuture::join)
                         .filter(Optional::isPresent)

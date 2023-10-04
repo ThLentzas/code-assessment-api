@@ -86,7 +86,6 @@ class AuthIT extends AbstractIntegrationTest {
 
     @Test
     void shouldResetPassword() throws MessagingException {
-        // Create a user
         String requestBody = """
                 {
                     "firstname": "Test",
