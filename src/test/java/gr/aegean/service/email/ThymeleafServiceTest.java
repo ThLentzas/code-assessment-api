@@ -1,4 +1,4 @@
-package gr.aegean.email;
+package gr.aegean.service.email;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,6 @@ import org.thymeleaf.templatemode.TemplateMode;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import gr.aegean.service.email.ThymeleafService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -82,9 +81,6 @@ class ThymeleafServiceTest {
                 "http://someurl/email?token=token",
                 "http://someurl/email"
         );
-
-        System.out.println(actual);
-        System.out.println(expected);
 
         //Assert
         assertThat(actual).isEqualTo(expected);
