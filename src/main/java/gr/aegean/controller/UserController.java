@@ -75,7 +75,6 @@ public class UserController {
     @GetMapping("/email")
     public String updateEmail(@RequestParam("token") @DefaultValue("") String token) {
         boolean updated = userService.updateEmail(token);
-
         if (updated) {
             return "redirect:http://localhost:4200/profile";
         }

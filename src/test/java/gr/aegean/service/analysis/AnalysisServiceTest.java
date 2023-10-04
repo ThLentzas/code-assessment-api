@@ -66,6 +66,7 @@ class AnalysisServiceTest extends AbstractUnitTest {
     private UserService userService;
     private AnalysisService underTest;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     /*
         The idea is for the below tests is that since the analysis json is big, and it's difficult to set up the scenario
@@ -122,7 +123,6 @@ class AnalysisServiceTest extends AbstractUnitTest {
         preferences.add(new Preference(QualityAttribute.SIMPLICITY, 0.34));
         preferences.add(new Preference(QualityAttribute.SECURITY_REMEDIATION_EFFORT, 0.25));
 
-        ObjectMapper mapper = new ObjectMapper();
         String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         CollectionType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
@@ -149,7 +149,6 @@ class AnalysisServiceTest extends AbstractUnitTest {
         preferences.add(new Preference(QualityAttribute.SIMPLICITY, 0.34));
         preferences.add(new Preference(QualityAttribute.SECURITY_REMEDIATION_EFFORT, 0.25));
 
-        ObjectMapper mapper = new ObjectMapper();
         String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         CollectionType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
@@ -178,7 +177,6 @@ class AnalysisServiceTest extends AbstractUnitTest {
         preferences.add(new Preference(QualityAttribute.SIMPLICITY, 0.34));
         preferences.add(new Preference(QualityAttribute.SECURITY_REMEDIATION_EFFORT, 0.25));
 
-        ObjectMapper mapper = new ObjectMapper();
         String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         CollectionType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);
@@ -211,7 +209,6 @@ class AnalysisServiceTest extends AbstractUnitTest {
         preferences.add(new Preference(QualityAttribute.SIMPLICITY, 0.34));
         preferences.add(new Preference(QualityAttribute.SECURITY_REMEDIATION_EFFORT, 0.25));
 
-        ObjectMapper mapper = new ObjectMapper();
         String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
         CollectionType type = mapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
         List<AnalysisReport> reports = mapper.readValue(new File(analysisReportPath), type);

@@ -61,7 +61,6 @@ public class AuthController {
     public ResponseEntity<Void> resetPassword(@Valid @RequestBody
                                               PasswordResetConfirmationRequest resetConfirmationRequest) {
         boolean reset = passwordResetService.resetPassword(resetConfirmationRequest);
-
         if (reset) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }

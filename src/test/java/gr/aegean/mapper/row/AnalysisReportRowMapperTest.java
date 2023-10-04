@@ -33,7 +33,9 @@ class AnalysisReportRowMapperTest {
         try (ResultSet resultSet = mock(ResultSet.class)) {
             //Arrange
             String analysisReportPath = "src/test/resources/reports/analysis-reports.json";
-            CollectionType type = objectMapper.getTypeFactory().constructCollectionType(List.class, AnalysisReport.class);
+            CollectionType type = objectMapper.getTypeFactory().constructCollectionType(
+                    List.class,
+                    AnalysisReport.class);
             List<AnalysisReport> reports = objectMapper.readValue(new File(analysisReportPath), type);
             AnalysisReport expected = reports.get(0);
             String jsonReport = objectMapper.writeValueAsString(expected);

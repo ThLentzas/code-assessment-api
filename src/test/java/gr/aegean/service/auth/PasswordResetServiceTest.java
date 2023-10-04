@@ -6,9 +6,9 @@ import gr.aegean.entity.PasswordResetToken;
 import gr.aegean.model.dto.auth.PasswordResetConfirmationRequest;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.repository.PasswordResetRepository;
+import gr.aegean.service.email.EmailService;
 import gr.aegean.utility.StringUtils;
 import gr.aegean.AbstractUnitTest;
-import gr.aegean.service.email.EmailService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,6 +72,7 @@ class PasswordResetServiceTest extends AbstractUnitTest {
 
     @Test
     void shouldNotCreatePasswordResetTokenWhenUserIsNotFound() {
+        //Arrange
         PasswordResetRequest passwordResetRequest = new PasswordResetRequest("test1@example.com");
 
         //Act
@@ -176,6 +177,7 @@ class PasswordResetServiceTest extends AbstractUnitTest {
         //Assert
         assertThat(actual).isTrue();
         assertThat(passwordResetRepository.findToken(hashedToken)).isNotPresent();
+
         verify(emailService, times(1)).sendPasswordResetSuccessEmail(user.getEmail(), user.getUsername());
     }
 
@@ -191,5 +193,4 @@ class PasswordResetServiceTest extends AbstractUnitTest {
                 .company("Code Monkey, LLC")
                 .build();
     }
-
 }

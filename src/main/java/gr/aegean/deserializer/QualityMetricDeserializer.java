@@ -10,7 +10,7 @@ import java.io.IOException;
 
 /*
     Handling cases where the provided quality attribute is in forms like ("Bug Severity", "  Bug  Severity").
-    The deserializer converts the provided metric to uppercase, trims the input and replaces the " " with "_".
+    The deserializer converts the provided metric to uppercase, trims the input and replaces one or more " " with "_".
     It also covers cases like "Cyclomatic Complexity" to "CYCLOMATIC_COMPLEXITY" which in the enum value.
  */
 public class QualityMetricDeserializer extends JsonDeserializer<QualityMetric> {

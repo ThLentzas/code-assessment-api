@@ -24,7 +24,7 @@ public class EmailService {
     public void sendPasswordResetEmail(String recipient, String token) {
         final String tokenLink = "http://localhost:4200/password_reset/confirm?token=" + token;
         final String passwordResetLink = "http://localhost:4200/password_reset";
-        String emailContent = thymeleafService.setPasswordResetEmailContent(tokenLink, passwordResetLink);
+        String emailContent = thymeleafService.setPasswordResetEmailContext(tokenLink, passwordResetLink);
 
         sendEmail(recipient, "Reset your Jarvis password", emailContent);
     }
@@ -32,7 +32,7 @@ public class EmailService {
     @Async
     public void sendPasswordResetSuccessEmail(String recipient, String username) {
         final String passwordResetLink = "http://localhost:4200/password_reset";
-        String emailContent = thymeleafService.setPasswordResetSuccessEmailContent(
+        String emailContent = thymeleafService.setPasswordResetSuccessEmailContext(
                 username,
                 recipient,
                 passwordResetLink);
@@ -44,7 +44,7 @@ public class EmailService {
     public void sendEmailVerification(String recipient, String username, String token) {
         final String verifyLink = "http://localhost:8080/api/v1/user/email?token=" + token;
         final String accountEmailLink = "http://localhost:4200/settings";
-        String emailContent = thymeleafService.setEmailVerificationContent(username, verifyLink, accountEmailLink);
+        String emailContent = thymeleafService.setEmailVerificationContext(username, verifyLink, accountEmailLink);
 
         sendEmail(recipient, "Verify your email", emailContent);
     }
