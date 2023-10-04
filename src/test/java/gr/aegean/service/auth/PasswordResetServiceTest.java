@@ -6,9 +6,9 @@ import gr.aegean.entity.PasswordResetToken;
 import gr.aegean.model.dto.auth.PasswordResetConfirmationRequest;
 import gr.aegean.repository.UserRepository;
 import gr.aegean.repository.PasswordResetRepository;
+import gr.aegean.service.email.EmailService;
 import gr.aegean.utility.StringUtils;
 import gr.aegean.AbstractUnitTest;
-import gr.aegean.service.email.EmailService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

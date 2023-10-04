@@ -20,8 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 class FilteringServiceTest {
+    private final ObjectMapper mapper = new ObjectMapper();
     private FilteringService underTest;
-
     @BeforeEach
     void setup() {
         underTest = new FilteringService();
@@ -30,7 +30,6 @@ class FilteringServiceTest {
     @Test
     void shouldReturnAnEmptyCompliantListWhenAllReportsAreNonCompliantWithTheConstraints() throws IOException {
         //Arrange
-        ObjectMapper mapper = new ObjectMapper();
         List<Constraint> constraints = new ArrayList<>();
         constraints.add(new Constraint(QualityMetric.CYCLOMATIC_COMPLEXITY, QualityMetricOperator.GT, 0.85));
 
@@ -53,7 +52,6 @@ class FilteringServiceTest {
     @Test
     void shouldReturnReportsInBothLists() throws IOException {
         //Arrange
-        ObjectMapper mapper = new ObjectMapper();
         List<Constraint> constraints = new ArrayList<>();
         constraints.add(new Constraint(QualityMetric.TECHNICAL_DEBT_RATIO, QualityMetricOperator.GT, 0.95));
         constraints.add(new Constraint(QualityMetric.VULNERABILITY_SEVERITY, QualityMetricOperator.GT, 0.5));
@@ -77,7 +75,6 @@ class FilteringServiceTest {
     @Test
     void shouldReturnAnEmptyNonCompliantListWhenAllReportsAreCompliantWithTheConstraints() throws IOException {
         //Assert
-        ObjectMapper mapper = new ObjectMapper();
         List<Constraint> constraints = new ArrayList<>();
         constraints.add(new Constraint(QualityMetric.BUG_SEVERITY, QualityMetricOperator.LTE, 1.0));
         constraints.add(new Constraint(QualityMetric.HOTSPOT_PRIORITY, QualityMetricOperator.LTE, 1.0));

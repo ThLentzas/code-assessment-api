@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class ThymeleafService {
     private final TemplateEngine templateEngine;
 
-    public String setPasswordResetEmailContent(String tokenLink, String passwordResetLink) {
+    public String setPasswordResetEmailContext(String tokenLink, String passwordResetLink) {
         Context context = new Context();
         context.setVariable("tokenLink", tokenLink);
         context.setVariable("passwordResetLink", passwordResetLink);
@@ -24,7 +24,7 @@ public class ThymeleafService {
         return templateEngine.process("password_reset_request", context);
     }
 
-    public String setPasswordResetSuccessEmailContent(String username, String recipient, String passwordResetLink) {
+    public String setPasswordResetSuccessEmailContext(String username, String recipient, String passwordResetLink) {
         Context context = new Context();
         context.setVariable("username", username);
         context.setVariable("email", recipient);
@@ -33,7 +33,7 @@ public class ThymeleafService {
         return templateEngine.process("password_reset_success", context);
     }
 
-    public String setEmailVerificationContent(String username, String verifyLink, String accountEmailLink) {
+    public String setEmailVerificationContext(String username, String verifyLink, String accountEmailLink) {
         Context context = new Context();
         context.setVariable("username", username);
         context.setVariable("verifyLink", verifyLink);

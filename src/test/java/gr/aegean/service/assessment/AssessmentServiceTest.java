@@ -23,11 +23,12 @@ import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class AssessmentServiceTest {
-    private AssessmentService underTest;
     @Mock
     private RankingService rankingService;
     @Mock
     private FilteringService filteringService;
+    private final ObjectMapper mapper = new ObjectMapper();
+    private AssessmentService underTest;
 
     @BeforeEach
     void setup() {
@@ -37,7 +38,6 @@ class AssessmentServiceTest {
     @Test
     void shouldNotFilterReportsWhenNoConstraintsAreProvided() throws IOException {
         //Arrange
-        ObjectMapper mapper = new ObjectMapper();
         List<Constraint> constraints = new ArrayList<>();
         List<Preference> preferences = new ArrayList<>();
 
