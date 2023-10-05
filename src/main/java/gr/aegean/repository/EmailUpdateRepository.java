@@ -4,10 +4,10 @@ import gr.aegean.mapper.row.EmailUpdateTokenRowMapper;
 import gr.aegean.entity.EmailUpdateToken;
 import gr.aegean.exception.ServerErrorException;
 
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
@@ -40,6 +40,14 @@ public class EmailUpdateRepository {
         }
     }
 
+    /*
+        queryForObject() will throw EmptyResultDataAccessException when the query is expected to return a single row,
+        but no rows are returned and IncorrectResultSizeDataAccessException when more than one row is returned. It will
+        the result object of the required type, or null in case of SQL NULL. By using Optional.ofNullable() we ensure an
+        empty optional in case queryForObject() returns null
+        EmptyResultDataAccessException extends IncorrectResultSizeDataAccessException so by catching the parent class
+        we deal with both cases
+     */
     public Optional<EmailUpdateToken> findToken(String token) {
         final String sql = "SELECT " +
                 "user_id, " +
@@ -49,9 +57,13 @@ public class EmailUpdateRepository {
                 "FROM email_update_token " +
                 "WHERE token = ?";
 
-        List<EmailUpdateToken> emailUpdateTokens = jdbcTemplate.query(sql, mapper, token);
+        try {
+            EmailUpdateToken emailUpdateToken = jdbcTemplate.queryForObject(sql, mapper, token);
 
-        return emailUpdateTokens.stream().findFirst();
+            return Optional.ofNullable(emailUpdateToken);
+        } catch (IncorrectResultSizeDataAccessException ire) {
+            return Optional.empty();
+        }
     }
 
     public void deleteToken(String token) {

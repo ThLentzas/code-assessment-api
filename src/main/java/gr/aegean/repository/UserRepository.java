@@ -1,15 +1,15 @@
 package gr.aegean.repository;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.util.Map;
+import java.util.Optional;
 
 import gr.aegean.entity.User;
 import gr.aegean.mapper.row.UserRowMapper;
@@ -105,8 +105,15 @@ public class UserRepository {
         }
     }
 
-    /**
-     * This method will be used by UsersDetailsService for the user authentication.
+    /*
+        This method will be used by UsersDetailsService for the user authentication.
+
+        queryForObject() will throw EmptyResultDataAccessException when the query is expected to return a single row,
+        but no rows are returned and IncorrectResultSizeDataAccessException when more than one row is returned. It will
+        the result object of the required type, or null in case of SQL NULL. By using Optional.ofNullable() we ensure an
+        empty optional in case queryForObject() returns null
+        EmptyResultDataAccessException extends IncorrectResultSizeDataAccessException so by catching the parent class
+        we deal with both cases
      */
     public Optional<User> findUserByEmail(String email) {
         final String sql = "SELECT " +
@@ -120,12 +127,23 @@ public class UserRepository {
                 "location, " +
                 "company FROM app_user WHERE email = ?";
 
-        List<User> users = jdbcTemplate.query(sql, mapper, email);
+        try {
+            User user = jdbcTemplate.queryForObject(sql, mapper, email);
 
-        return users.stream().findFirst();
+            return Optional.ofNullable(user);
+        } catch (IncorrectResultSizeDataAccessException ire) {
+            return Optional.empty();
+        }
     }
 
-
+    /*
+        queryForObject() will throw EmptyResultDataAccessException when the query is expected to return a single row,
+        but no rows are returned and IncorrectResultSizeDataAccessException when more than one row is returned. It will
+        the result object of the required type, or null in case of SQL NULL. By using Optional.ofNullable() we ensure an
+        empty optional in case queryForObject() returns null
+        EmptyResultDataAccessException extends IncorrectResultSizeDataAccessException so by catching the parent class
+        we deal with both cases
+     */
     public Optional<User> findUserById(Integer userId) {
         final String sql = "SELECT " +
                 "id, " +
@@ -138,9 +156,13 @@ public class UserRepository {
                 "location, " +
                 "company FROM app_user WHERE id = ?";
 
-        List<User> users = jdbcTemplate.query(sql, mapper, userId);
+        try {
+            User user = jdbcTemplate.queryForObject(sql, mapper, userId);
 
-        return users.stream().findFirst();
+            return Optional.ofNullable(user);
+        } catch (IncorrectResultSizeDataAccessException ire) {
+            return Optional.empty();
+        }
     }
 
     /*
@@ -154,7 +176,7 @@ public class UserRepository {
 
     /*
         Username is considered case-sensitive. It depends on the business requirements, but in our case we are going to
-        it consider as case-sensitive.
+        consider it as case-sensitive.
      */
     public boolean existsUserWithUsername(String username) {
         final String sql = "SELECT EXISTS (SELECT 1 FROM app_user WHERE username = ?)";

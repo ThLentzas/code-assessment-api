@@ -10,12 +10,6 @@ import gr.aegean.entity.User;
 
 public class UserRowMapper implements RowMapper<User> {
 
-    /**
-     * @param resultSet the result set containing the data to map.
-     * @param rowNum    the number of the current row.
-     * @return User object mapped from the result set.
-     * @throws SQLException if there's an error accessing the result set.
-     */
     @Override
     public User mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         return new User(

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -117,13 +118,26 @@ public class AnalysisRepository {
                 preference.getWeight());
     }
 
+    /*
+        queryForObject() will throw EmptyResultDataAccessException when the query is expected to return a single row,
+        but no rows are returned and IncorrectResultSizeDataAccessException when more than one row is returned. It will
+        the result object of the required type, or null in case of SQL NULL. By using Optional.ofNullable() we ensure an
+        empty optional in case queryForObject() returns null
+        EmptyResultDataAccessException extends IncorrectResultSizeDataAccessException so by catching the parent class
+        we deal with both cases
+     */
     public Optional<Analysis> findAnalysisByAnalysisId(Integer analysisId) {
         final String sql = "SELECT id, user_id, created_date FROM analysis WHERE id = ?";
 
-        List<Analysis> analyses = jdbcTemplate.query(sql, analysisRowMapper, analysisId);
+        try {
+            Analysis analysis = jdbcTemplate.queryForObject(sql, analysisRowMapper, analysisId);
 
-        return analyses.stream().findFirst();
+            return Optional.ofNullable(analysis);
+        } catch (IncorrectResultSizeDataAccessException ire) {
+            return Optional.empty();
+        }
     }
+
 
     public Optional<List<AnalysisReport>> findAnalysisReportsByAnalysisId(Integer analysisId) {
         final String sql = "SELECT id, report FROM analysis_report WHERE analysis_id = ?";

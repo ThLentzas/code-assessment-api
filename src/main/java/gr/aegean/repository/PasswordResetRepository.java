@@ -4,10 +4,10 @@ import gr.aegean.mapper.row.PasswordResetTokenRowMapper;
 import gr.aegean.entity.PasswordResetToken;
 import gr.aegean.exception.ServerErrorException;
 
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
@@ -46,9 +46,12 @@ public class PasswordResetRepository {
                 "FROM password_reset_token " +
                 "WHERE token = ?";
 
-        List<PasswordResetToken> passwordResetToken = jdbcTemplate.query(sql, mapper, token);
-
-        return passwordResetToken.stream().findFirst();
+        try {
+            PasswordResetToken passwordResetToken = jdbcTemplate.queryForObject(sql, mapper, token);
+            return Optional.ofNullable(passwordResetToken);
+        } catch (IncorrectResultSizeDataAccessException ire) {
+            return Optional.empty();
+        }
     }
 
     public void deleteToken(String token) {
