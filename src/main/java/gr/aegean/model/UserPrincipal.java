@@ -1,9 +1,5 @@
 package gr.aegean.model;
 
-import lombok.Getter;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-
 import java.util.Collection;
 import java.util.Collections;
 
@@ -12,14 +8,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import gr.aegean.entity.User;
 
+
 /*
     For separation of concern we don't want our User Entity class to implement the UserDetails.
  */
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
-public class UserPrincipal implements UserDetails {
-    private User user;
+public record UserPrincipal(User user) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

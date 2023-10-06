@@ -70,9 +70,9 @@ class JwtServiceTest {
         when(jwtEncoder.encode(any(JwtEncoderParameters.class))).thenReturn(jwt);
 
         //Act
-        String assignedToken = underTest.assignToken(userDTO);
+        String actual = underTest.assignToken(userDTO);
 
         //Assert
-        assertThat(assignedToken).isEqualTo(jwt.getTokenValue());
+        assertThat(actual).isEqualTo(jwt.getTokenValue());
     }
 }

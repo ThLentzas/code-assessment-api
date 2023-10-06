@@ -75,10 +75,10 @@ class AuthServiceTest {
         doNothing().when(userService).registerUser(any(User.class));
 
         //Act
-        AuthResponse authResponse = underTest.registerUser(request);
+        AuthResponse actual = underTest.registerUser(request);
 
         //Assert
-        assertThat(authResponse.token()).isEqualTo(jwtToken);
+        assertThat(actual.token()).isEqualTo(jwtToken);
 
         verify(userService, times(1)).registerUser(any(User.class));
     }
@@ -99,10 +99,10 @@ class AuthServiceTest {
         when(jwtService.assignToken(any(UserDTO.class))).thenReturn(jwtToken);
 
         //Act
-        AuthResponse authResponse = underTest.loginUser(loginRequest);
+        AuthResponse actual = underTest.loginUser(loginRequest);
 
         //Assert
-        assertThat(authResponse.token()).isEqualTo(jwtToken);
+        assertThat(actual.token()).isEqualTo(jwtToken);
     }
 
     /*

@@ -390,7 +390,7 @@ class UserServiceTest extends AbstractUnitTest {
 
         //Assert
         userRepository.findUserById(user.getId())
-                .ifPresent(user1 -> assertTrue(passwordEncoder.matches("3frMH4v!20d4", user1.getPassword())));
+                .ifPresent(actual -> assertTrue(passwordEncoder.matches("3frMH4v!20d4", actual.getPassword())));
     }
 
     @Test

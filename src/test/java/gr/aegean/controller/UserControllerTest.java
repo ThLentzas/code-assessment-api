@@ -26,8 +26,9 @@ import gr.aegean.model.dto.user.UserPasswordUpdateRequest;
 import gr.aegean.model.dto.user.UserProfile;
 import gr.aegean.model.dto.user.UserProfileUpdateRequest;
 import gr.aegean.repository.UserRepository;
-import gr.aegean.service.user.UserService;
+import gr.aegean.service.auth.AppUserDetailsService;
 import gr.aegean.service.auth.JwtService;
+import gr.aegean.service.user.UserService;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -52,6 +53,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @Import({
         SecurityConfig.class,
         AuthConfig.class,
+        AppUserDetailsService.class,
         JwtConfig.class})
 class UserControllerTest {
     @Autowired

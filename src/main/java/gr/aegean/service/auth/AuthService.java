@@ -63,7 +63,7 @@ public class AuthService {
         }
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-        UserDTO userDTO = userDTOMapper.apply(principal.getUser());
+        UserDTO userDTO = userDTOMapper.apply(principal.user());
         String jwtToken = jwtService.assignToken(userDTO);
 
         return new AuthResponse(jwtToken);
