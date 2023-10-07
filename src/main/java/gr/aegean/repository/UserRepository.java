@@ -166,10 +166,10 @@ public class UserRepository {
     }
 
     /*
-        Emails are not case-sensitive.
+        Emails are not case-sensitive. "test@example.com" and "Test@example.com" will be considered as duplicates
      */
     public boolean existsUserWithEmail(String email) {
-        final String sql = "SELECT EXISTS (SELECT 1 FROM app_user WHERE LOWER(email) = LOWER(?))";
+        final String sql = "SELECT EXISTS (SELECT 1 FROM app_user WHERE email ILIKE ?)";
 
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, Boolean.class, email));
     }

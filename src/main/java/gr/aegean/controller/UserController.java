@@ -89,9 +89,13 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    /*
+        By default, it's true, meaning it will always expect two query params.
+     */
     @GetMapping("/history")
     @ResponseBody
-    public ResponseEntity<UserHistory> getHistory(@RequestParam("from") String from, @RequestParam("to") String to) {
+    public ResponseEntity<UserHistory> getHistory(@RequestParam(value = "from", required = false) String from,
+                                                  @RequestParam(value = "to", required = false) String to) {
         UserHistory history = userService.getHistory(from, to);
 
         return new ResponseEntity<>(history, HttpStatus.OK);

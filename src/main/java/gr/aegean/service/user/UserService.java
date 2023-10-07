@@ -293,6 +293,9 @@ public class UserService {
     /*
         This method validates the token that's encoded in the verification link. Since we can't really throw exceptions
         we keep a state on the server for each invalid case by logging, and we return false for each one.
+
+        Note: ifPresentOrElse() would not work because we cannot return inside a lamda. orElseThrow() would also not
+        work because we can't throw an exception
      */
     private boolean isValidEmailUpdateToken(String token) {
         if (token.isBlank()) {

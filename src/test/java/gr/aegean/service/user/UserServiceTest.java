@@ -47,6 +47,7 @@ import java.time.LocalDateTime;
 import java.util.Random;
 
 
+
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest extends AbstractUnitTest {
     @Mock
@@ -98,8 +99,9 @@ class UserServiceTest extends AbstractUnitTest {
         User user = generateUser();
         underTest.registerUser(user);
 
+        //email is not case-sensitive so even if the original is "test@example.com" it should still throw an exception
         User duplicateEmailUser = generateUser();
-        duplicateEmailUser.setEmail(user.getEmail());
+        duplicateEmailUser.setEmail("Test@example.com");
 
         //Act Assert
         assertThatThrownBy(() -> underTest.registerUser(duplicateEmailUser))
