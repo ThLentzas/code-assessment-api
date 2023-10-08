@@ -3,6 +3,7 @@ package gr.aegean.controller;
 import gr.aegean.config.security.JwtConfig;
 import gr.aegean.config.security.SecurityConfig;
 import gr.aegean.config.security.AuthConfig;
+import gr.aegean.service.auth.AppUserDetailsService;
 import gr.aegean.service.auth.AuthService;
 import gr.aegean.service.auth.PasswordResetService;
 import gr.aegean.repository.UserRepository;
@@ -40,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({
         SecurityConfig.class,
         AuthConfig.class,
+        AppUserDetailsService.class,
         JwtConfig.class})
 class AuthControllerTest {
     @Autowired
@@ -76,8 +78,10 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isCreated(),
+                        content().json(responseBody)
+                );
     }
 
     @ParameterizedTest
@@ -104,8 +108,10 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
     }
 
     @ParameterizedTest
@@ -132,8 +138,10 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
     }
 
     @ParameterizedTest
@@ -160,8 +168,10 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
     }
 
     @ParameterizedTest
@@ -189,8 +199,10 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
     }
 
     @ParameterizedTest
@@ -217,8 +229,10 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
     }
 
     @Test
@@ -242,8 +256,10 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isOk(),
+                        content().json(responseBody)
+                );
     }
 
     @ParameterizedTest
@@ -267,8 +283,10 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
     }
 
     @ParameterizedTest
@@ -292,8 +310,10 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
     }
 
 
@@ -336,8 +356,10 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
     }
 
     /*
@@ -382,8 +404,10 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
     }
 
     @Test
@@ -409,8 +433,10 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
     }
 
     @Test

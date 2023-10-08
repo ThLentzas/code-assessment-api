@@ -96,8 +96,10 @@ class UserControllerTest {
         when(userService.findUser()).thenReturn(userDTO);
 
         mockMvc.perform(get(USER_PATH))
-                .andExpect(status().isOk())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isOk(),
+                        content().json(responseBody)
+                );
     }
 
     @Test
@@ -113,8 +115,10 @@ class UserControllerTest {
         when(userService.findUser()).thenThrow(new ResourceNotFoundException("User not found with id: " + 1));
 
         mockMvc.perform(get(USER_PATH))
-                .andExpect(status().isNotFound())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().json(responseBody)
+                );
     }
 
     @Test
@@ -149,8 +153,10 @@ class UserControllerTest {
         when(userService.getProfile()).thenReturn(profile);
 
         mockMvc.perform(get(USER_PATH + "/profile"))
-                .andExpect(status().isOk())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isOk(),
+                        content().json(responseBody)
+                );
     }
 
     @Test
@@ -165,8 +171,10 @@ class UserControllerTest {
         when(userService.getProfile()).thenThrow(new ResourceNotFoundException("User not found with id: " + 1));
 
         mockMvc.perform(get(USER_PATH + "/profile"))
-                .andExpect(status().isNotFound())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().json(responseBody)
+                );
     }
 
     @Test
@@ -230,8 +238,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isConflict())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isConflict(),
+                        content().json(responseBody)
+                );
     }
 
     @Test
@@ -261,8 +271,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().json(responseBody)
+                );
     }
 
     @Test
@@ -330,8 +342,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
 
         verifyNoInteractions(userService);
     }
@@ -359,8 +373,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
     }
 
     @ParameterizedTest
@@ -385,8 +401,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
 
         verifyNoInteractions(userService);
     }
@@ -414,8 +432,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
     }
 
     @Test
@@ -441,8 +461,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().json(responseBody)
+                );
     }
 
     @Test
@@ -510,8 +532,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
 
         verifyNoInteractions(userService);
     }
@@ -539,8 +563,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
     }
 
     @ParameterizedTest
@@ -565,8 +591,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
 
         verifyNoInteractions(userService);
     }
@@ -594,8 +622,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isConflict())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isConflict(),
+                        content().json(responseBody)
+                );
     }
 
     @Test
@@ -605,8 +635,10 @@ class UserControllerTest {
         when(userService.updateEmail(any(String.class))).thenReturn(true);
 
         mockMvc.perform(get(USER_PATH + "/email?token={token}", token))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(header().string("Location", "http://localhost:4200/profile"));
+                .andExpectAll(
+                        status().is3xxRedirection(),
+                        header().string("Location", "http://localhost:4200/profile")
+                );
     }
 
     /*
@@ -620,8 +652,10 @@ class UserControllerTest {
         when(userService.updateEmail(any(String.class))).thenReturn(false);
 
         mockMvc.perform(get(USER_PATH + "/email?token={token}", token))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(header().string("Location", "http://localhost:4200/email_update_error"));
+                .andExpectAll(
+                        status().is3xxRedirection(),
+                        header().string("Location", "http://localhost:4200/email_update_error")
+                );
     }
 
     @Test
@@ -647,8 +681,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().json(responseBody)
+                );
     }
 
     @Test
@@ -690,8 +726,10 @@ class UserControllerTest {
                 new IllegalArgumentException(String.format("The provided date is invalid: '%s'", fromValue)));
 
         mockMvc.perform(get(USER_PATH + "/history?from={from}&to={to}", from, to))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
     }
 
     @Test
@@ -743,8 +781,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
 
         verifyNoInteractions(userService);
     }
@@ -771,8 +811,10 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
     }
 
     @Test

@@ -236,6 +236,10 @@ public class UserService {
         PasswordValidator.validatePassword(user.getPassword());
     }
 
+    /*
+        This validation ensures that the length of the properties comply to the length of the corresponding database
+        columns.
+     */
     private void validateFirstname(String firstname) {
         if (firstname.length() > 30) {
             throw new IllegalArgumentException("Invalid firstname. Firstname must not exceed 30 characters");
@@ -325,6 +329,7 @@ public class UserService {
         Update the user based on the UserProfileUpdateRequest. Only the fields that are non-null will be updated.
      */
     private void updateProfileProperties(User user, UserProfileUpdateRequest profileUpdateRequest) {
+        //firstname -> user.setFirstname(firstname)
         updatePropertyIfNonNull(
                 profileUpdateRequest.firstname(),
                 this::validateFirstname,
@@ -362,7 +367,11 @@ public class UserService {
         userRepository.updateUser(user);
     }
 
-    private void updatePropertyIfNonNull(String property, Consumer<String> validator, Consumer<String> updater) {
+    /*
+        Using generics instead of hardcoding (String property, Consumer<String> validator, Consumer<String> updater) as
+        we used to makes it more dynamic
+     */
+    private <T> void updatePropertyIfNonNull(T property, Consumer<T> validator, Consumer<T> updater) {
         if (property != null) {
             validator.accept(property);
             updater.accept(property);

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import gr.aegean.model.dto.user.UserDTO;
+import gr.aegean.model.UserPrincipal;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,9 +20,11 @@ public class JwtService {
     private final JwtEncoder jwtEncoder;
 
     /*
-        The claims of the JwtToken are: issuer, when it is issued at, when it expires at, subject(user's id).
+        The claims of the JwtToken are: issuer, when it is issued at, when it expires at, subject(user's id). Using the
+        UserPrincipal allows to scale in case we need a custom claim for the user roles as we have access to the
+        authorities
      */
-    public String assignToken(UserDTO userDTO) {
+    public String assignToken(UserPrincipal userPrincipal) {
         Instant now = Instant.now();
         long expiresIn = 2;
 
@@ -30,7 +32,7 @@ public class JwtService {
                 .issuer("self")
                 .issuedAt(now)
                 .expiresAt(now.plus(expiresIn, ChronoUnit.HOURS))
-                .subject(userDTO.id().toString())
+                .subject(userPrincipal.user().getId().toString())
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

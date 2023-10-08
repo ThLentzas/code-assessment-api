@@ -1,9 +1,7 @@
 package gr.aegean.service.auth;
 
 import gr.aegean.entity.User;
-import gr.aegean.mapper.dto.UserDTOMapper;
 import gr.aegean.model.UserPrincipal;
-import gr.aegean.model.dto.user.UserDTO;
 import gr.aegean.model.dto.auth.AuthResponse;
 import gr.aegean.model.dto.auth.RegisterRequest;
 import gr.aegean.exception.UnauthorizedException;
@@ -27,7 +25,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final UserDTOMapper userDTOMapper = new UserDTOMapper();
 
     public AuthResponse registerUser(RegisterRequest request) {
         User user = User.builder()
@@ -42,8 +39,8 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.registerUser(user);
 
-        UserDTO userDTO = userDTOMapper.apply(user);
-        String jwtToken = jwtService.assignToken(userDTO);
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+        String jwtToken = jwtService.assignToken(userPrincipal);
 
         return new AuthResponse(jwtToken);
     }
@@ -63,8 +60,7 @@ public class AuthService {
         }
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-        UserDTO userDTO = userDTOMapper.apply(principal.user());
-        String jwtToken = jwtService.assignToken(userDTO);
+        String jwtToken = jwtService.assignToken(principal);
 
         return new AuthResponse(jwtToken);
     }

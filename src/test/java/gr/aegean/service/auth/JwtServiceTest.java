@@ -18,7 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import gr.aegean.model.dto.user.UserDTO;
+import gr.aegean.entity.User;
+import gr.aegean.model.UserPrincipal;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -35,15 +36,18 @@ class JwtServiceTest {
     @Test
     void shouldAssignToken() {
         //Arrange
-        UserDTO userDTO = new UserDTO(
+        User user = new User(
                 1,
                 "Test",
                 "Test",
                 "TestT",
                 "test@example.com",
+                "password",
                 "I have a real passion for teaching",
                 "Cleveland, OH",
                 "Code Monkey, LLC");
+
+        UserPrincipal userPrincipal = new UserPrincipal(user);
 
         String jwtToken = "jwtToken";
         Instant now = Instant.now();
@@ -53,7 +57,7 @@ class JwtServiceTest {
                 .issuer("self")
                 .issuedAt(now)
                 .expiresAt(now.plus(expiresIn, ChronoUnit.HOURS))
-                .subject(userDTO.email())
+                .subject(userPrincipal.user().getId().toString())
                 .build();
 
         Map<String, Object> headers = Map.of(
@@ -70,7 +74,7 @@ class JwtServiceTest {
         when(jwtEncoder.encode(any(JwtEncoderParameters.class))).thenReturn(jwt);
 
         //Act
-        String actual = underTest.assignToken(userDTO);
+        String actual = underTest.assignToken(userPrincipal);
 
         //Assert
         assertThat(actual).isEqualTo(jwt.getTokenValue());

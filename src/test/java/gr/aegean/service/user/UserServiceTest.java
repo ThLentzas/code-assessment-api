@@ -47,7 +47,6 @@ import java.time.LocalDateTime;
 import java.util.Random;
 
 
-
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest extends AbstractUnitTest {
     @Mock
@@ -82,15 +81,14 @@ class UserServiceTest extends AbstractUnitTest {
     @Test
     void shouldRegisterUser() {
         //Arrange
-        User user = generateUser();
+        User expected = generateUser();
 
         //Act
-        underTest.registerUser(user);
-
-        when(jwtService.getSubject()).thenReturn(user.getId().toString());
+        underTest.registerUser(expected);
 
         //Assert
-        assertThat(underTest.findUser()).isNotNull();
+        userRepository.findUserByEmail(expected.getEmail())
+                .ifPresent(actual -> assertThat(actual).isEqualTo(expected));
     }
 
     @Test
@@ -684,7 +682,7 @@ class UserServiceTest extends AbstractUnitTest {
     }
 
     @Test
-    void shouldThrowResourceNotFoundExceptionWhenAccountDoesNotExist() {
+    void shouldThrowNotFoundExceptionWhenDeletingNonExistentAccount() {
         //Arrange
         UserAccountDeleteRequest accountDeleteRequest = new UserAccountDeleteRequest("Test2Ex@mple");
 

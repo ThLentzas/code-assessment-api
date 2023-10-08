@@ -138,13 +138,14 @@ public class AnalysisRepository {
         }
     }
 
-
-    public Optional<List<AnalysisReport>> findAnalysisReportsByAnalysisId(Integer analysisId) {
+    /*
+       The reason why this method does not return an optional is because, no analysis should have been saved if an empty
+       list of repositories was provided.
+     */
+    public List<AnalysisReport> findAnalysisReportsByAnalysisId(Integer analysisId) {
         final String sql = "SELECT id, report FROM analysis_report WHERE analysis_id = ?";
 
-        List<AnalysisReport> reports = jdbcTemplate.query(sql, reportRowMapper, analysisId);
-
-        return Optional.of(reports);
+        return (jdbcTemplate.query(sql, reportRowMapper, analysisId));
     }
 
     public Optional<List<Preference>> findAnalysisPreferencesByAnalysisId(Integer analysisId) {

@@ -50,7 +50,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void shouldRegisterUser() {
+    void shouldRegisterUserAndReturnTheJWT() {
         //Arrange
         RegisterRequest request = new RegisterRequest(
                 "Test",
@@ -71,7 +71,7 @@ class AuthServiceTest {
         String jwtToken = "jwtToken";
 
         when(passwordEncoder.encode(user.getPassword())).thenReturn("hashedPassword");
-        when(jwtService.assignToken(any(UserDTO.class))).thenReturn(jwtToken);
+        when(jwtService.assignToken(any(UserPrincipal.class))).thenReturn(jwtToken);
         doNothing().when(userService).registerUser(any(User.class));
 
         //Act
@@ -84,11 +84,11 @@ class AuthServiceTest {
     }
 
     /*
-        The principal(1st argument) of the UsernamePasswordAuthenticationToken is of type SecurityUser, because
-        SecurityUser implements UserDetails.
+        The principal(1st argument) of the UsernamePasswordAuthenticationToken is of type UserPrincipal, because
+        UserPrincipal implements UserDetails.
      */
     @Test
-    void shouldLoginUser() {
+    void shouldLoginUserAndReturnTheJWT() {
         //Arrange
         LoginRequest loginRequest = new LoginRequest("test@gmail.com", "test");
         User user = new User(loginRequest.email(), loginRequest.password());
@@ -96,7 +96,7 @@ class AuthServiceTest {
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(
                 new UsernamePasswordAuthenticationToken(new UserPrincipal(user), null));
-        when(jwtService.assignToken(any(UserDTO.class))).thenReturn(jwtToken);
+        when(jwtService.assignToken(any(UserPrincipal.class))).thenReturn(jwtToken);
 
         //Act
         AuthResponse actual = underTest.loginUser(loginRequest);

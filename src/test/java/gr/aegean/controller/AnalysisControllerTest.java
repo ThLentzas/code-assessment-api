@@ -27,6 +27,7 @@ import gr.aegean.repository.UserRepository;
 import gr.aegean.service.analysis.AnalysisService;
 import gr.aegean.service.analysis.ProcessProjectService;
 import gr.aegean.config.DeserializerConfig;
+import gr.aegean.service.auth.AppUserDetailsService;
 
 
 /*
@@ -38,6 +39,7 @@ import gr.aegean.config.DeserializerConfig;
         SecurityConfig.class,
         AuthConfig.class,
         JwtConfig.class,
+        AppUserDetailsService.class,
         DeserializerConfig.class})
 class AnalysisControllerTest {
     @Autowired
@@ -99,8 +101,10 @@ class AnalysisControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
 
         verifyNoInteractions(processProjectService);
     }
@@ -127,8 +131,10 @@ class AnalysisControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
 
         verifyNoInteractions(processProjectService);
     }
@@ -176,8 +182,10 @@ class AnalysisControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
 
         verifyNoInteractions(processProjectService);
     }
@@ -218,8 +226,10 @@ class AnalysisControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
 
         verifyNoInteractions(processProjectService);
     }
@@ -259,8 +269,10 @@ class AnalysisControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
 
         verifyNoInteractions(processProjectService);
     }
@@ -302,8 +314,10 @@ class AnalysisControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
 
         verifyNoInteractions(processProjectService);
     }
@@ -344,8 +358,10 @@ class AnalysisControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
 
         verifyNoInteractions(processProjectService);
     }
@@ -385,8 +401,10 @@ class AnalysisControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
 
         verifyNoInteractions(processProjectService);
     }
@@ -428,8 +446,10 @@ class AnalysisControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(responseBody));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().json(responseBody)
+                );
 
         verifyNoInteractions(processProjectService);
     }

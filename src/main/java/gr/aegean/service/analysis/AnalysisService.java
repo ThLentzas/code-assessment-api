@@ -103,7 +103,7 @@ public class AnalysisService {
 
     public AnalysisResult findAnalysisResultByAnalysisId(Integer analysisId) {
         Analysis analysis = findAnalysisByAnalysisId(analysisId);
-        List<AnalysisReport> reports = findAnalysisReportsByAnalysisId(analysisId);
+        List<AnalysisReport> reports = analysisRepository.findAnalysisReportsByAnalysisId(analysisId);
 
         /*
             If no constraints or/and no preferences were found meaning no constraints or/and no preferences were
@@ -132,7 +132,7 @@ public class AnalysisService {
         validatePreferences(request.preferences());
 
         Analysis analysis = findAnalysisByAnalysisId(analysisId);
-        List<AnalysisReport> reports = findAnalysisReportsByAnalysisId(analysisId);
+        List<AnalysisReport> reports = analysisRepository.findAnalysisReportsByAnalysisId(analysisId);
 
         /*
             For null values an empty list will be assigned.
@@ -175,7 +175,9 @@ public class AnalysisService {
     }
 
     public AnalysisRequest findAnalysisRequestByAnalysisId(Integer analysisId) {
-        List<AnalysisReport> reports = findAnalysisReportsByAnalysisId(analysisId);
+        findAnalysisByAnalysisId(analysisId);
+
+        List<AnalysisReport> reports = analysisRepository.findAnalysisReportsByAnalysisId(analysisId);
         List<Constraint> constraints = findAnalysisConstraintsByAnalysisId(analysisId);
         List<Preference> preferences = findAnalysisPreferencesByAnalysisId(analysisId);
 
@@ -306,11 +308,6 @@ public class AnalysisService {
     private Analysis findAnalysisByAnalysisId(Integer analysisId) {
         return analysisRepository.findAnalysisByAnalysisId(analysisId).orElseThrow(() ->
                 new ResourceNotFoundException("No analysis was found for analysis id: " + analysisId));
-    }
-
-    private List<AnalysisReport> findAnalysisReportsByAnalysisId(Integer analysisId) {
-        return analysisRepository.findAnalysisReportsByAnalysisId(analysisId).orElseThrow(() ->
-                new ResourceNotFoundException("Analysis reports were not found for analysis with id: " + analysisId));
     }
 
     /*

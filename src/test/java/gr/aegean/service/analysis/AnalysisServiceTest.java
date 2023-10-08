@@ -225,7 +225,13 @@ class AnalysisServiceTest extends AbstractUnitTest {
 
         //Assert
         assertThat(actual).isEqualTo(expected);
+    }
 
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenAnalysisIsNotFoundToGetAnalysisRequest() {
+        assertThatThrownBy(() -> underTest.findAnalysisRequestByAnalysisId(1))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("No analysis was found for analysis id: " + 1);
     }
 
     private User generateUser() {
