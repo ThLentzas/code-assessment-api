@@ -34,7 +34,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll();
                     auth.requestMatchers(HttpMethod.PUT, "/api/v1/auth/password_reset/confirm").permitAll();
-                    auth.requestMatchers(HttpMethod.GET, "/api/v1/user/email**").permitAll();
+                    /*
+                        In "/api/v1/user/email/**" => ** represents zero or more directories. In the case of the request
+                        "/api/v1/user/email?token=token" we have 0 subdirectories, so it works. It doesn't mean anything
+                        after '/' in that case "/api/v1/user/email?token=token" would fail cause there is no '/' after
+                        email
+                     */
+                    auth.requestMatchers(HttpMethod.GET, "/api/v1/user/email/**").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .csrf(AbstractHttpConfigurer::disable)
