@@ -27,22 +27,22 @@ class QualityAttributeDeserializerTest {
         underTest = new QualityAttributeDeserializer();
     }
 
-    @Test
-    void shouldDeserializeQualityAttribute() throws IOException {
+    @ParameterizedTest
+    @ValueSource(strings = {"HOTSPOT_PRIORITY", "hotspot_PRIORITY", "  Hotspot  Priority  "})
+    void shouldDeserializeQualityAttributeIgnoringCaseAndSpaces(String attribute) throws IOException {
         // Arrange
-        String expected = "RELIABILITY";
+        QualityAttribute expected = QualityAttribute.HOTSPOT_PRIORITY;
         JsonParser parser = mock(JsonParser.class);
         DeserializationContext context = mock(DeserializationContext.class);
 
-        when(parser.getValueAsString()).thenReturn(expected);
+        when(parser.getValueAsString()).thenReturn(attribute);
 
         // Act
         QualityAttribute actual = underTest.deserialize(parser, context);
 
         // Assert
-        assertThat(actual).isEqualTo(QualityAttribute.valueOf(expected));
+        assertThat(actual).isEqualTo(expected);
     }
-
     @Test
     void shouldDeserializeQualityAttributeIgnoringCaseAndExtraSpaces() throws IOException {
         // Arrange

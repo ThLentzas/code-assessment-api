@@ -717,13 +717,13 @@ class UserControllerTest {
         String fromValue = from == null ? "null" : from;
         String responseBody = String.format("""
                 {
-                    "message": "The provided date is invalid: '%s'",
+                    "message": "The provided date is invalid: %s",
                     "statusCode": 400
                 }
                 """, fromValue);
 
         when(userService.getHistory(any(String.class), any(String.class))).thenThrow(
-                new IllegalArgumentException(String.format("The provided date is invalid: '%s'", fromValue)));
+                new IllegalArgumentException(String.format("The provided date is invalid: %s", fromValue)));
 
         mockMvc.perform(get(USER_PATH + "/history?from={from}&to={to}", from, to))
                 .andExpectAll(

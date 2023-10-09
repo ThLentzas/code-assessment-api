@@ -101,6 +101,10 @@ public class PasswordResetService {
             return false;
         }
 
+        /*
+            Case: Malformed token. When the token has been tempered, the hashed version will not match the original
+            hashed version in the database
+         */
         String hashedToken = StringUtils.hashToken(token);
         Optional<PasswordResetToken> optionalToken = passwordResetRepository.findToken(hashedToken);
         if (optionalToken.isEmpty()) {

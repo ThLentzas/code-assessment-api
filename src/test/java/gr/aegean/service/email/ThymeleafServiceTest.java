@@ -21,6 +21,9 @@ class ThymeleafServiceTest {
     private TemplateEngine templateEngine;
     private ThymeleafService underTest;
 
+    /*
+        Since we don't have an autoconfigured @Bean of TemplateEngine by Spring, we have to set up one.
+     */
     @BeforeEach
     void setup() {
         SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();

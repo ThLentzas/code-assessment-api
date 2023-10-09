@@ -30,6 +30,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -112,6 +113,8 @@ class AuthControllerTest {
                         status().isBadRequest(),
                         content().json(responseBody)
                 );
+
+        verifyNoInteractions(authService);
     }
 
     @ParameterizedTest
@@ -142,6 +145,8 @@ class AuthControllerTest {
                         status().isBadRequest(),
                         content().json(responseBody)
                 );
+
+        verifyNoInteractions(authService);
     }
 
     @ParameterizedTest
@@ -172,6 +177,8 @@ class AuthControllerTest {
                         status().isBadRequest(),
                         content().json(responseBody)
                 );
+
+        verifyNoInteractions(authService);
     }
 
     @ParameterizedTest
@@ -203,6 +210,8 @@ class AuthControllerTest {
                         status().isBadRequest(),
                         content().json(responseBody)
                 );
+
+        verifyNoInteractions(authService);
     }
 
     @ParameterizedTest
@@ -233,6 +242,8 @@ class AuthControllerTest {
                         status().isBadRequest(),
                         content().json(responseBody)
                 );
+
+        verifyNoInteractions(authService);
     }
 
     @Test
@@ -287,6 +298,8 @@ class AuthControllerTest {
                         status().isBadRequest(),
                         content().json(responseBody)
                 );
+
+        verifyNoInteractions(authService);
     }
 
     @ParameterizedTest
@@ -314,8 +327,9 @@ class AuthControllerTest {
                         status().isBadRequest(),
                         content().json(responseBody)
                 );
-    }
 
+        verifyNoInteractions(authService);
+    }
 
     @Test
     void shouldReturnHTTP202ForPasswordResetRequestRegardlessIfEmailExists() throws Exception {
@@ -360,6 +374,8 @@ class AuthControllerTest {
                         status().isBadRequest(),
                         content().json(responseBody)
                 );
+
+        verifyNoInteractions(authService);
     }
 
     /*
@@ -381,6 +397,8 @@ class AuthControllerTest {
                         .content(requestBody)
                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(authService);
     }
 
     @ParameterizedTest
@@ -408,6 +426,8 @@ class AuthControllerTest {
                         status().isBadRequest(),
                         content().json(responseBody)
                 );
+
+        verifyNoInteractions(authService);
     }
 
     @Test
@@ -437,6 +457,8 @@ class AuthControllerTest {
                         status().isBadRequest(),
                         content().json(responseBody)
                 );
+
+        verifyNoInteractions(authService);
     }
 
     @Test

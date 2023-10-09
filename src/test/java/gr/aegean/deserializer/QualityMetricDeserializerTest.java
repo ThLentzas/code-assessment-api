@@ -1,7 +1,6 @@
 package gr.aegean.deserializer;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -27,37 +26,21 @@ class QualityMetricDeserializerTest {
         underTest = new QualityMetricDeserializer();
     }
 
-    @Test
-    void shouldDeserializeQualityMetric() throws IOException {
+    @ParameterizedTest
+    @ValueSource(strings = {"BUG_SEVERITY", "bUG_SEVeRITy", "  Bug  Severity  "})
+    void shouldDeserializeQualityMetricIgnoringCaseAndSpaces(String metric) throws IOException {
         //Arrange
-        String expected = "DUPLICATION";
+        QualityMetric expected = QualityMetric.BUG_SEVERITY;
         JsonParser parser = mock(JsonParser.class);
         DeserializationContext context = mock(DeserializationContext.class);
 
-        when(parser.getValueAsString()).thenReturn(expected);
+        when(parser.getValueAsString()).thenReturn(metric);
 
         //Act
         QualityMetric actual = underTest.deserialize(parser, context);
 
         //Assert
-        assertThat(actual).isEqualTo(QualityMetric.valueOf(expected));
-    }
-
-    @Test
-    void shouldDeserializeQualityMetricIgnoringCaseAndSpaces() throws IOException {
-        //Arrange
-        String input = "  Bug  Severity  ";
-        String expected = "BUG_SEVERITY";
-        JsonParser parser = mock(JsonParser.class);
-        DeserializationContext context = mock(DeserializationContext.class);
-
-        when(parser.getValueAsString()).thenReturn(input);
-
-        //Act
-        QualityMetric actual = underTest.deserialize(parser, context);
-
-        //Assert
-        assertThat(actual).isEqualTo(QualityMetric.valueOf(expected));
+        assertThat(actual).isEqualTo(expected);
     }
 
     /*
